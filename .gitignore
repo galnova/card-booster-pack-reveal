@@ -3,3 +3,6 @@ node_modules/
 Thumbs.db
 *.log
 SESSION_LOG.md
+.claude/
+booster-card.md
+skills-lock.json
