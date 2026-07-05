@@ -1,0 +1,258 @@
+[
+  {
+    "id": "mech-cidermayer",
+    "name": "Cidermayer",
+    "rarity": "common",
+    "role": "Space Speed",
+    "class": "fast",
+    "classIcon": "fa-bolt",
+    "ability": {
+      "name": "Strike First + DM",
+      "text": [
+        { "text": "Attacks before any enemy unit this turn.", "secondary": false },
+        { "text": "If this attack destroys the target, act again this turn.", "secondary": true },
+        { "text": "Kills permanently grant +1 AP, up to +3 AP.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Then...the hero arrives.\"",
+    "stats": { "ap": 4, "hp": 3 }
+  },
+  {
+    "id": "mech-linwood",
+    "name": "Linwood",
+    "rarity": "common",
+    "role": "Lit Speed",
+    "class": "fast",
+    "classIcon": "fa-bolt",
+    "ability": {
+      "name": "Strike Dodge",
+      "text": [
+        { "text": "Attacks before any enemy unit this turn.", "secondary": false },
+        { "text": "Strike damage ignores Armor reduction.", "secondary": true }
+      ]
+    },
+    "flavor": "\"First strike, that's all she wrote.\"",
+    "stats": { "ap": 4, "hp": 3 }
+  },
+  {
+    "id": "mech-sydney",
+    "name": "Sydney",
+    "rarity": "common",
+    "role": "Space Speed",
+    "class": "fast",
+    "classIcon": "fa-bolt",
+    "ability": {
+      "name": "Strike First",
+      "text": [
+        { "text": "Attacks before any enemy unit this turn.", "secondary": false },
+        { "text": "Once per game, Strike First twice in the same turn.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Speed is the only way.\"",
+    "stats": { "ap": 4, "hp": 3 }
+  },
+  {
+    "id": "mech-bowler",
+    "name": "Bowler",
+    "rarity": "common",
+    "role": "Fortified Tank",
+    "class": "tank",
+    "classIcon": "fa-shield-alt",
+    "ability": {
+      "name": "Mega Armor",
+      "text": [
+        { "text": "Reduces all damage by 1.", "secondary": false },
+        { "text": "Once per game, negate all damage from a single attack entirely.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Wrecking folks and settling scores.\"",
+    "stats": { "ap": 2, "hp": 8 }
+  },
+  {
+    "id": "mech-myriad",
+    "name": "Myriad",
+    "rarity": "common",
+    "role": "Lording Tank",
+    "class": "tank",
+    "classIcon": "fa-shield-alt",
+    "ability": {
+      "name": "Regen Armor",
+      "text": [
+        { "text": "Reduces all damage by 1.", "secondary": false },
+        { "text": "Regenerates 1 HP at the start of every third turn.", "secondary": true }
+      ]
+    },
+    "flavor": "\"The moving wall.\"",
+    "stats": { "ap": 2, "hp": 8 }
+  },
+  {
+    "id": "mech-gigatear",
+    "name": "Gigatear",
+    "rarity": "common",
+    "role": "Lording Tank",
+    "class": "tank",
+    "classIcon": "fa-shield-alt",
+    "ability": {
+      "name": "Regen Armor",
+      "text": [
+        { "text": "Reduces all damage by 1.", "secondary": false },
+        { "text": "Also cures 1 status effect each time Armor triggers.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Take the hit and keep pushing through!\"",
+    "stats": { "ap": 2, "hp": 8 }
+  },
+  {
+    "id": "mech-olaf",
+    "name": "Olaf",
+    "rarity": "common",
+    "role": "Arsenal",
+    "class": "arsenal",
+    "classIcon": "fa-bomb",
+    "ability": {
+      "name": "Multi-Fire",
+      "text": [
+        { "text": "Once per turn, makes a second attack at -1 AP.", "secondary": false },
+        { "text": "The second target of Multi-Fire takes +1 damage.", "secondary": true }
+      ]
+    },
+    "flavor": "\"I need to attack all of them!\"",
+    "stats": { "ap": 3, "hp": 5 }
+  },
+  {
+    "id": "mech-lasereater",
+    "name": "Lasereater",
+    "rarity": "common",
+    "role": "Arsenal",
+    "class": "arsenal",
+    "classIcon": "fa-bomb",
+    "ability": {
+      "name": "Multi-Fire",
+      "text": [
+        { "text": "Once per turn, makes a second attack at -1 AP.", "secondary": false },
+        { "text": "Multi-Fire can target the same unit twice.", "secondary": true }
+      ]
+    },
+    "flavor": "\"A bullet for everyone.\"",
+    "stats": { "ap": 3, "hp": 5 }
+  },
+  {
+    "id": "mech-cidermajor",
+    "name": "Cidermajor",
+    "rarity": "common",
+    "role": "Arsenal",
+    "class": "arsenal",
+    "classIcon": "fa-bomb",
+    "ability": {
+      "name": "Multi-Fire",
+      "text": [
+        { "text": "Once per turn, makes a second attack at -1 AP.", "secondary": false },
+        { "text": "Once per game, Multi-Fire hits a third unit.", "secondary": true }
+      ]
+    },
+    "flavor": "\"I crave silence after the chaos!\"",
+    "stats": { "ap": 3, "hp": 5 }
+  },
+  {
+    "id": "mech-leadfoot",
+    "name": "Leadfoot",
+    "rarity": "common",
+    "role": "Stable",
+    "class": "stable",
+    "classIcon": "fa-anchor",
+    "ability": {
+      "name": "Steady",
+      "text": [
+        { "text": "Cannot be moved by enemy effects.", "secondary": false },
+        { "text": "Also immune to being redirected as an attack target.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Immovable, Unbelievable.\"",
+    "stats": { "ap": 3, "hp": 6 }
+  },
+  {
+    "id": "mech-cassidy",
+    "name": "Cassidy",
+    "rarity": "common",
+    "role": "Stable",
+    "class": "stable",
+    "classIcon": "fa-anchor",
+    "ability": {
+      "name": "Steady",
+      "text": [
+        { "text": "Cannot be moved by enemy effects.", "secondary": false },
+        { "text": "Passes status immunity to its paired Character.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Dig in and brace for everything.\"",
+    "stats": { "ap": 3, "hp": 6 }
+  },
+  {
+    "id": "mech-ciderheart",
+    "name": "Ciderheart",
+    "rarity": "common",
+    "role": "Stable",
+    "class": "stable",
+    "classIcon": "fa-anchor",
+    "ability": {
+      "name": "Steady",
+      "text": [
+        { "text": "Cannot be moved by enemy effects.", "secondary": false },
+        { "text": "Once per game, cleanses a status effect from an ally.", "secondary": true }
+      ]
+    },
+    "flavor": "\"I am the stone wall.\"",
+    "stats": { "ap": 3, "hp": 6 }
+  },
+  {
+    "id": "mech-ciderlord",
+    "name": "Ciderlord",
+    "rarity": "common",
+    "role": "Elemental",
+    "class": "elemental",
+    "classIcon": "fa-atom",
+    "ability": {
+      "name": "Flame Infused",
+      "text": [
+        { "text": "Deals bonus elemental damage on hit.", "secondary": false },
+        { "text": "Burn damage increases by 1 against Tank targets.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Losing isn't an option.\"",
+    "stats": { "ap": 3, "hp": 5 }
+  },
+  {
+    "id": "mech-coldshoulder",
+    "name": "Coldshoulder",
+    "rarity": "common",
+    "role": "Elemental",
+    "class": "elemental",
+    "classIcon": "fa-atom",
+    "ability": {
+      "name": "Frost Infused",
+      "text": [
+        { "text": "Deals bonus elemental damage on hit.", "secondary": false },
+        { "text": "Freeze also zeroes the target's HP regen that turn.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Frosted steps behind, pain ahead.\"",
+    "stats": { "ap": 3, "hp": 5 }
+  },
+  {
+    "id": "mech-derrick",
+    "name": "Derrick",
+    "rarity": "common",
+    "role": "Elemental",
+    "class": "elemental",
+    "classIcon": "fa-atom",
+    "ability": {
+      "name": "Shock Infused + DM",
+      "text": [
+        { "text": "Deals bonus elemental damage on hit.", "secondary": false },
+        { "text": "Corrode stacks instead of refreshing, up to a maximum of 3 stacks (-3 AP).", "secondary": true }
+      ]
+    },
+    "flavor": "\"Strikes doubly hard with lightning and force!\"",
+    "stats": { "ap": 3, "hp": 5 }
+  }
+]

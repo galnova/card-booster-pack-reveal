@@ -1,0 +1,756 @@
+/* ==========================================================================
+   Design tokens — ported from the HueShift card catalog (hs-card-game)
+   so pulled cards render with the exact same visual identity.
+   ========================================================================== */
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.4;
+  font-weight: 400;
+
+  --card-bg: #fdfdf8;
+  --card-border: #111111;
+  --muted-text: #444444;
+  --base-bg: #4369a3;
+  --hero-bg: #4369a3;
+  --mech-bg: #802440;
+  --dm-bg: #3d2c31;
+  --wc-bg: #610bd1;
+  --arena-bg: #0d7377;
+
+  --bond-fast: #d9a400;
+  --bond-tank: #2f8f46;
+  --bond-arsenal: #c0392b;
+  --bond-stable: #5c6b73;
+  --bond-elemental: #2596be;
+
+  --gain-color: #2f8f46;
+  --penalty-color: #c0392b;
+  --disrupt-color: #6b165d;
+
+  --rarity-common: #8a8a8a;
+  --rarity-uncommon: #3f8f6f;
+  --rarity-rare: #3d6fd8;
+  --rarity-legendary: #d4af37;
+
+  --spacing-sm: 12px;
+  --spacing-md: 14px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  --app-bg: #14151a;
+  --app-surface: #1d1f26;
+  --app-text: #f2f2f0;
+  --app-muted: #a5a7b3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ==========================================================================
+   App shell
+   ========================================================================== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--app-surface);
+  border-bottom: 1px solid #2c2e38;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.allowance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--app-muted);
+  background: #0000002e;
+  border: 1px solid #33353f;
+  border-radius: 999px;
+  padding: 6px 14px;
+}
+
+.allowance strong {
+  color: var(--app-text);
+  font-size: 1rem;
+}
+
+.allowance-reset {
+  border: 1px solid #45485a;
+  background: none;
+  color: var(--app-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+
+.allowance-reset:hover {
+  color: var(--app-text);
+  border-color: var(--app-muted);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 20px;
+  background: var(--app-surface);
+  border-bottom: 1px solid #2c2e38;
+  position: sticky;
+  top: 61px;
+  z-index: 19;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  border: none;
+  background: none;
+  color: var(--app-muted);
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  color: var(--app-text);
+  border-bottom-color: var(--wc-bg);
+}
+
+.view {
+  display: none;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+.view.active {
+  display: block;
+}
+
+/* ==========================================================================
+   Pack-opening view
+   ========================================================================== */
+.open-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding-top: 20px;
+}
+
+.pack {
+  width: 240px;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-lg);
+  position: relative;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background: linear-gradient(135deg,
+    var(--hero-bg) 0%, var(--mech-bg) 25%, var(--dm-bg) 50%,
+    var(--wc-bg) 75%, var(--arena-bg) 100%);
+  background-size: 220% 220%;
+  animation: pack-shimmer 6s ease-in-out infinite;
+  box-shadow: 0 18px 40px -12px #000000aa, inset 0 0 0 2px #ffffff30;
+  transition: transform 0.2s ease;
+}
+
+.pack:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.pack:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+  opacity: 0.55;
+  animation-play-state: paused;
+}
+
+.pack::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(45deg, #ffffff14 0 10px, transparent 10px 20px);
+}
+
+.pack-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-shadow: 0 2px 6px #00000080;
+}
+
+.pack-label i {
+  font-size: 2.2rem;
+}
+
+@keyframes pack-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.pack.opening {
+  animation: pack-burst 0.5s ease forwards;
+}
+
+@keyframes pack-burst {
+  0% { transform: scale(1); opacity: 1; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.3); opacity: 0; }
+}
+
+.open-hint {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.reveal-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1400px;
+  perspective: 1400px;
+  justify-items: center;
+}
+
+.reveal-slot {
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 2 / 3;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.reveal-slot.visible {
+  opacity: 1;
+}
+
+.reveal-slot.flipped {
+  transform: rotateY(180deg);
+}
+
+.slot-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.slot-back {
+  background: linear-gradient(160deg, #2b2d38 0%, #14151a 100%);
+  border: 6px solid #3a3d4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.slot-back i {
+  font-size: 2.4rem;
+  color: #565a6b;
+}
+
+.slot-front {
+  transform: rotateY(180deg);
+}
+
+.reveal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: var(--wc-bg);
+  color: #fff;
+}
+
+.btn.secondary {
+  background: #33353f;
+  color: var(--app-text);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Card face — ported from the source catalog's .card system
+   ========================================================================== */
+.card-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  justify-items: center;
+}
+
+.card-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.card-owned-count {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--app-muted);
+}
+
+.card {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+  border: 10px solid var(--hero-bg);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+  color: var(--card-border);
+  container-type: inline-size;
+  container-name: card;
+}
+
+.mech-cards, .card.mech-cards, .card-scope-mechs { --hero-bg: var(--mech-bg); --base-bg: var(--mech-bg); }
+.card-scope-darkMatter { --hero-bg: var(--dm-bg); --base-bg: var(--dm-bg); }
+.card-scope-wildcards { --hero-bg: var(--wc-bg); --base-bg: var(--wc-bg); }
+.card-scope-arena { --hero-bg: var(--arena-bg); --base-bg: var(--arena-bg); }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header {
+  margin-bottom: var(--spacing-sm);
+  font-size: clamp(0.6rem, 4.3cqw, 0.88rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  gap: clamp(4px, 2.5cqw, 8px);
+}
+
+.card-name {
+  margin: 0;
+  margin-right: auto;
+  font-size: clamp(0.78rem, 5.8cqw, 1.18rem);
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-cost {
+  border: none;
+  border-radius: 50%;
+  width: clamp(24px, 11cqw, 36px);
+  height: clamp(24px, 11cqw, 36px);
+  position: relative;
+  background: var(--card-border);
+  color: white;
+  font-size: clamp(0.62rem, 4.8cqw, 0.95rem);
+  font-weight: 800;
+  flex: none;
+}
+
+.card-cost i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+}
+
+.card-graphic {
+  min-height: clamp(95px, 52cqw, 190px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 -14px 14px -14px;
+  background: linear-gradient(150deg, var(--hero-bg) 0%, #00000055 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-graphic i {
+  font-size: clamp(1.8rem, 12cqw, 3.6rem);
+  color: #ffffff3a;
+}
+
+.card-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 2.5cqw, 8px);
+  flex-wrap: wrap;
+  font-size: clamp(0.5rem, 3.8cqw, 0.78rem);
+  font-weight: 700;
+  color: var(--muted-text);
+}
+
+.card-dm-pair {
+  font-size: clamp(0.46rem, 3.5cqw, 0.66rem);
+  font-weight: 700;
+  font-style: italic;
+  color: var(--muted-text);
+}
+
+.card-tier, .card-role {
+  display: inline-flex;
+  align-items: center;
+  padding: clamp(2px, 1.2cqw, 3px) clamp(6px, 3.5cqw, 10px);
+  border: 1.5px solid var(--card-border);
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: clamp(0.48rem, 3.6cqw, 0.7rem);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.card-role.gain { background: var(--gain-color); border-color: var(--gain-color); color: white; }
+.card-role.penalty { background: var(--penalty-color); border-color: var(--penalty-color); color: white; }
+.card-role.disrupt { background: var(--disrupt-color); border-color: var(--disrupt-color); color: white; }
+
+.card-text {
+  margin: 0;
+  margin-left: 0.3em;
+  padding-left: 1.1em;
+  font-size: clamp(0.46rem, 3.4cqw, 0.64rem);
+  line-height: 1.3;
+  color: #222222;
+}
+
+.card-text li + li { margin-top: 2px; }
+.card-text-secondary { color: var(--muted-text); }
+
+.card-tier { gap: 3px; }
+
+.card-tier.main { background: #d4af37; border-color: #d4af37; color: #3a2c00; }
+.card-tier.sub { background: #bf9bdf; border-color: #bf9bdf; color: var(--muted-text); }
+
+.card-bond {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(18px, 9cqw, 25px);
+  height: clamp(18px, 9cqw, 25px);
+  border-radius: 50%;
+  color: white;
+  font-size: clamp(0.44rem, 3.3cqw, 0.62rem);
+  flex: none;
+}
+
+.card-cost.bond-fast, .card-bond.bond-fast { background: var(--bond-fast); }
+.card-cost.bond-tank, .card-bond.bond-tank { background: var(--bond-tank); }
+.card-cost.bond-arsenal, .card-bond.bond-arsenal { background: var(--bond-arsenal); }
+.card-cost.bond-stable, .card-bond.bond-stable { background: var(--bond-stable); }
+.card-cost.bond-elemental, .card-bond.bond-elemental { background: var(--bond-elemental); }
+
+.card-ability {
+  margin: 0;
+  font-size: clamp(0.54rem, 4cqw, 0.75rem);
+  font-weight: 800;
+  color: var(--base-bg);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.card-flavor {
+  margin: 0;
+  margin-top: auto;
+  margin-bottom: 10px;
+  padding: clamp(4px, 2.5cqw, 6px) clamp(6px, 3.5cqw, 8px);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  font-size: clamp(0.5rem, 3.8cqw, 0.72rem);
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--muted-text);
+}
+
+.card-footer {
+  border-top: 2px solid var(--card-border);
+  padding-top: clamp(4px, 2.5cqw, 8px);
+  font-size: clamp(0.64rem, 5cqw, 0.95rem);
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.card-stat {
+  min-height: clamp(30px, 15cqw, 44px);
+  text-align: center;
+}
+
+.card-stat:first-child {
+  float: left;
+}
+
+.card-stat:last-child {
+  float: right;
+}
+
+.card-stat strong { display: block; margin: 0; line-height: 1; }
+
+.card-stat-label {
+  font-size: clamp(0.5rem, 3.8cqw, 0.72rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-text);
+}
+
+.rarity-badge {
+position: absolute;
+    top: 14px;
+    right: -37px;
+    transform: rotate(45deg);
+    width: 140px;
+    text-align: center;
+    padding: 9px 0;
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fff;
+    z-index: 2;
+    box-shadow: 0 2px 6px #00000055;
+    transition: opacity 0.2s ease;
+}
+
+.card:hover .rarity-badge {
+  opacity: 0.12;
+}
+
+.card-modal-front .rarity-badge {
+  display: none;
+}
+
+.card[data-rarity="common"] .rarity-badge { background: var(--rarity-common); }
+.card[data-rarity="uncommon"] .rarity-badge { background: var(--rarity-uncommon); }
+.card[data-rarity="rare"] .rarity-badge { background: var(--rarity-rare); }
+.card[data-rarity="legendary"] .rarity-badge { background: var(--rarity-legendary); color: #3a2c00; }
+
+.card[data-rarity="rare"] {
+  box-shadow: 0 0 0 2px var(--rarity-rare), 0 0 26px -4px var(--rarity-rare);
+}
+
+.card[data-rarity="legendary"] {
+  box-shadow: 0 0 0 3px var(--rarity-legendary), 0 0 34px -2px var(--rarity-legendary);
+}
+
+/* ==========================================================================
+   Pack summary
+   ========================================================================== */
+.summary-title {
+  text-align: center;
+  color: var(--app-muted);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+/* ==========================================================================
+   Collection view
+   ========================================================================== */
+.collection-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.set-section {
+  margin-top: 34px;
+}
+
+.set-section:first-child { margin-top: 0; }
+
+.set-section-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.set-section-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--app-muted);
+}
+
+.set-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.card.locked {
+  filter: grayscale(1) brightness(0.55);
+}
+
+.card.clickable {
+  cursor: pointer;
+}
+
+.card.locked .card-graphic i { color: #ffffff22; }
+
+@media (max-width: 640px) {
+  .pack { width: 190px; }
+  .app-header { padding: 12px 14px; }
+  .tabs { padding: 0 14px; top: 57px; }
+}
+
+/* ==========================================================================
+   Card zoom modal — click any revealed/owned card to blow it up and flip it
+   ========================================================================== */
+.card-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #05050799;
+  backdrop-filter: blur(3px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  z-index: 100;
+}
+
+.card-modal-overlay.open {
+  display: flex;
+}
+
+.card-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  border: none;
+  background: #ffffff1a;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.card-modal-flip {
+  width: min(82vw, 360px);
+  aspect-ratio: 2 / 3;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  cursor: pointer;
+}
+
+.card-modal-flip.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-modal-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.card-modal-back {
+  background: linear-gradient(160deg, #2b2d38 0%, #14151a 100%);
+  border: 6px solid #3a3d4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-modal-back i {
+  font-size: 4.5rem;
+  color: #565a6b;
+}
+
+.card-modal-front {
+  transform: rotateY(180deg);
+}
+
+.card-modal-front .card {
+  max-width: none;
+}
+
+.card-modal-hint {
+  color: var(--app-muted);
+  font-size: 0.82rem;
+}

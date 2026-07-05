@@ -1,0 +1,273 @@
+[
+  {
+    "id": "char-sadie",
+    "name": "Sadie",
+    "tier": "main",
+    "rarity": "rare",
+    "role": "Brave Hero",
+    "classIcon": "fa-fist-raised",
+    "bond": "tank",
+    "ability": {
+      "name": "Rally",
+      "text": [
+        { "text": "Survives with 1 HP instead of destruction.", "secondary": false },
+        { "text": "Gains +1 AP for the rest of the game. (first time Rally triggers).", "secondary": true }
+      ]
+    },
+    "flavor": "\"All guts, all glory!!!\"",
+    "stats": { "ap": 1, "hp": 2 }
+  },
+  {
+    "id": "char-zo",
+    "name": "Zo",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Brave Hero",
+    "classIcon": "fa-fist-raised",
+    "bond": "stable",
+    "ability": {
+      "name": "Steady Hand",
+      "text": [
+        { "text": "Survives with 1 HP instead of destruction.", "secondary": false },
+        { "text": "The first time an allied unit (other than Zo) would be destroyed each game, it survives with +1 HP instead.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Leans in when everyone else backs down.\"",
+    "stats": { "ap": 0, "hp": 1 }
+  },
+  {
+    "id": "char-fir",
+    "name": "Fir",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Fearful Hero",
+    "classIcon": "fa-fist-raised",
+    "bond": "fast",
+    "ability": {
+      "name": "Rally",
+      "text": [
+        { "text": "Prevent 1 damage once per game.", "secondary": false },
+        { "text": "Prevented damage also removes 1 status effect.", "secondary": true }
+      ]
+    },
+    "flavor": "\"A shield has no name!\"",
+    "stats": { "ap": 0, "hp": 1 }
+  },
+  {
+    "id": "char-llewellyn",
+    "name": "Llewellyn",
+    "tier": "main",
+    "rarity": "rare",
+    "role": "Fearless Leader",
+    "classIcon": "fa-crown",
+    "bond": "arsenal",
+    "ability": {
+      "name": "Experience",
+      "text": [
+        { "text": "+1 AP when destroying units.", "secondary": false },
+        { "text": "Once per game, the AP gained from Experience is doubled.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Falling down is NOT an option!\"",
+    "stats": { "ap": 1, "hp": 1 }
+  },
+  {
+    "id": "char-cagney",
+    "name": "Cagney",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Fearless Leader",
+    "classIcon": "fa-crown",
+    "bond": "elemental",
+    "ability": {
+      "name": "Quick Study",
+      "text": [
+        { "text": "Allied unit gains +1 AP on first destruction.", "secondary": false },
+        { "text": "Quick Study's +1 AP is also granted to Cagney herself.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Crybabies need to grow up!\"",
+    "stats": { "ap": 0, "hp": 1 }
+  },
+  {
+    "id": "char-bethany",
+    "name": "Bethany",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Cutthroat Leader",
+    "classIcon": "fa-crown",
+    "bond": "fast",
+    "ability": {
+      "name": "Quick Study",
+      "text": [
+        { "text": "Allied unit gains +1 AP on first destruction.", "secondary": false },
+        { "text": "Quick Study also triggers when an ally plays a Wildcard.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Sees every angle.\"",
+    "stats": { "ap": 0, "hp": 1 }
+  },
+  {
+    "id": "char-blac",
+    "name": "Blac",
+    "tier": "main",
+    "rarity": "rare",
+    "role": "Corrupted Brute",
+    "classIcon": "fa-hand-rock",
+    "bond": "elemental",
+    "ability": {
+      "name": "Wildcard + DM",
+      "text": [
+        { "text": "Flip coin: Heads +2 AP, Tails +2 HP.", "secondary": false },
+        { "text": "Two Heads in a row lets her flip again for free.", "secondary": true },
+        { "text": "Three Heads straight permanently locks in Heads.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Fortune favors the reckless.\"",
+    "stats": { "ap": 2, "hp": 0 }
+  },
+  {
+    "id": "char-let",
+    "name": "Let",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Manic Brute",
+    "classIcon": "fa-hand-rock",
+    "bond": "fast",
+    "ability": {
+      "name": "Even Odds",
+      "text": [
+        { "text": "At the start of combat, flip a coin: Heads = enemy -1 AP this fight, Tails = this unit +1 HP this fight.", "secondary": false }
+      ]
+    },
+    "flavor": "\"Heads you win, tails you also win.\"",
+    "stats": { "ap": 0, "hp": 0 }
+  },
+  {
+    "id": "char-emily",
+    "name": "Emily",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Corrupted Brute",
+    "classIcon": "fa-hand-rock",
+    "bond": "stable",
+    "ability": {
+      "name": "Coin Toss",
+      "text": [
+        { "text": "Flip coin: Heads +1 AP, Tails +1 HP.", "secondary": false },
+        { "text": "Once per game, choose the coin result instead of flipping.", "secondary": true }
+      ]
+    },
+    "flavor": "\"A coin flip is better than a bad plan.\"",
+    "stats": { "ap": 0, "hp": 0 }
+  },
+  {
+    "id": "char-starlot",
+    "name": "Starlot",
+    "tier": "main",
+    "rarity": "rare",
+    "role": "Heavy Gunner",
+    "classIcon": "fa-crosshairs",
+    "bond": "tank",
+    "ability": {
+      "name": "Focus Fire + DM",
+      "text": [
+        { "text": "Ignore Tank damage reduction.", "secondary": false },
+        { "text": "Focus Fire also ignores Stable status immunity once.", "secondary": true },
+        { "text": "First use permanently ignores Stable immunity.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Defenses fall to a well-aimed shot.\"",
+    "stats": { "ap": 2, "hp": 0 }
+  },
+  {
+    "id": "char-sevura",
+    "name": "Sevura",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Precise Gunner",
+    "classIcon": "fa-crosshairs",
+    "bond": "arsenal",
+    "ability": {
+      "name": "Focus Fire",
+      "text": [
+        { "text": "Ignore Tank damage reduction.", "secondary": false },
+        { "text": "Gains +1 AP the first time her attack destroys a Tank.", "secondary": true }
+      ]
+    },
+    "flavor": "\"A good offense...\"",
+    "stats": { "ap": 1, "hp": 0 }
+  },
+  {
+    "id": "char-d",
+    "name": "D",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Heavy Gunner",
+    "classIcon": "fa-crosshairs",
+    "bond": "fast",
+    "ability": {
+      "name": "Steady Aim",
+      "text": [
+        { "text": "Ignore 1 point of damage reduction.", "secondary": false },
+        { "text": "Her damage-reduction ignore also applies to Shield effects.", "secondary": true }
+      ]
+    },
+    "flavor": "\"I only need one shot.\"",
+    "stats": { "ap": 1, "hp": 0 }
+  },
+  {
+    "id": "char-rufus",
+    "name": "Rufus",
+    "tier": "main",
+    "rarity": "rare",
+    "role": "Vengeful Sworder",
+    "classIcon": "fa-cut",
+    "bond": "elemental",
+    "ability": {
+      "name": "Leak",
+      "text": [
+        { "text": "Target loses 1 HP next turn.", "secondary": false },
+        { "text": "Leak damage doubles against a target already Leaking.", "secondary": true }
+      ]
+    },
+    "flavor": "\"One clean slice...\"",
+    "stats": { "ap": 1, "hp": 1 }
+  },
+  {
+    "id": "char-cecilia",
+    "name": "Cecilia",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Mournful Sworder",
+    "classIcon": "fa-cut",
+    "bond": "fast",
+    "ability": {
+      "name": "Leak",
+      "text": [
+        { "text": "Target loses 1 HP next turn.", "secondary": false },
+        { "text": "Once per game, apply Leak without attacking.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Pierce the skin with metal.\"",
+    "stats": { "ap": 0, "hp": 1 }
+  },
+  {
+    "id": "char-jackie",
+    "name": "Jackie",
+    "tier": "sub",
+    "rarity": "common",
+    "role": "Vengeful Sworder",
+    "classIcon": "fa-cut",
+    "bond": "arsenal",
+    "ability": {
+      "name": "Gusher",
+      "text": [
+        { "text": "When attacking, target loses 1 additional HP.", "secondary": false },
+        { "text": "The extra HP loss from Gusher also strips 1 shield point.", "secondary": true }
+      ]
+    },
+    "flavor": "\"Many many many strikes!\"",
+    "stats": { "ap": 0, "hp": 1 }
+  }
+]
