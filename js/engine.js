@@ -55,6 +55,10 @@ export function getCollection() {
   return readJson(STORAGE_KEYS.collection, {});
 }
 
+export function resetCollection() {
+  localStorage.removeItem(STORAGE_KEYS.collection);
+}
+
 export function recordPulls(cardIds) {
   const collection = getCollection();
   const isNew = {};
@@ -94,7 +98,7 @@ export function resetAllowance() {
   localStorage.removeItem(STORAGE_KEYS.allowance);
 }
 
-function readJson(key, fallback) {
+export function readJson(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : fallback;
@@ -103,6 +107,6 @@ function readJson(key, fallback) {
   }
 }
 
-function writeJson(key, value) {
+export function writeJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }

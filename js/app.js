@@ -1,13 +1,8 @@
-import { loadCatalog, buildWeightedPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance } from "./engine.js";
+import { loadCatalog, buildWeightedPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance, resetCollection } from "./engine.js";
 import { primeAudio, playTear, playFlip, playChime, playFanfare } from "./sound.js";
-
-const BOND_ICON = {
-  fast: "fa-bolt",
-  tank: "fa-shield-alt",
-  arsenal: "fa-bomb",
-  stable: "fa-anchor",
-  elemental: "fa-atom",
-};
+import { spring, SPRING_PRESETS } from "./spring.js";
+import { renderCardFace as renderCardFaceShared, renderLockedFace as renderLockedFaceShared } from "./card-render.js";
+import { initRosterUI, refreshRosterUI } from "./roster-ui.js";
 
 const RARITY_RANK = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
 const RARITY_LABEL = { common: "Common", uncommon: "Uncommon", rare: "Rare", legendary: "Legendary" };
@@ -41,6 +36,7 @@ const el = {
   cardModalFront: document.getElementById("card-modal-front"),
   cardModalClose: document.getElementById("card-modal-close"),
   resetAllowanceBtn: document.getElementById("reset-allowance-btn"),
+  resetCollectionBtn: document.getElementById("reset-collection-btn"),
   legendarySpotlight: document.getElementById("legendary-spotlight"),
   newToast: document.getElementById("new-toast"),
   fxFlash: document.getElementById("fx-flash"),
@@ -61,6 +57,12 @@ async function init() {
     resetAllowance();
     resetOpenStage();
   });
+  el.resetCollectionBtn.addEventListener("click", () => {
+    resetCollection();
+    renderCollection();
+    refreshRosterUI();
+  });
+  initRosterUI({ catalog, goToPacksTab: () => switchToView("view-open") });
   updateAllowanceDisplay();
   renderCollection();
 }
@@ -68,12 +70,15 @@ async function init() {
 function wireTabs() {
   el.tabs.forEach((btn) => {
     btn.addEventListener("click", () => {
-      el.tabs.forEach((b) => b.classList.remove("active"));
-      el.views.forEach((v) => v.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.view).classList.add("active");
+      switchToView(btn.dataset.view);
+      if (btn.dataset.view === "view-roster") refreshRosterUI();
     });
   });
+}
+
+function switchToView(viewId) {
+  el.tabs.forEach((b) => b.classList.toggle("active", b.dataset.view === viewId));
+  el.views.forEach((v) => v.classList.toggle("active", v.id === viewId));
 }
 
 function updateAllowanceDisplay() {
@@ -82,7 +87,7 @@ function updateAllowanceDisplay() {
   el.packBtn.disabled = state.remaining <= 0;
   el.openHint.textContent = state.remaining > 0
     ? "Hold the pack to open it."
-    : "No packs left today — come back tomorrow.";
+    : "No packs left today - come back tomorrow.";
 }
 
 // ---------------------------------------------------------------------------
@@ -95,7 +100,45 @@ let holdStartTime = null;
 let holdTriggeredOpen = false;
 let hadPointerInteraction = false;
 
+// Pack hover/press/hold feedback is spring-driven rather than CSS-transitioned
+// (see the .pack rule in style.css for why) - two independent springs for
+// scale and lift, combined into one transform on every tick.
+const PACK_TARGETS = {
+  rest: { scale: 1, lift: 0 },
+  hover: { scale: 1.02, lift: -4 },
+  pressed: { scale: 0.96, lift: 0 },
+};
+let packScale = 1;
+let packLift = 0;
+let cancelPackScaleSpring = null;
+let cancelPackLiftSpring = null;
+
+function setPackInteractionState(state) {
+  const { scale, lift } = PACK_TARGETS[state];
+  if (cancelPackScaleSpring) cancelPackScaleSpring();
+  if (cancelPackLiftSpring) cancelPackLiftSpring();
+  cancelPackScaleSpring = spring({
+    from: packScale, to: scale, ...SPRING_PRESETS.ui,
+    onUpdate: (v) => { packScale = v; applyPackTransform(); },
+  });
+  cancelPackLiftSpring = spring({
+    from: packLift, to: lift, ...SPRING_PRESETS.ui,
+    onUpdate: (v) => { packLift = v; applyPackTransform(); },
+  });
+}
+
+function applyPackTransform() {
+  el.packBtn.style.transform = `translateY(${packLift}px) scale(${packScale})`;
+}
+
 function wirePack() {
+  el.packBtn.addEventListener("pointerenter", () => {
+    if (el.packBtn.disabled || holdStartTime !== null) return;
+    setPackInteractionState("hover");
+  });
+  el.packBtn.addEventListener("pointerleave", () => {
+    if (holdStartTime === null) setPackInteractionState("rest");
+  });
   el.packBtn.addEventListener("pointerdown", onPackPointerDown);
   el.packBtn.addEventListener("pointerup", onPackPointerUp);
   el.packBtn.addEventListener("pointerleave", onPackPointerUp);
@@ -115,7 +158,7 @@ function onPackPointerDown() {
   hadPointerInteraction = true;
   primeAudio();
   holdStartTime = performance.now();
-  el.packBtn.classList.add("holding");
+  setPackInteractionState("pressed");
   el.packProgressRing.classList.add("active");
   tickHold();
 }
@@ -142,7 +185,7 @@ function onPackPointerUp() {
 }
 
 function finishHoldVisuals() {
-  el.packBtn.classList.remove("holding");
+  setPackInteractionState(el.packBtn.matches(":hover") ? "hover" : "rest");
   el.packProgressRing.classList.remove("active");
   el.packProgressRingFg.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
 }
@@ -162,9 +205,22 @@ function onPackClick() {
 // ---------------------------------------------------------------------------
 // Card zoom modal
 // ---------------------------------------------------------------------------
+let modalAngle = 0;
+let cancelModalSpring = null;
+
 function wireCardModal() {
   el.cardModalFlip.addEventListener("click", () => {
-    el.cardModalFlip.classList.toggle("flipped");
+    const target = modalAngle < 90 ? 180 : 0;
+    if (cancelModalSpring) cancelModalSpring();
+    cancelModalSpring = spring({
+      from: modalAngle,
+      to: target,
+      ...SPRING_PRESETS.ui,
+      onUpdate: (deg) => {
+        modalAngle = deg;
+        el.cardModalFlip.style.transform = `rotateY(${deg}deg)`;
+      },
+    });
   });
   el.cardModalClose.addEventListener("click", closeCardModal);
   el.cardModal.addEventListener("click", (e) => {
@@ -177,7 +233,9 @@ function wireCardModal() {
 
 function openCardModal(card) {
   el.cardModalFront.innerHTML = renderCardFace(card);
-  el.cardModalFlip.classList.remove("flipped");
+  if (cancelModalSpring) cancelModalSpring();
+  modalAngle = 0;
+  el.cardModalFlip.style.transform = "rotateY(0deg)";
   el.cardModal.classList.add("open");
   document.body.style.overflow = "hidden";
 }
@@ -200,6 +258,7 @@ function openPack() {
     .sort((a, b) => RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity]);
   currentIsNew = recordPulls(pulled.map((c) => c.id));
   renderCollection();
+  refreshRosterUI();
 
   playTear();
   triggerHaptic(30);
@@ -227,8 +286,10 @@ function showRevealRow(pulled) {
     slot.dataset.cardId = card.id;
     slot.dataset.rarity = card.rarity;
     slot.innerHTML = `
-      <div class="slot-face slot-back"><i class="fas fa-question"></i></div>
-      <div class="slot-face slot-front">${renderCardFace(card)}</div>
+      <div class="reveal-flip">
+        <div class="slot-face slot-back"><i class="fas fa-question"></i></div>
+        <div class="slot-face slot-front">${renderCardFace(card)}</div>
+      </div>
     `;
     slot.addEventListener("click", () => {
       if (slot.classList.contains("flipped")) {
@@ -248,6 +309,16 @@ function flipSlot(slot) {
   revealedCount += 1;
 
   const card = catalog.cardsById.get(slot.dataset.cardId);
+  const flipEl = slot.querySelector(".reveal-flip");
+  const preset = SPRING_PRESETS[card.rarity] || SPRING_PRESETS.common;
+  spring({
+    from: 0,
+    to: 180,
+    ...preset,
+    onUpdate: (deg) => {
+      flipEl.style.transform = `rotateY(${deg}deg)`;
+    },
+  });
   playFlip();
 
   const rect = slot.getBoundingClientRect();
@@ -296,6 +367,11 @@ function resetOpenStage() {
   el.packBtn.style.display = "";
   el.openHint.style.display = "";
   revealedCount = 0;
+  if (cancelPackScaleSpring) cancelPackScaleSpring();
+  if (cancelPackLiftSpring) cancelPackLiftSpring();
+  packScale = 1;
+  packLift = 0;
+  applyPackTransform();
   updateAllowanceDisplay();
 }
 
@@ -405,111 +481,10 @@ function renderCollection() {
   }
 }
 
-function scopeClassFor(card) {
-  const set = setById[card.set];
-  return set.scopeClass ? ` ${set.scopeClass}` : "";
-}
-
 function renderCardFace(card) {
-  const set = setById[card.set];
-
-  const secondCostIcon = secondCostIconHtml(card);
-  const metaHtml = metaHtml_(card);
-  const abilityHtml = card.ability
-    ? `<p class="card-ability">${card.ability.name}</p><ul class="card-text">${bulletsHtml(card.ability.text)}</ul>`
-    : `<ul class="card-text">${bulletsHtml(card.text)}</ul>`;
-  const footerHtml = card.stats
-    ? `<div class="card-footer">
-        <div class="card-stat"><span class="card-stat-label">AP</span><strong>${signed(card.stats.ap)}</strong></div>
-        <div class="card-stat"><span class="card-stat-label">HP</span><strong>${signed(card.stats.hp)}</strong></div>
-      </div>`
-    : "";
-
-  return `
-    <div class="card${scopeClassFor(card)}" data-rarity="${card.rarity}" data-set="${card.set}">
-      <span class="rarity-badge">${card.rarity}</span>
-      <div class="card-header">
-        <h2 class="card-name">${card.name}</h2>
-        <span class="card-cost"><i class="fas ${set.typeIcon}"></i></span>
-        ${secondCostIcon}
-      </div>
-      <div class="card-graphic"><i class="fas ${set.typeIcon}"></i></div>
-      <div class="card-body">
-        <div class="card-meta">
-          ${metaHtml}
-        </div>
-        ${abilityHtml}
-        <p class="card-flavor">${card.flavor}</p>
-      </div>
-      ${footerHtml}
-    </div>
-  `;
+  return renderCardFaceShared(card, setById);
 }
 
 function renderLockedFace(card) {
-  const set = setById[card.set];
-  return `
-    <div class="card locked${scopeClassFor(card)}" data-rarity="${card.rarity}" data-set="${card.set}">
-      <span class="rarity-badge">${card.rarity}</span>
-      <div class="card-header">
-        <h2 class="card-name">???</h2>
-        <span class="card-cost"><i class="fas fa-lock"></i></span>
-      </div>
-      <div class="card-graphic"><i class="fas fa-question"></i></div>
-      <div class="card-body">
-        <div class="card-meta">
-          <span class="card-role">Undiscovered</span>
-        </div>
-        <p class="card-flavor">Open packs to reveal this card.</p>
-      </div>
-    </div>
-  `;
-}
-
-function secondCostIconHtml(card) {
-  if (card.set === "characters") {
-    return `<span class="card-cost"><i class="fas ${card.classIcon}"></i></span>`;
-  }
-  if (card.set === "mechs") {
-    return `<span class="card-cost bond-${card.class}"><i class="fas ${card.classIcon}"></i></span>`;
-  }
-  if (card.set === "darkMatter") {
-    return `<span class="card-cost"><i class="fas ${card.icon}"></i></span>`;
-  }
-  return "";
-}
-
-function metaHtml_(card) {
-  const parts = [];
-  if (card.tier) {
-    parts.push(`<span class="card-tier ${card.tier}">${card.tier === "main" ? '<i class="fas fa-star"></i> Main' : "Sub"}</span>`);
-  }
-  if (card.set === "darkMatter") {
-    parts.push(`<span class="card-role ${card.kind}">${capitalize(card.kind)}</span>`);
-  } else if (card.set === "wildcards") {
-    parts.push(`<span class="card-role ${card.kind}">${capitalize(card.kind)}</span>`);
-  } else if (card.set === "arena") {
-    parts.push(`<span class="card-role">Arena</span>`);
-  } else if (card.role) {
-    parts.push(`<span class="card-role">${card.role}</span>`);
-  }
-  if (card.bond) {
-    parts.push(`<span class="card-bond bond-${card.bond}" title="Bonds with ${capitalize(card.bond)}"><i class="fas ${BOND_ICON[card.bond]}"></i></span>`);
-  }
-  if (card.pairNote) {
-    parts.push(`<span class="card-dm-pair">${card.pairNote}</span>`);
-  }
-  return parts.join("");
-}
-
-function bulletsHtml(bullets) {
-  return bullets.map((b) => `<li class="${b.secondary ? "card-text-secondary" : ""}">${b.text}</li>`).join("");
-}
-
-function signed(n) {
-  return n >= 0 ? `+${n}` : `${n}`;
-}
-
-function capitalize(s) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  return renderLockedFaceShared(card, setById);
 }
