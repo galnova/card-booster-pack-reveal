@@ -3,6 +3,7 @@ import { primeAudio, playTear, playFlip, playChime, playFanfare } from "./sound.
 import { spring, SPRING_PRESETS } from "./spring.js";
 import { renderCardFace as renderCardFaceShared, renderLockedFace as renderLockedFaceShared } from "./card-render.js";
 import { initRosterUI, refreshRosterUI } from "./roster-ui.js";
+import { confirmAction } from "./confirm-modal.js";
 
 const RARITY_RANK = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
 const RARITY_LABEL = { common: "Common", uncommon: "Uncommon", rare: "Rare", legendary: "Legendary" };
@@ -57,7 +58,12 @@ async function init() {
     resetAllowance();
     resetOpenStage();
   });
-  el.resetCollectionBtn.addEventListener("click", () => {
+  el.resetCollectionBtn.addEventListener("click", async () => {
+    const ok = await confirmAction({
+      message: "Clear your entire collection? Every card you've pulled will be gone. This can't be undone.",
+      confirmLabel: "Clear Collection",
+    });
+    if (!ok) return;
     resetCollection();
     renderCollection();
     refreshRosterUI();

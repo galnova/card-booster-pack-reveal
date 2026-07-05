@@ -131,7 +131,13 @@
             <div id="roster-review" class="roster-review"></div>
             <div class="roster-actions">
                 <button id="export-roster-btn" class="btn" disabled>Export Roster</button>
+                <button id="save-favorite-btn" class="btn secondary"><i data-lucide="star"></i> Save as Favorite</button>
                 <button id="reset-roster-btn" class="btn secondary">Clear Roster</button>
+            </div>
+
+            <div class="roster-saved-section">
+                <h3 class="roster-section-title">Saved Rosters</h3>
+                <div id="saved-rosters-list" class="roster-saved-list"></div>
             </div>
         </section>
     </main>
@@ -139,12 +145,23 @@
     <div id="roster-print-root" class="roster-print-root"></div>
 
     <div id="card-modal" class="card-modal-overlay">
-        <button id="card-modal-close" class="card-modal-close" aria-label="Close">&times;</button>
+        <button id="card-modal-close" class="card-modal-close" aria-label="Close"><i data-lucide="x"></i></button>
         <div id="card-modal-flip" class="card-modal-flip">
             <div class="card-modal-face card-modal-back"><i class="fas fa-question"></i></div>
             <div id="card-modal-front" class="card-modal-face card-modal-front"></div>
         </div>
         <p class="card-modal-hint">Tap the card to flip it</p>
+    </div>
+
+    <div id="confirm-modal" class="confirm-modal-overlay">
+        <div class="confirm-modal-box">
+            <p id="confirm-modal-message" class="confirm-modal-message"></p>
+            <input type="text" id="confirm-modal-input" class="confirm-modal-input" style="display:none" />
+            <div class="confirm-modal-actions">
+                <button id="confirm-modal-cancel" class="btn secondary">Cancel</button>
+                <button id="confirm-modal-confirm" class="btn confirm-modal-danger">Confirm</button>
+            </div>
+        </div>
     </div>
 
     <div id="legendary-spotlight" class="legendary-spotlight-overlay"></div>
@@ -154,6 +171,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@1.23.0/dist/umd/lucide.min.js"></script>
     <script type="module" src="js/app.js"></script>
     <script>
         // Service worker registration is off while we're actively iterating on css/js -

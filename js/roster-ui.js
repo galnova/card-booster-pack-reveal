@@ -7,8 +7,12 @@ import {
   rosterCharacterIds,
   seatedCharacterIds,
   ROSTER_RULES,
+  getSavedRosters,
+  saveRosterAsFavorite,
+  deleteSavedRoster,
 } from "./roster.js";
 import { renderCardFace } from "./card-render.js";
+import { confirmAction, promptAction } from "./confirm-modal.js";
 
 const CATEGORY_DEFS = {
   main: { max: 1, label: "Main Character", setId: "characters", filter: (c) => c.tier === "main" },
@@ -44,6 +48,8 @@ export function initRosterUI({ catalog: cat, goToPacksTab: goPacks }) {
   el.exportBtn = document.getElementById("export-roster-btn");
   el.resetBtn = document.getElementById("reset-roster-btn");
   el.printRoot = document.getElementById("roster-print-root");
+  el.saveFavoriteBtn = document.getElementById("save-favorite-btn");
+  el.savedRostersList = document.getElementById("saved-rosters-list");
 
   for (const key of Object.keys(CATEGORY_DEFS)) {
     el[`pool_${key}`] = document.getElementById(`pool-${key}`);
@@ -62,8 +68,24 @@ export function initRosterUI({ catalog: cat, goToPacksTab: goPacks }) {
     persistAndRender();
   });
   el.exportBtn.addEventListener("click", exportRoster);
-  el.resetBtn.addEventListener("click", () => {
-    if (!confirm("Clear the entire roster? This can't be undone.")) return;
+  el.saveFavoriteBtn.addEventListener("click", async () => {
+    const main = roster.main ? catalog.cardsById.get(roster.main) : null;
+    const name = await promptAction({
+      message: "Name this roster to save it as a favorite.",
+      confirmLabel: "Save",
+      defaultValue: main ? `${main.name}'s Squad` : "My Roster",
+    });
+    if (!name) return;
+    saveRosterAsFavorite(name, roster);
+    renderSavedRosters();
+    announce(`Saved roster "${name}".`);
+  });
+  el.resetBtn.addEventListener("click", async () => {
+    const ok = await confirmAction({
+      message: "Clear the entire roster? This can't be undone.",
+      confirmLabel: "Clear Roster",
+    });
+    if (!ok) return;
     roster = { main: null, subs: [], mechs: [], wildcards: [], pairings: {}, darkMatter: [] };
     persistAndRender();
   });
@@ -80,7 +102,16 @@ export function refreshRosterUI() {
 
 function persistAndRender() {
   saveRoster(roster);
+  // renderAll() rebuilds every select/button from scratch, which destroys whatever
+  // element the user just interacted with and drops focus to <body>. Restore focus
+  // to the element with the same id (ids are stable across rebuilds, e.g. dm-host-0)
+  // so keyboard flow and rapid sequential picks don't feel like they broke.
+  const activeId = document.activeElement && document.activeElement.id;
   renderAll();
+  if (activeId) {
+    const restored = document.getElementById(activeId);
+    if (restored) restored.focus({ preventScroll: true });
+  }
 }
 
 function renderAll() {
@@ -89,6 +120,8 @@ function renderAll() {
   renderDarkMatter();
   renderChecklist();
   renderReview();
+  renderSavedRosters();
+  if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
 // ---------------------------------------------------------------------------
@@ -156,7 +189,7 @@ function buildChip(card, mode, category) {
   const wrap = document.createElement("div");
   wrap.className = "roster-card-chip";
   wrap.dataset.cardId = card.id;
-  const btnLabel = mode === "add" ? "+ Add" : "− Remove";
+  const btnLabel = mode === "add" ? '<i data-lucide="plus"></i> Add' : '<i data-lucide="minus"></i> Remove';
   const btnClass = mode === "add" ? "roster-card-add" : "roster-card-remove";
   wrap.innerHTML = `${renderCardFace(card, setById)}<button type="button" class="${btnClass}">${btnLabel}</button>`;
   wrap.querySelector("button").addEventListener("click", () => {
@@ -267,7 +300,7 @@ function buildPilotSelect(mech, characters, pairing, seat) {
     .map((c) => `<option value="${c.id}" ${c.id === currentValue ? "selected" : ""}>${c.name}${c.bond === mech.class ? " ★ Match" : ""}</option>`)
     .join("");
   const isMatch = currentValue && catalog.cardsById.get(currentValue)?.bond === mech.class;
-  return `<select id="${seat}-${mech.id}" class="roster-pairing-select${isMatch ? " bond-match" : ""}"><option value="">— None —</option>${options}</select>`;
+  return `<select id="${seat}-${mech.id}" class="roster-pairing-select${isMatch ? " bond-match" : ""}"><option value="">(None)</option>${options}</select>`;
 }
 
 function setPairing(mechId, seat, characterId) {
@@ -313,22 +346,22 @@ function renderDarkMatter() {
     row.innerHTML = `
       <div class="roster-pairing-field">
         <label for="dm-host-${i}">Host card</label>
-        <select id="dm-host-${i}" class="roster-pairing-select"><option value="">— Choose —</option>${hostOptions}</select>
+        <select id="dm-host-${i}" class="roster-pairing-select"><option value="">(Choose)</option>${hostOptions}</select>
       </div>
       <div class="roster-pairing-field">
         <label for="dm-gain-${i}">Gain</label>
-        <select id="dm-gain-${i}" class="roster-pairing-select"><option value="">— Choose —</option>${gainOptions}</select>
+        <select id="dm-gain-${i}" class="roster-pairing-select"><option value="">(Choose)</option>${gainOptions}</select>
       </div>
       <div class="roster-pairing-field">
         <label for="dm-penalty-${i}">Penalty</label>
-        <select id="dm-penalty-${i}" class="roster-pairing-select"><option value="">— Choose —</option>${penaltyOptions}</select>
+        <select id="dm-penalty-${i}" class="roster-pairing-select"><option value="">(Choose)</option>${penaltyOptions}</select>
       </div>
-      <button type="button" class="roster-darkmatter-remove" aria-label="Remove this corruption">&times;</button>
+      <button type="button" class="icon-btn-danger" aria-label="Remove this corruption"><i data-lucide="x"></i></button>
     `;
     row.querySelector(`#dm-host-${i}`).addEventListener("change", (e) => { dm.hostId = e.target.value || null; persistAndRender(); });
     row.querySelector(`#dm-gain-${i}`).addEventListener("change", (e) => { dm.gainId = e.target.value || null; persistAndRender(); });
     row.querySelector(`#dm-penalty-${i}`).addEventListener("change", (e) => { dm.penaltyId = e.target.value || null; persistAndRender(); });
-    row.querySelector(".roster-darkmatter-remove").addEventListener("click", () => {
+    row.querySelector(".icon-btn-danger").addEventListener("click", () => {
       roster.darkMatter.splice(i, 1);
       persistAndRender();
     });
@@ -405,7 +438,7 @@ function buildRosterSummaryHtml() {
     const pairing = roster.pairings[id] || {};
     const base = pairing.base ? catalog.cardsById.get(pairing.base) : null;
     const co = pairing.co ? catalog.cardsById.get(pairing.co) : null;
-    return `<li><strong>${mech.name}</strong> — Base: ${base ? base.name : "—"}${co ? `, Co-Pilot: ${co.name}` : ""}</li>`;
+    return `<li><strong>${mech.name}</strong> - Base: ${base ? base.name : "-"}${co ? `, Co-Pilot: ${co.name}` : ""}</li>`;
   });
   const dmRows = roster.darkMatter
     .filter((d) => d.hostId && d.gainId && d.penaltyId)
@@ -418,11 +451,11 @@ function buildRosterSummaryHtml() {
 
   return `
     <div class="roster-review-summary">
-      <p><strong>Main:</strong> ${main ? main.name : "—"}</p>
-      <p><strong>Subs:</strong> ${subs.length ? subs.map((c) => c.name).join(", ") : "—"}</p>
+      <p><strong>Main:</strong> ${main ? main.name : "-"}</p>
+      <p><strong>Subs:</strong> ${subs.length ? subs.map((c) => c.name).join(", ") : "-"}</p>
       <p><strong>Mechs &amp; Pilots:</strong></p>
-      <ul>${mechRows.join("") || "<li>—</li>"}</ul>
-      <p><strong>Wildcards:</strong> ${wildcards.length ? wildcards.map((c) => c.name).join(", ") : "—"}</p>
+      <ul>${mechRows.join("") || "<li>-</li>"}</ul>
+      <p><strong>Wildcards:</strong> ${wildcards.length ? wildcards.map((c) => c.name).join(", ") : "-"}</p>
       <p><strong>Dark Matter:</strong></p>
       <ul>${dmRows.join("") || "<li>None</li>"}</ul>
     </div>
@@ -430,12 +463,121 @@ function buildRosterSummaryHtml() {
 }
 
 // ---------------------------------------------------------------------------
+// Saved rosters (favorites)
+// ---------------------------------------------------------------------------
+function rosterIsEmpty(r) {
+  return !r.main && r.subs.length === 0 && r.mechs.length === 0 && r.wildcards.length === 0;
+}
+
+function renderSavedRosters() {
+  const saved = getSavedRosters();
+  if (saved.length === 0) {
+    el.savedRostersList.innerHTML = `<p class="roster-saved-empty-hint">No saved rosters yet. Build one and click "Save as Favorite".</p>`;
+    return;
+  }
+
+  el.savedRostersList.innerHTML = "";
+  for (const entry of saved) {
+    const date = new Date(entry.savedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    const row = document.createElement("div");
+    row.className = "roster-saved-row";
+    row.innerHTML = `
+      <div class="roster-saved-info">
+        <span class="roster-saved-name">${entry.name}</span>
+        <span class="roster-saved-date">Saved ${date}</span>
+      </div>
+      <div class="roster-saved-actions">
+        <button type="button" class="btn secondary roster-saved-load">Load</button>
+        <button type="button" class="icon-btn-danger roster-saved-delete" aria-label="Delete ${entry.name}"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+    row.querySelector(".roster-saved-load").addEventListener("click", () => loadSavedRoster(entry));
+    row.querySelector(".roster-saved-delete").addEventListener("click", async () => {
+      const ok = await confirmAction({
+        message: `Delete the saved roster "${entry.name}"? This can't be undone.`,
+        confirmLabel: "Delete",
+      });
+      if (!ok) return;
+      deleteSavedRoster(entry.id);
+      renderSavedRosters();
+      if (typeof lucide !== "undefined") lucide.createIcons();
+    });
+    el.savedRostersList.appendChild(row);
+  }
+}
+
+async function loadSavedRoster(entry) {
+  if (!rosterIsEmpty(roster)) {
+    const ok = await confirmAction({
+      message: `Load "${entry.name}"? This replaces your current in-progress roster.`,
+      confirmLabel: "Load",
+    });
+    if (!ok) return;
+  }
+  roster = sanitizeRoster(entry.roster, getCollection());
+  persistAndRender();
+  announce(`Loaded roster "${entry.name}".`);
+}
+
+// ---------------------------------------------------------------------------
 // Export / print
 // ---------------------------------------------------------------------------
+function buildVisualRosterHtml() {
+  const main = roster.main ? catalog.cardsById.get(roster.main) : null;
+  const subs = roster.subs.map((id) => catalog.cardsById.get(id));
+  const wildcards = roster.wildcards.map((id) => catalog.cardsById.get(id));
+  const mechs = roster.mechs.map((id) => catalog.cardsById.get(id));
+
+  const dmByHost = {};
+  for (const dm of roster.darkMatter) {
+    if (!dm.hostId || !dm.gainId || !dm.penaltyId) continue;
+    dmByHost[dm.hostId] = {
+      gain: catalog.cardsById.get(dm.gainId),
+      penalty: catalog.cardsById.get(dm.penaltyId),
+    };
+  }
+
+  function cardCell(card, caption) {
+    const dm = dmByHost[card.id];
+    const dmBadge = dm
+      ? `<p class="roster-print-dm-badge"><i class="fas fa-meteor"></i> ${dm.gain.name} / ${dm.penalty.name}</p>`
+      : "";
+    return `
+      <div class="roster-print-cell">
+        ${renderCardFace(card, setById)}
+        ${caption ? `<p class="roster-print-caption">${caption}</p>` : ""}
+        ${dmBadge}
+      </div>
+    `;
+  }
+
+  const mechCells = mechs.map((mech) => {
+    const pairing = roster.pairings[mech.id] || {};
+    const base = pairing.base ? catalog.cardsById.get(pairing.base) : null;
+    const co = pairing.co ? catalog.cardsById.get(pairing.co) : null;
+    const caption = [base ? `Base: ${base.name}` : null, co ? `Co-Pilot: ${co.name}` : null].filter(Boolean).join(" / ");
+    return cardCell(mech, caption);
+  });
+
+  const section = (title, cellsHtml) => `
+    <section class="roster-print-section">
+      <h2 class="roster-print-section-title">${title}</h2>
+      <div class="roster-print-grid">${cellsHtml}</div>
+    </section>
+  `;
+
+  return [
+    section("Main Character", main ? cardCell(main) : "<p>-</p>"),
+    section("Sub Characters", subs.map((c) => cardCell(c)).join("") || "<p>-</p>"),
+    section("Mechs &amp; Pilots", mechCells.join("") || "<p>-</p>"),
+    section("Wildcards", wildcards.map((c) => cardCell(c)).join("") || "<p>-</p>"),
+  ].join("");
+}
+
 function exportRoster() {
   const { complete } = validateRoster(roster);
   if (!complete) return;
-  el.printRoot.innerHTML = `<h1>HueShift Roster</h1>${buildRosterSummaryHtml()}`;
+  el.printRoot.innerHTML = `<h1 class="roster-print-title">HueShift Roster</h1>${buildVisualRosterHtml()}`;
   window.print();
 }
 

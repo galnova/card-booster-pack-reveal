@@ -1,6 +1,7 @@
 import { readJson, writeJson } from "./engine.js";
 
 const ROSTER_KEY = "hs-packs:roster";
+const SAVED_ROSTERS_KEY = "hs-packs:saved-rosters";
 
 export const ROSTER_RULES = {
   subs: 4,
@@ -30,6 +31,24 @@ export function saveRoster(roster) {
 
 export function resetRoster() {
   localStorage.removeItem(ROSTER_KEY);
+}
+
+/** Named, saved rosters ("favorites") - separate from the single active working roster above. */
+export function getSavedRosters() {
+  return readJson(SAVED_ROSTERS_KEY, []);
+}
+
+export function saveRosterAsFavorite(name, roster) {
+  const list = getSavedRosters();
+  list.push({ id: `saved-${Date.now()}`, name, savedAt: Date.now(), roster: structuredClone(roster) });
+  writeJson(SAVED_ROSTERS_KEY, list);
+  return list;
+}
+
+export function deleteSavedRoster(id) {
+  const list = getSavedRosters().filter((entry) => entry.id !== id);
+  writeJson(SAVED_ROSTERS_KEY, list);
+  return list;
 }
 
 /** Drops any card reference the player no longer owns, so a roster built

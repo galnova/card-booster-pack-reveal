@@ -531,6 +531,10 @@ button {
 }
 
 .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     border: none;
     border-radius: 999px;
     padding: 10px 22px;
@@ -540,6 +544,11 @@ button {
     background: var(--wc-bg);
     color: #fff;
     transition: transform 0.1s ease;
+}
+
+.btn svg {
+    width: 15px;
+    height: 15px;
 }
 
 .btn.secondary {
@@ -1053,9 +1062,16 @@ button {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    font-size: 1.4rem;
     line-height: 1;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-modal-close svg {
+    width: 18px;
+    height: 18px;
 }
 
 .card-modal-flip {
@@ -1100,6 +1116,72 @@ button {
 .card-modal-hint {
     color: var(--app-muted);
     font-size: 0.82rem;
+}
+
+/* ==========================================================================
+   Confirm modal - reusable stand-in for native confirm() on destructive actions
+   ========================================================================== */
+
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: #05050799;
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 200;
+}
+
+.confirm-modal-overlay.open {
+    display: flex;
+}
+
+.confirm-modal-box {
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-md);
+    padding: 24px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 20px 50px -12px #000000cc;
+}
+
+.confirm-modal-message {
+    color: var(--app-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 20px;
+}
+
+.confirm-modal-input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background: #1c1d24;
+    border: 1px solid #45485a;
+    border-radius: 8px;
+    color: var(--app-text);
+    font-size: 0.9rem;
+    padding: 10px 12px;
+    margin: 0 0 20px;
+}
+
+.confirm-modal-input:focus {
+    outline: 2px solid var(--rarity-rare);
+    outline-offset: 1px;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.confirm-modal-danger {
+    background: var(--penalty-color);
+    color: #fff;
 }
 
 /* ==========================================================================
@@ -1424,7 +1506,10 @@ button {
 }
 
 .roster-card-remove, .roster-card-add {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     width: 100%;
     margin-top: 6px;
     padding: 4px 0;
@@ -1438,6 +1523,11 @@ button {
     letter-spacing: 0.04em;
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.roster-card-remove svg, .roster-card-add svg {
+    width: 11px;
+    height: 11px;
 }
 
 .roster-card-remove:hover, .roster-card-add:hover {
@@ -1551,7 +1641,7 @@ button {
     padding: 14px;
 }
 
-.roster-darkmatter-remove {
+.icon-btn-danger {
     border: none;
     background: var(--penalty-color);
     color: #fff;
@@ -1559,7 +1649,68 @@ button {
     height: 30px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 0.9rem;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn-danger svg {
+    width: 16px;
+    height: 16px;
+}
+
+.roster-saved-section {
+    margin-top: 24px;
+}
+
+.roster-saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.roster-saved-empty-hint {
+    color: var(--app-muted);
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+.roster-saved-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+}
+
+.roster-saved-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.roster-saved-name {
+    font-weight: 700;
+    color: var(--app-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.roster-saved-date {
+    font-size: 0.75rem;
+    color: var(--app-muted);
+}
+
+.roster-saved-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     flex: none;
 }
 
@@ -1627,6 +1778,49 @@ button {
         flex-direction: column;
         align-items: stretch;
     }
+}
+
+.roster-print-title {
+    font-size: 1.6rem;
+    margin: 0 0 20px;
+}
+
+.roster-print-section {
+    margin-bottom: 24px;
+    break-inside: avoid;
+}
+
+.roster-print-section-title {
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 12px;
+    color: #333;
+}
+
+.roster-print-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.roster-print-cell {
+    width: 220px;
+    break-inside: avoid;
+}
+
+.roster-print-caption {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #333;
+    margin: 8px 0 0;
+}
+
+.roster-print-dm-badge {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--penalty-color);
+    margin: 4px 0 0;
 }
 
 @media print {
