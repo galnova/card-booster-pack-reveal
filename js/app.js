@@ -1,4 +1,5 @@
 import { loadCatalog, buildWeightedPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance } from "./engine.js";
+import { primeAudio, playTear, playFlip, playChime, playFanfare } from "./sound.js";
 
 const BOND_ICON = {
   fast: "fa-bolt",
@@ -8,16 +9,27 @@ const BOND_ICON = {
   elemental: "fa-atom",
 };
 
+const RARITY_RANK = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
+const RARITY_LABEL = { common: "Common", uncommon: "Uncommon", rare: "Rare", legendary: "Legendary" };
+const HOLD_DURATION_MS = 600;
+const RING_CIRCUMFERENCE = 289;
+
 let catalog = null;
 let weightedPool = null;
 let setById = {};
+let currentIsNew = {};
+let revealedCount = 0;
+let packSize = 0;
 
 const el = {
   allowanceCount: document.getElementById("allowance-count"),
   openStage: document.getElementById("open-stage"),
   packBtn: document.getElementById("pack-btn"),
+  packProgressRing: document.getElementById("pack-progress-ring"),
+  packProgressRingFg: document.getElementById("pack-progress-ring-fg"),
   openHint: document.getElementById("open-hint"),
   revealRow: document.getElementById("reveal-row"),
+  packSummary: document.getElementById("pack-summary"),
   revealActions: document.getElementById("reveal-actions"),
   revealAllBtn: document.getElementById("reveal-all-btn"),
   againBtn: document.getElementById("again-btn"),
@@ -29,6 +41,10 @@ const el = {
   cardModalFront: document.getElementById("card-modal-front"),
   cardModalClose: document.getElementById("card-modal-close"),
   resetAllowanceBtn: document.getElementById("reset-allowance-btn"),
+  legendarySpotlight: document.getElementById("legendary-spotlight"),
+  newToast: document.getElementById("new-toast"),
+  fxFlash: document.getElementById("fx-flash"),
+  fxVignette: document.getElementById("fx-vignette"),
 };
 
 init();
@@ -65,20 +81,87 @@ function updateAllowanceDisplay() {
   el.allowanceCount.textContent = `${state.remaining} / ${catalog.config.dailyAllowance}`;
   el.packBtn.disabled = state.remaining <= 0;
   el.openHint.textContent = state.remaining > 0
-    ? "Tap the pack to open it."
+    ? "Hold the pack to open it."
     : "No packs left today — come back tomorrow.";
 }
 
+// ---------------------------------------------------------------------------
+// Press-and-hold-to-open. Pointer devices must hold for HOLD_DURATION_MS;
+// keyboard activation (Enter/Space -> native click, no preceding pointerdown)
+// opens immediately since a hold gesture isn't meaningful there.
+// ---------------------------------------------------------------------------
+let holdRafId = null;
+let holdStartTime = null;
+let holdTriggeredOpen = false;
+let hadPointerInteraction = false;
+
 function wirePack() {
-  el.packBtn.addEventListener("click", openPack);
+  el.packBtn.addEventListener("pointerdown", onPackPointerDown);
+  el.packBtn.addEventListener("pointerup", onPackPointerUp);
+  el.packBtn.addEventListener("pointerleave", onPackPointerUp);
+  el.packBtn.addEventListener("pointercancel", onPackPointerUp);
+  el.packBtn.addEventListener("click", onPackClick);
+
   el.revealAllBtn.addEventListener("click", () => {
     document.querySelectorAll(".reveal-slot:not(.flipped)").forEach((slot, i) => {
-      setTimeout(() => flipSlot(slot), i * 120);
+      setTimeout(() => flipSlot(slot), i * 150);
     });
   });
   el.againBtn.addEventListener("click", resetOpenStage);
 }
 
+function onPackPointerDown() {
+  if (el.packBtn.disabled) return;
+  hadPointerInteraction = true;
+  primeAudio();
+  holdStartTime = performance.now();
+  el.packBtn.classList.add("holding");
+  el.packProgressRing.classList.add("active");
+  tickHold();
+}
+
+function tickHold() {
+  if (holdStartTime === null) return;
+  const elapsed = performance.now() - holdStartTime;
+  const progress = Math.min(elapsed / HOLD_DURATION_MS, 1);
+  el.packProgressRingFg.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - progress));
+  if (progress >= 1) {
+    holdTriggeredOpen = true;
+    finishHoldVisuals();
+    openPack();
+    return;
+  }
+  holdRafId = requestAnimationFrame(tickHold);
+}
+
+function onPackPointerUp() {
+  if (holdRafId) cancelAnimationFrame(holdRafId);
+  holdRafId = null;
+  holdStartTime = null;
+  finishHoldVisuals();
+}
+
+function finishHoldVisuals() {
+  el.packBtn.classList.remove("holding");
+  el.packProgressRing.classList.remove("active");
+  el.packProgressRingFg.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
+}
+
+function onPackClick() {
+  if (holdTriggeredOpen) {
+    holdTriggeredOpen = false;
+    return;
+  }
+  if (hadPointerInteraction) {
+    hadPointerInteraction = false;
+    return;
+  }
+  if (!el.packBtn.disabled) openPack();
+}
+
+// ---------------------------------------------------------------------------
+// Card zoom modal
+// ---------------------------------------------------------------------------
 function wireCardModal() {
   el.cardModalFlip.addEventListener("click", () => {
     el.cardModalFlip.classList.toggle("flipped");
@@ -93,7 +176,7 @@ function wireCardModal() {
 }
 
 function openCardModal(card) {
-  el.cardModalFront.innerHTML = renderCardFace(card, {});
+  el.cardModalFront.innerHTML = renderCardFace(card);
   el.cardModalFlip.classList.remove("flipped");
   el.cardModal.classList.add("open");
   document.body.style.overflow = "hidden";
@@ -104,14 +187,24 @@ function closeCardModal() {
   document.body.style.overflow = "";
 }
 
+// ---------------------------------------------------------------------------
+// Pack opening + reveal
+// ---------------------------------------------------------------------------
 function openPack() {
   const state = consumeAllowance(catalog.config.dailyAllowance);
   if (!state) return;
   updateAllowanceDisplay();
 
-  const pulled = drawPack(weightedPool, catalog.config.packSize);
-  recordPulls(pulled.map((c) => c.id));
+  const pulled = drawPack(weightedPool, catalog.config.packSize)
+    .slice()
+    .sort((a, b) => RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity]);
+  currentIsNew = recordPulls(pulled.map((c) => c.id));
   renderCollection();
+
+  playTear();
+  triggerHaptic(30);
+  triggerFlash();
+  triggerShake();
 
   el.packBtn.classList.add("opening");
   setTimeout(() => showRevealRow(pulled), 480);
@@ -121,13 +214,18 @@ function showRevealRow(pulled) {
   el.packBtn.classList.remove("opening");
   el.packBtn.style.display = "none";
   el.openHint.style.display = "none";
+  el.packSummary.style.display = "none";
   el.revealRow.innerHTML = "";
   el.revealActions.style.display = "flex";
   el.revealAllBtn.disabled = false;
+  revealedCount = 0;
+  packSize = pulled.length;
 
   pulled.forEach((card, i) => {
     const slot = document.createElement("div");
-    slot.className = "reveal-slot";
+    slot.className = "reveal-slot flickering";
+    slot.dataset.cardId = card.id;
+    slot.dataset.rarity = card.rarity;
     slot.innerHTML = `
       <div class="slot-face slot-back"><i class="fas fa-question"></i></div>
       <div class="slot-face slot-front">${renderCardFace(card)}</div>
@@ -140,22 +238,124 @@ function showRevealRow(pulled) {
       }
     });
     el.revealRow.appendChild(slot);
-    setTimeout(() => slot.classList.add("visible"), 20 + i * 90);
+    setTimeout(() => slot.classList.add("visible"), 20 + i * 110);
   });
 }
 
 function flipSlot(slot) {
+  if (slot.classList.contains("flipped")) return;
   slot.classList.add("flipped");
+  revealedCount += 1;
+
+  const card = catalog.cardsById.get(slot.dataset.cardId);
+  playFlip();
+
+  const rect = slot.getBoundingClientRect();
+  const origin = {
+    x: (rect.left + rect.width / 2) / window.innerWidth,
+    y: (rect.top + rect.height / 2) / window.innerHeight,
+  };
+
+  if (card.rarity === "rare") {
+    triggerHaptic([20, 30, 40]);
+    playChime();
+    burstConfetti({ particleCount: 60, spread: 55, origin, colors: [getThemeColor("--rarity-rare"), "#ffffff"] });
+  } else if (card.rarity === "legendary") {
+    triggerHaptic([30, 40, 30, 40, 60]);
+    playFanfare();
+    burstConfetti({ particleCount: 70, spread: 90, origin, colors: [getThemeColor("--rarity-legendary"), "#ffffff"] });
+    triggerVignette();
+    showLegendarySpotlight(card);
+  }
+
+  if (currentIsNew[card.id]) {
+    showNewToast(card.name);
+  }
+
+  if (revealedCount >= packSize) {
+    showPackSummary();
+  }
+}
+
+function showPackSummary() {
+  const rarityCounts = {};
+  document.querySelectorAll("#reveal-row .reveal-slot").forEach((slot) => {
+    const r = slot.dataset.rarity;
+    rarityCounts[r] = (rarityCounts[r] || 0) + 1;
+  });
+  const order = ["legendary", "rare", "uncommon", "common"];
+  const parts = order.filter((r) => rarityCounts[r]).map((r) => `${rarityCounts[r]} ${RARITY_LABEL[r]}`);
+  el.packSummary.textContent = parts.join(" · ");
+  el.packSummary.style.display = "";
 }
 
 function resetOpenStage() {
   el.revealRow.innerHTML = "";
   el.revealActions.style.display = "none";
+  el.packSummary.style.display = "none";
   el.packBtn.style.display = "";
   el.openHint.style.display = "";
+  revealedCount = 0;
   updateAllowanceDisplay();
 }
 
+// ---------------------------------------------------------------------------
+// Screen-level FX helpers
+// ---------------------------------------------------------------------------
+function triggerHaptic(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+function triggerFlash() {
+  el.fxFlash.classList.remove("play");
+  void el.fxFlash.offsetWidth;
+  el.fxFlash.classList.add("play");
+}
+
+function triggerShake() {
+  el.openStage.classList.remove("shake");
+  void el.openStage.offsetWidth;
+  el.openStage.classList.add("shake");
+}
+
+function triggerVignette() {
+  el.fxVignette.classList.remove("play");
+  void el.fxVignette.offsetWidth;
+  el.fxVignette.classList.add("play");
+}
+
+function burstConfetti(opts) {
+  if (typeof window.confetti === "function") {
+    window.confetti(opts);
+  }
+}
+
+function getThemeColor(varName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+
+function showLegendarySpotlight(card) {
+  el.legendarySpotlight.innerHTML = renderCardFace(card);
+  el.legendarySpotlight.classList.add("open");
+  setTimeout(() => {
+    el.legendarySpotlight.classList.remove("open");
+    el.legendarySpotlight.innerHTML = "";
+  }, 1700);
+}
+
+let toastTimeoutId = null;
+function showNewToast(name) {
+  el.newToast.textContent = `New: ${name}!`;
+  el.newToast.classList.add("show");
+  if (toastTimeoutId) clearTimeout(toastTimeoutId);
+  toastTimeoutId = setTimeout(() => {
+    el.newToast.classList.remove("show");
+  }, 1500);
+}
+
+// ---------------------------------------------------------------------------
+// Collection view
+// ---------------------------------------------------------------------------
 function renderCollection() {
   const collection = getCollection();
   el.collectionRoot.innerHTML = "";
