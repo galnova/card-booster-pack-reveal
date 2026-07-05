@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Design tokens — ported from the HueShift card catalog (hs-card-game)
+   Design tokens - ported from the HueShift card catalog (hs-card-game)
    so pulled cards render with the exact same visual identity.
    ========================================================================== */
 
@@ -211,6 +211,11 @@ button {
 }
 
 .pack {
+    /* Transform (hover lift, press, hold) is fully JS/spring-driven (see
+       wirePack in app.js) - no CSS transition and no :hover/:active/.holding
+       transform rules here, so nothing fights the spring's inline style
+       updates. The two animations below are on separate properties
+       (background-position, box-shadow) and are unaffected. */
     width: 240px;
     aspect-ratio: 2 / 3;
     border-radius: var(--radius-lg);
@@ -220,25 +225,8 @@ button {
     padding: 0;
     background: linear-gradient(135deg, var(--hero-bg) 0%, var(--mech-bg) 25%, var(--dm-bg) 50%, var(--wc-bg) 75%, var(--arena-bg) 100%);
     background-size: 220% 220%;
-    /* Two independent animations on separate properties (background-position, box-shadow) —
-     deliberately NOT touching `transform` here, since :hover/:active/:active-hold all
-     drive transform via transitions and a competing forwards-fill animation on the same
-     property would silently block those (see SESSION_LOG for the exact bug this caused once). */
     animation: pack-shimmer 6s ease-in-out infinite, pack-breathe 3s ease-in-out infinite;
     box-shadow: 0 18px 40px -12px #000000aa, inset 0 0 0 2px #ffffff30;
-    transition: transform 0.2s ease;
-}
-
-.pack:hover:not(:disabled) {
-    transform: translateY(-4px) scale(1.02);
-}
-
-.pack:active:not(:disabled) {
-    transform: scale(0.97);
-}
-
-.pack.holding {
-    transform: scale(0.96);
 }
 
 .pack:disabled {
@@ -328,10 +316,13 @@ button {
 }
 
 .pack-progress-ring {
+    /* Explicit width/height (not just `inset`) - an <svg> has an intrinsic
+       aspect ratio from its viewBox (1:1 here), which otherwise overrides
+       inset-derived sizing and breaks vertical centering. */
     position: absolute;
-    inset: -6px;
-    width: calc(100% + 12px);
-    height: calc(100% + 12px);
+    inset: 20px;
+    width: calc(100% - 40px);
+    height: calc(100% - 40px);
     transform: rotate(-90deg);
     pointer-events: none;
     opacity: 0;
@@ -423,13 +414,17 @@ button {
 }
 
 .reveal-slot {
+    /* Entrance fly-in only - CSS-driven. The flip itself lives on the nested
+       .reveal-flip element and is driven by real spring physics in JS (see
+       js/spring.js), never a CSS transform on THIS element, so the two never
+       fight over the same `transform` property. */
     --fly-y: -70px;
     --fly-rot: -6deg;
     width: 100%;
     max-width: 300px;
     aspect-ratio: 2 / 3;
     position: relative;
-    transform-style: preserve-3d;
+    perspective: 1400px;
     transform: translateY(var(--fly-y)) rotate(var(--fly-rot));
     opacity: 0;
     transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -445,17 +440,10 @@ button {
     opacity: 1;
 }
 
-.reveal-slot.flipped {
-    transform: rotateY(180deg);
-}
-
-.reveal-slot[data-rarity="rare"].flipped {
-    transition-duration: 0.5s, 0.9s;
-}
-
-.reveal-slot[data-rarity="legendary"].flipped {
-    transition-duration: 0.5s, 1.15s;
-    transition-timing-function: ease, cubic-bezier(0.34, 1.8, 0.64, 1);
+.reveal-flip {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
 }
 
 .slot-face {
@@ -543,6 +531,10 @@ button {
 }
 
 .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     border: none;
     border-radius: 999px;
     padding: 10px 22px;
@@ -552,6 +544,11 @@ button {
     background: var(--wc-bg);
     color: #fff;
     transition: transform 0.1s ease;
+}
+
+.btn svg {
+    width: 15px;
+    height: 15px;
 }
 
 .btn.secondary {
@@ -569,7 +566,7 @@ button {
 }
 
 /* ==========================================================================
-   Card face — ported from the source catalog's .card system
+   Card face - ported from the source catalog's .card system
    ========================================================================== */
 
 .card-wrap {
@@ -682,7 +679,7 @@ button {
 }
 
 .card-graphic {
-    min-height: clamp(104px, 57cqw, 209px);
+    min-height: clamp(104px, 66cqw, 209px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -933,7 +930,7 @@ button {
     box-shadow: 0 0 0 3px var(--rarity-legendary), 0 0 34px -2px var(--rarity-legendary);
 }
 
-/* Scoped to low-count contexts (reveal row, modal) only — an infinite box-shadow
+/* Scoped to low-count contexts (reveal row, modal) only - an infinite box-shadow
    animation on every uncommon card in a big collection grid would be a real perf cost. */
 
 .reveal-slot .card[data-rarity="uncommon"],
@@ -975,7 +972,7 @@ button {
 .set-section-title {
     font-size: 1.1rem;
     font-weight: 800;
-    margin-bottom: 4px;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1034,7 +1031,7 @@ button {
 }
 
 /* ==========================================================================
-   Card zoom modal — click any revealed/owned card to blow it up and flip it
+   Card zoom modal - click any revealed/owned card to blow it up and flip it
    ========================================================================== */
 
 .card-modal-overlay {
@@ -1065,23 +1062,27 @@ button {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    font-size: 1.4rem;
     line-height: 1;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-modal-close svg {
+    width: 18px;
+    height: 18px;
 }
 
 .card-modal-flip {
+    /* Transform is fully JS/spring-driven (see wireCardModal in app.js) - no
+       CSS transition here, so there's nothing for the spring's inline style
+       updates to fight with. */
     width: min(82vw, 360px);
     aspect-ratio: 2 / 3;
     position: relative;
     transform-style: preserve-3d;
-    transform: rotateY(0deg);
-    transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
     cursor: pointer;
-}
-
-.card-modal-flip.flipped {
-    transform: rotateY(180deg);
 }
 
 .card-modal-face {
@@ -1118,7 +1119,73 @@ button {
 }
 
 /* ==========================================================================
-   Full-screen FX overlays — flash, vignette, legendary spotlight, new-card toast.
+   Confirm modal - reusable stand-in for native confirm() on destructive actions
+   ========================================================================== */
+
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: #05050799;
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 200;
+}
+
+.confirm-modal-overlay.open {
+    display: flex;
+}
+
+.confirm-modal-box {
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-md);
+    padding: 24px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 20px 50px -12px #000000cc;
+}
+
+.confirm-modal-message {
+    color: var(--app-text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 20px;
+}
+
+.confirm-modal-input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background: #1c1d24;
+    border: 1px solid #45485a;
+    border-radius: 8px;
+    color: var(--app-text);
+    font-size: 0.9rem;
+    padding: 10px 12px;
+    margin: 0 0 20px;
+}
+
+.confirm-modal-input:focus {
+    outline: 2px solid var(--rarity-rare);
+    outline-offset: 1px;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.confirm-modal-danger {
+    background: var(--penalty-color);
+    color: #fff;
+}
+
+/* ==========================================================================
+   Full-screen FX overlays - flash, vignette, legendary spotlight, new-card toast.
    All one-shot, opacity/background-driven (never transform), toggled by a JS class
    and left to revert on their own (no `forwards`) so they can replay every time.
    ========================================================================== */
@@ -1227,4 +1294,544 @@ button {
 .new-toast.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   Roster builder
+   ========================================================================== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.roster-checklist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.roster-checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--app-surface);
+    border: 1px solid #33353f;
+    border-radius: 999px;
+    padding: 6px 14px 6px 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--app-text);
+}
+
+.roster-checklist-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #33353f;
+    color: var(--app-muted);
+    font-size: 0.65rem;
+    flex: none;
+}
+
+.roster-checklist-item.complete {
+    border-color: var(--gain-color);
+}
+
+.roster-checklist-item.complete .roster-checklist-icon {
+    background: var(--gain-color);
+    color: #fff;
+}
+
+.roster-steps {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #2c2e38;
+}
+
+.roster-step-btn {
+    border: none;
+    background: none;
+    color: var(--app-muted);
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: transform 0.1s ease, color 0.15s ease;
+}
+
+.roster-step-btn:active {
+    transform: scale(0.96);
+}
+
+.roster-step-btn.active {
+    color: var(--app-text);
+    border-bottom-color: var(--wc-bg);
+}
+
+.roster-step-btn .roster-step-check {
+    margin-left: 6px;
+    color: var(--gain-color);
+}
+
+.roster-panel {
+    display: none;
+}
+
+.roster-panel.active {
+    display: block;
+    animation: roster-panel-in 0.25s ease;
+}
+
+@keyframes roster-panel-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.roster-pick-group {
+    margin-bottom: 40px;
+}
+
+.roster-pick-group:last-child {
+    margin-bottom: 0;
+}
+
+.roster-section-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.roster-section-count {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--app-muted);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.roster-hint {
+    color: var(--app-muted);
+    font-size: 0.85rem;
+    margin: 0 0 16px 0;
+    max-width: 640px;
+}
+
+.roster-pool, .roster-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    min-height: 100px;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+}
+
+.roster-pool {
+    background: #00000022;
+    border: 1px dashed #33353f;
+}
+
+.roster-slots {
+    background: #ffffff08;
+    border: 2px dashed #45485a;
+}
+
+.roster-slots.roster-slots-full {
+    border-color: var(--gain-color);
+    border-style: solid;
+}
+
+.roster-slots-empty-hint, .roster-pool-empty-hint {
+    grid-column: 1 / -1;
+    color: var(--app-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 24px 10px;
+    font-style: italic;
+}
+
+.roster-card-chip {
+    cursor: grab;
+}
+
+.roster-card-chip:active {
+    cursor: grabbing;
+}
+
+.roster-card-chip .card {
+    max-width: 100%;
+    border: 5px solid var(--hero-bg);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.roster-card-chip .card-graphic {
+  margin: 0 -14px 1.5px -14px;
+}
+
+/* .roster-card-chip:hover .card {
+    transform: translateY(-3px);
+} */
+
+.roster-card-chip.sortable-ghost {
+    opacity: 0.3;
+}
+
+.roster-card-chip.sortable-chosen .card {
+    box-shadow: 0 0 0 3px var(--wc-bg);
+}
+
+.roster-card-chip.sortable-drag .card {
+    box-shadow: 0 10px 30px -6px #000000cc;
+}
+
+.roster-card-remove, .roster-card-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    margin-top: 6px;
+    padding: 4px 0;
+    border-radius: 999px;
+    border: 1px solid #45485a;
+    background: none;
+    color: var(--app-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.roster-card-remove svg, .roster-card-add svg {
+    width: 11px;
+    height: 11px;
+}
+
+.roster-card-remove:hover, .roster-card-add:hover {
+    color: var(--app-text);
+    border-color: var(--app-muted);
+}
+
+.roster-card-remove:active, .roster-card-add:active {
+    transform: scale(0.96);
+}
+
+.roster-pairing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.roster-pairing-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-md);
+    padding: 14px;
+    flex-wrap: wrap;
+}
+
+.roster-pairing-mech {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 160px;
+    font-weight: 800;
+}
+
+.roster-pairing-mech-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mech-bg);
+    color: #fff;
+    flex: none;
+}
+
+.roster-pairing-fields {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.roster-pairing-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 170px;
+}
+
+.roster-pairing-field label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--app-muted);
+}
+
+.roster-pairing-select {
+    background: #0000002e;
+    border: 1px solid #33353f;
+    color: var(--app-text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+
+.roster-pairing-select option {
+  background: var(--app-surface);
+}
+
+.roster-pairing-select.bond-match {
+    border-color: var(--rarity-legendary);
+    box-shadow: 0 0 0 1px var(--rarity-legendary);
+}
+
+.roster-bond-match-note {
+    font-size: 0.7rem;
+    color: var(--rarity-legendary);
+    font-weight: 700;
+}
+
+.roster-darkmatter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.roster-darkmatter-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-md);
+    padding: 14px;
+}
+
+.icon-btn-danger {
+    border: none;
+    background: var(--penalty-color);
+    color: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn-danger svg {
+    width: 16px;
+    height: 16px;
+}
+
+.roster-saved-section {
+    margin-top: 24px;
+}
+
+.roster-saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.roster-saved-empty-hint {
+    color: var(--app-muted);
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+.roster-saved-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+}
+
+.roster-saved-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.roster-saved-name {
+    font-weight: 700;
+    color: var(--app-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.roster-saved-date {
+    font-size: 0.75rem;
+    color: var(--app-muted);
+}
+
+.roster-saved-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+.roster-review-summary {
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.roster-review-issue {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ff8a75;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.roster-review-complete-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--gain-color), #1f6b33);
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.roster-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.roster-empty-state {
+    text-align: center;
+    color: var(--app-muted);
+    padding: 30px 20px;
+    font-size: 0.9rem;
+}
+
+.roster-goto-packs {
+    color: #b48cff;
+    font-weight: 700;
+    cursor: pointer;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    font-size: inherit;
+    padding: 0;
+    font-family: inherit;
+}
+
+.roster-print-root {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .roster-pairing-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.roster-print-title {
+    font-size: 1.6rem;
+    margin: 0 0 20px;
+}
+
+.roster-print-section {
+    margin-bottom: 24px;
+    break-inside: avoid;
+}
+
+.roster-print-section-title {
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 12px;
+    color: #333;
+}
+
+.roster-print-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.roster-print-cell {
+    width: 220px;
+    break-inside: avoid;
+}
+
+.roster-print-caption {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #333;
+    margin: 8px 0 0;
+}
+
+.roster-print-dm-badge {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--penalty-color);
+    margin: 4px 0 0;
+}
+
+@media print {
+    body > *:not(.roster-print-root) {
+        display: none !important;
+    }
+
+    .roster-print-root {
+        display: block !important;
+        background: #fff;
+        color: #111;
+        padding: 20px;
+    }
 }

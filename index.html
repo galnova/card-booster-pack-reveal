@@ -19,12 +19,14 @@
         <div class="allowance">
             Packs today: <strong id="allowance-count">–</strong>
             <button id="reset-allowance-btn" class="allowance-reset" title="Dev: reset today's pack allowance">reset</button>
+            <button id="reset-collection-btn" class="allowance-reset" title="Beta: clear entire collection for testing">reset collection</button>
         </div>
     </header>
 
     <nav class="tabs">
         <button class="tab-btn active" data-view="view-open">Open Packs</button>
         <button class="tab-btn" data-view="view-collection">Collection</button>
+        <button class="tab-btn" data-view="view-roster">Roster</button>
     </nav>
 
     <main id="view-open" class="view active">
@@ -61,13 +63,105 @@
         <div id="collection-root"></div>
     </main>
 
+    <main id="view-roster" class="view">
+        <div class="collection-header">
+            <h2 class="app-title">Build Your Roster</h2>
+        </div>
+
+        <ol class="roster-checklist" id="roster-checklist" aria-label="Roster completion checklist"></ol>
+        <p class="roster-live-status sr-only" id="roster-live-status" role="status" aria-live="polite"></p>
+
+        <nav class="roster-steps" id="roster-steps">
+            <button class="roster-step-btn active" data-step="characters">1. Characters</button>
+            <button class="roster-step-btn" data-step="mechs">2. Mechs</button>
+            <button class="roster-step-btn" data-step="wildcards">3. Wildcards</button>
+            <button class="roster-step-btn" data-step="pairing">4. Pairing</button>
+            <button class="roster-step-btn" data-step="darkmatter">5. Dark Matter</button>
+            <button class="roster-step-btn" data-step="review">6. Review</button>
+        </nav>
+
+        <section class="roster-panel active" data-step-panel="characters">
+            <div class="roster-pick-group">
+                <h3 class="roster-section-title">Main Character <span class="roster-section-count" id="count-main">0 / 1</span></h3>
+                <p class="roster-hint">Your signature hero for this roster. Drag a card down, or click it to add.</p>
+                <div class="roster-pool" id="pool-main" data-slot="main" aria-label="Owned Main-tier characters"></div>
+                <div class="roster-slots" id="slot-main" data-slot="main" aria-label="Main Character roster slot"></div>
+            </div>
+            <div class="roster-pick-group">
+                <h3 class="roster-section-title">Sub Characters <span class="roster-section-count" id="count-subs">0 / 4</span></h3>
+                <p class="roster-hint">Four supporting heroes with utility-focused abilities.</p>
+                <div class="roster-pool" id="pool-subs" data-slot="subs" aria-label="Owned Sub-tier characters"></div>
+                <div class="roster-slots" id="slot-subs" data-slot="subs" aria-label="Sub Character roster slots"></div>
+            </div>
+        </section>
+
+        <section class="roster-panel" data-step-panel="mechs">
+            <div class="roster-pick-group">
+                <h3 class="roster-section-title">Mechs <span class="roster-section-count" id="count-mechs">0 / 5</span></h3>
+                <p class="roster-hint">Five chassis for your characters to pilot.</p>
+                <div class="roster-pool" id="pool-mechs" data-slot="mechs" aria-label="Owned Mechs"></div>
+                <div class="roster-slots" id="slot-mechs" data-slot="mechs" aria-label="Mech roster slots"></div>
+            </div>
+        </section>
+
+        <section class="roster-panel" data-step-panel="wildcards">
+            <div class="roster-pick-group">
+                <h3 class="roster-section-title">Wildcards <span class="roster-section-count" id="count-wildcards">0 / 3</span></h3>
+                <p class="roster-hint">Three one-time interrupt effects for your hand.</p>
+                <div class="roster-pool" id="pool-wildcards" data-slot="wildcards" aria-label="Owned Wildcards"></div>
+                <div class="roster-slots" id="slot-wildcards" data-slot="wildcards" aria-label="Wildcard roster slots"></div>
+            </div>
+        </section>
+
+        <section class="roster-panel" data-step-panel="pairing">
+            <h3 class="roster-section-title">Pilot Assignments</h3>
+            <p class="roster-hint">Assign each character to a Mech as Base Pilot or Co-Pilot. A gold ring means the Bond Trait matches the Mech's class for a +1 AP / +1 HP bonus.</p>
+            <div id="roster-pairing-list" class="roster-pairing-list"></div>
+        </section>
+
+        <section class="roster-panel" data-step-panel="darkmatter">
+            <h3 class="roster-section-title">Dark Matter <span class="roster-section-count">optional, up to 2</span></h3>
+            <p class="roster-hint">Corrupt one of your own roster cards with 1 Gain + 1 Penalty, taken together as a trade.</p>
+            <div id="roster-darkmatter-list" class="roster-darkmatter-list"></div>
+            <button id="add-darkmatter-btn" class="btn secondary">+ Add Corruption</button>
+        </section>
+
+        <section class="roster-panel" data-step-panel="review">
+            <h3 class="roster-section-title">Review &amp; Export</h3>
+            <div id="roster-review" class="roster-review"></div>
+            <div class="roster-actions">
+                <button id="export-roster-btn" class="btn" disabled>Export Roster</button>
+                <button id="save-favorite-btn" class="btn secondary"><i data-lucide="star"></i> Save as Favorite</button>
+                <button id="reset-roster-btn" class="btn secondary">Clear Roster</button>
+            </div>
+
+            <div class="roster-saved-section">
+                <h3 class="roster-section-title">Saved Rosters</h3>
+                <div id="saved-rosters-list" class="roster-saved-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="roster-print-root" class="roster-print-root"></div>
+
     <div id="card-modal" class="card-modal-overlay">
-        <button id="card-modal-close" class="card-modal-close" aria-label="Close">&times;</button>
+        <button id="card-modal-close" class="card-modal-close" aria-label="Close"><i data-lucide="x"></i></button>
         <div id="card-modal-flip" class="card-modal-flip">
             <div class="card-modal-face card-modal-back"><i class="fas fa-question"></i></div>
             <div id="card-modal-front" class="card-modal-face card-modal-front"></div>
         </div>
         <p class="card-modal-hint">Tap the card to flip it</p>
+    </div>
+
+    <div id="confirm-modal" class="confirm-modal-overlay">
+        <div class="confirm-modal-box">
+            <p id="confirm-modal-message" class="confirm-modal-message"></p>
+            <input type="text" id="confirm-modal-input" class="confirm-modal-input" style="display:none" />
+            <div class="confirm-modal-actions">
+                <button id="confirm-modal-cancel" class="btn secondary">Cancel</button>
+                <button id="confirm-modal-confirm" class="btn confirm-modal-danger">Confirm</button>
+            </div>
+        </div>
     </div>
 
     <div id="legendary-spotlight" class="legendary-spotlight-overlay"></div>
@@ -76,9 +170,11 @@
     <div id="fx-vignette" class="fx-vignette"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@1.23.0/dist/umd/lucide.min.js"></script>
     <script type="module" src="js/app.js"></script>
     <script>
-        // Service worker registration is off while we're actively iterating on css/js —
+        // Service worker registration is off while we're actively iterating on css/js -
         // a stale cached worker was masking edits. This actively tears down any worker
         // left over from earlier testing so pages self-heal without manual DevTools steps.
         // Re-enable registration (see service-worker.js) once the app has stabilized.
