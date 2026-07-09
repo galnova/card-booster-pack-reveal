@@ -78,6 +78,12 @@ button {
     letter-spacing: 0.02em;
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .allowance {
     display: flex;
     align-items: center;
@@ -96,27 +102,93 @@ button {
     font-size: 1rem;
 }
 
-.allowance-reset {
-    border: 1px solid #45485a;
-    background: none;
+.icon-btn-ghost {
+    border: 1px solid #33353f;
+    background: #0000002e;
     color: var(--app-muted);
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    border-radius: 999px;
-    padding: 3px 9px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: transform 0.1s ease, color 0.15s ease, border-color 0.15s ease;
+    transition: color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
-.allowance-reset:hover {
+.icon-btn-ghost svg {
+    width: 16px;
+    height: 16px;
+}
+
+.icon-btn-ghost:hover {
     color: var(--app-text);
     border-color: var(--app-muted);
 }
 
-.allowance-reset:active {
+.icon-btn-ghost:active {
     transform: scale(0.94);
+}
+
+.settings-menu {
+    position: relative;
+}
+
+.settings-panel {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-md);
+    padding: 8px;
+    box-shadow: 0 14px 34px -10px #000000cc;
+    z-index: 30;
+}
+
+.settings-panel.open {
+    display: flex;
+}
+
+.settings-panel-item {
+    border: none;
+    background: none;
+    color: var(--app-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.settings-panel-item:hover {
+    color: var(--app-text);
+    background: #ffffff0f;
+}
+
+.app-tagline {
+    max-width: 640px;
+    margin: 0 auto 20px;
+    text-align: center;
+    color: var(--app-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.app-tagline a {
+    color: var(--rarity-rare);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.app-tagline a:hover {
+    text-decoration: underline;
 }
 
 .tabs {
@@ -364,8 +436,9 @@ button {
     text-shadow: 0 2px 6px #00000080;
 }
 
-.pack-label i {
-    font-size: 2.2rem;
+.pack-label svg {
+    width: 2.2rem;
+    height: 2.2rem;
 }
 
 @keyframes pack-shimmer {
@@ -486,8 +559,9 @@ button {
     }
 }
 
-.slot-back i {
-    font-size: 2.4rem;
+.slot-back svg {
+    width: 2.4rem;
+    height: 2.4rem;
     color: #565a6b;
 }
 
@@ -588,6 +662,7 @@ button {
 .card-owned-count {
     font-size: 0.78rem;
     font-weight: 700;
+    margin-top: 10px;
     color: var(--app-muted);
 }
 
@@ -670,12 +745,13 @@ button {
     flex: none;
 }
 
-.card-cost i {
+.card-cost svg {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    line-height: 1;
+    width: clamp(0.62rem, 4.8cqw, 0.95rem);
+    height: clamp(0.62rem, 4.8cqw, 0.95rem);
 }
 
 .card-graphic {
@@ -689,8 +765,9 @@ button {
     overflow: hidden;
 }
 
-.card-graphic i {
-    font-size: clamp(1.8rem, 12cqw, 3.6rem);
+.card-graphic svg {
+    width: clamp(1.8rem, 12cqw, 3.6rem);
+    height: clamp(1.8rem, 12cqw, 3.6rem);
     color: #ffffff3a;
 }
 
@@ -773,6 +850,11 @@ button {
     gap: 3px;
 }
 
+.card-tier svg {
+    width: clamp(0.5rem, 3.8cqw, 0.78rem);
+    height: clamp(0.5rem, 3.8cqw, 0.78rem);
+}
+
 .card-tier.main {
     background: #d4af37;
     border-color: #d4af37;
@@ -783,6 +865,11 @@ button {
     background: #bf9bdf;
     border-color: #bf9bdf;
     color: var(--muted-text);
+}
+
+.card-bond svg {
+    width: clamp(10px, 5cqw, 14px);
+    height: clamp(10px, 5cqw, 14px);
 }
 
 .card-bond {
@@ -998,7 +1085,7 @@ button {
     cursor: pointer;
 }
 
-.card.locked .card-graphic i {
+.card.locked .card-graphic svg {
     color: #ffffff22;
 }
 
@@ -1100,8 +1187,9 @@ button {
     justify-content: center;
 }
 
-.card-modal-back i {
-    font-size: 4.5rem;
+.card-modal-back svg {
+    width: 4.5rem;
+    height: 4.5rem;
     color: #565a6b;
 }
 
@@ -1346,6 +1434,11 @@ button {
     flex: none;
 }
 
+.roster-checklist-icon svg {
+    width: 12px;
+    height: 12px;
+}
+
 .roster-checklist-item.complete {
     border-color: var(--gain-color);
 }
@@ -1388,6 +1481,8 @@ button {
 .roster-step-btn .roster-step-check {
     margin-left: 6px;
     color: var(--gain-color);
+    width: 13px;
+    height: 13px;
 }
 
 .roster-panel {
@@ -1564,6 +1659,11 @@ button {
     font-weight: 800;
 }
 
+.roster-pairing-mech-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
 .roster-pairing-mech-icon {
     width: 40px;
     height: 40px;
@@ -1722,6 +1822,12 @@ button {
     margin-bottom: 20px;
 }
 
+.roster-review-issue svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+}
+
 .roster-review-issue {
     display: flex;
     align-items: center;
@@ -1742,6 +1848,12 @@ button {
     border-radius: var(--radius-md);
     font-weight: 800;
     margin-bottom: 20px;
+}
+
+.roster-review-complete-banner svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
 }
 
 .roster-actions {
@@ -1821,6 +1933,12 @@ button {
     font-size: 0.72rem;
     color: var(--penalty-color);
     margin: 4px 0 0;
+}
+
+.roster-print-dm-badge svg {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
 }
 
 @media print {

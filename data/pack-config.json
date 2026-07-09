@@ -2,11 +2,11 @@
   "packSize": 5,
   "dailyAllowance": 3,
   "sets": [
-    { "id": "characters", "file": "data/characters.json", "accentVar": "--hero-bg", "scopeClass": null, "typeIcon": "fa-user", "label": "Character" },
-    { "id": "mechs", "file": "data/mechs.json", "accentVar": "--mech-bg", "scopeClass": "mech-cards", "typeIcon": "fa-robot", "label": "Mech" },
-    { "id": "darkMatter", "file": "data/dark-matter.json", "accentVar": "--dm-bg", "scopeClass": "dm-cards", "typeIcon": "fa-meteor", "label": "Dark Matter" },
-    { "id": "wildcards", "file": "data/wildcards.json", "accentVar": "--wc-bg", "scopeClass": "wc-cards", "typeIcon": "fa-bolt", "label": "Wildcard" },
-    { "id": "arena", "file": "data/arena.json", "accentVar": "--arena-bg", "scopeClass": "arena-cards", "typeIcon": "fa-globe", "label": "Arena" }
+    { "id": "characters", "file": "data/characters.json", "accentVar": "--hero-bg", "scopeClass": null, "typeIcon": "user", "label": "Character" },
+    { "id": "mechs", "file": "data/mechs.json", "accentVar": "--mech-bg", "scopeClass": "mech-cards", "typeIcon": "bot", "label": "Mech" },
+    { "id": "darkMatter", "file": "data/dark-matter.json", "accentVar": "--dm-bg", "scopeClass": "dm-cards", "typeIcon": "radiation", "label": "Dark Matter" },
+    { "id": "wildcards", "file": "data/wildcards.json", "accentVar": "--wc-bg", "scopeClass": "wc-cards", "typeIcon": "zap", "label": "Wildcard" },
+    { "id": "arena", "file": "data/arena.json", "accentVar": "--arena-bg", "scopeClass": "arena-cards", "typeIcon": "globe", "label": "Arena" }
   ],
   "rarities": [
     { "id": "common", "label": "Common", "weight": 50 },

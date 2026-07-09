@@ -38,6 +38,8 @@ const el = {
   cardModalClose: document.getElementById("card-modal-close"),
   resetAllowanceBtn: document.getElementById("reset-allowance-btn"),
   resetCollectionBtn: document.getElementById("reset-collection-btn"),
+  settingsBtn: document.getElementById("settings-btn"),
+  settingsPanel: document.getElementById("settings-panel"),
   legendarySpotlight: document.getElementById("legendary-spotlight"),
   newToast: document.getElementById("new-toast"),
   fxFlash: document.getElementById("fx-flash"),
@@ -54,11 +56,14 @@ async function init() {
   wireTabs();
   wirePack();
   wireCardModal();
+  wireSettingsMenu();
   el.resetAllowanceBtn.addEventListener("click", () => {
     resetAllowance();
     resetOpenStage();
+    closeSettingsMenu();
   });
   el.resetCollectionBtn.addEventListener("click", async () => {
+    closeSettingsMenu();
     const ok = await confirmAction({
       message: "Clear your entire collection? Every card you've pulled will be gone. This can't be undone.",
       confirmLabel: "Clear Collection",
@@ -85,6 +90,27 @@ function wireTabs() {
 function switchToView(viewId) {
   el.tabs.forEach((b) => b.classList.toggle("active", b.dataset.view === viewId));
   el.views.forEach((v) => v.classList.toggle("active", v.id === viewId));
+}
+
+function wireSettingsMenu() {
+  el.settingsBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = el.settingsPanel.classList.toggle("open");
+    el.settingsBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+  document.addEventListener("click", (e) => {
+    if (!el.settingsPanel.classList.contains("open")) return;
+    if (e.target === el.settingsBtn || el.settingsPanel.contains(e.target)) return;
+    closeSettingsMenu();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSettingsMenu();
+  });
+}
+
+function closeSettingsMenu() {
+  el.settingsPanel.classList.remove("open");
+  el.settingsBtn.setAttribute("aria-expanded", "false");
 }
 
 function updateAllowanceDisplay() {
@@ -237,8 +263,13 @@ function wireCardModal() {
   });
 }
 
+function refreshIcons() {
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
 function openCardModal(card) {
   el.cardModalFront.innerHTML = renderCardFace(card);
+  refreshIcons();
   if (cancelModalSpring) cancelModalSpring();
   modalAngle = 0;
   el.cardModalFlip.style.transform = "rotateY(0deg)";
@@ -293,7 +324,7 @@ function showRevealRow(pulled) {
     slot.dataset.rarity = card.rarity;
     slot.innerHTML = `
       <div class="reveal-flip">
-        <div class="slot-face slot-back"><i class="fas fa-question"></i></div>
+        <div class="slot-face slot-back"><i data-lucide="circle-help"></i></div>
         <div class="slot-face slot-front">${renderCardFace(card)}</div>
       </div>
     `;
@@ -307,6 +338,7 @@ function showRevealRow(pulled) {
     el.revealRow.appendChild(slot);
     setTimeout(() => slot.classList.add("visible"), 20 + i * 110);
   });
+  refreshIcons();
 }
 
 function flipSlot(slot) {
@@ -340,7 +372,6 @@ function flipSlot(slot) {
   } else if (card.rarity === "legendary") {
     triggerHaptic([30, 40, 30, 40, 60]);
     playFanfare();
-    burstConfetti({ particleCount: 70, spread: 90, origin, colors: [getThemeColor("--rarity-legendary"), "#ffffff"] });
     triggerVignette();
     showLegendarySpotlight(card);
   }
@@ -364,6 +395,24 @@ function showPackSummary() {
   const parts = order.filter((r) => rarityCounts[r]).map((r) => `${rarityCounts[r]} ${RARITY_LABEL[r]}`);
   el.packSummary.textContent = parts.join(" · ");
   el.packSummary.style.display = "";
+
+  if (rarityCounts.legendary) {
+    burstConfetti({
+      particleCount: 120,
+      spread: 120,
+      startVelocity: 50,
+      origin: { x: 0.5, y: 0.9 },
+      colors: [getThemeColor("--rarity-legendary"), getThemeColor("--rarity-rare"), "#ffffff"],
+      shapes: ["star", "circle"],
+    });
+  } else if (rarityCounts.rare) {
+    burstConfetti({
+      particleCount: 60,
+      spread: 90,
+      origin: { x: 0.5, y: 0.9 },
+      colors: [getThemeColor("--rarity-rare"), "#ffffff"],
+    });
+  }
 }
 
 function resetOpenStage() {
@@ -408,7 +457,7 @@ function triggerVignette() {
 
 function burstConfetti(opts) {
   if (typeof window.confetti === "function") {
-    window.confetti(opts);
+    window.confetti({ disableForReducedMotion: true, ...opts });
   }
 }
 
@@ -418,11 +467,30 @@ function getThemeColor(varName) {
 
 function showLegendarySpotlight(card) {
   el.legendarySpotlight.innerHTML = renderCardFace(card);
+  refreshIcons();
   el.legendarySpotlight.classList.add("open");
+  legendaryFireworks();
   setTimeout(() => {
     el.legendarySpotlight.classList.remove("open");
     el.legendarySpotlight.innerHTML = "";
   }, 1700);
+}
+
+function legendaryFireworks() {
+  const gold = getThemeColor("--rarity-legendary");
+  burstConfetti({
+    particleCount: 90,
+    spread: 100,
+    startVelocity: 55,
+    origin: { x: 0.5, y: 0.35 },
+    colors: [gold, "#ffffff"],
+    shapes: ["star", "circle"],
+    scalar: 1.1,
+  });
+  setTimeout(() => {
+    burstConfetti({ particleCount: 45, angle: 60, spread: 60, startVelocity: 45, origin: { x: 0, y: 0.7 }, colors: [gold, "#ffffff"], shapes: ["star"] });
+    burstConfetti({ particleCount: 45, angle: 120, spread: 60, startVelocity: 45, origin: { x: 1, y: 0.7 }, colors: [gold, "#ffffff"], shapes: ["star"] });
+  }, 300);
 }
 
 let toastTimeoutId = null;
@@ -485,6 +553,7 @@ function renderCollection() {
 
     el.collectionRoot.appendChild(section);
   }
+  refreshIcons();
 }
 
 function renderCardFace(card) {

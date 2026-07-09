@@ -5,7 +5,7 @@
     "tier": "main",
     "rarity": "rare",
     "role": "Brave Hero",
-    "classIcon": "fa-fist-raised",
+    "classIcon": "hand-fist",
     "bond": "tank",
     "ability": {
       "name": "Rally",
@@ -23,7 +23,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Brave Hero",
-    "classIcon": "fa-fist-raised",
+    "classIcon": "hand-fist",
     "bond": "stable",
     "ability": {
       "name": "Steady Hand",
@@ -41,7 +41,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Fearful Hero",
-    "classIcon": "fa-fist-raised",
+    "classIcon": "hand-fist",
     "bond": "fast",
     "ability": {
       "name": "Rally",
@@ -59,7 +59,7 @@
     "tier": "main",
     "rarity": "rare",
     "role": "Fearless Leader",
-    "classIcon": "fa-crown",
+    "classIcon": "crown",
     "bond": "arsenal",
     "ability": {
       "name": "Experience",
@@ -77,7 +77,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Fearless Leader",
-    "classIcon": "fa-crown",
+    "classIcon": "crown",
     "bond": "elemental",
     "ability": {
       "name": "Quick Study",
@@ -95,7 +95,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Cutthroat Leader",
-    "classIcon": "fa-crown",
+    "classIcon": "crown",
     "bond": "fast",
     "ability": {
       "name": "Quick Study",
@@ -113,7 +113,7 @@
     "tier": "main",
     "rarity": "rare",
     "role": "Corrupted Brute",
-    "classIcon": "fa-hand-rock",
+    "classIcon": "hand-metal",
     "bond": "elemental",
     "ability": {
       "name": "Wildcard + DM",
@@ -132,7 +132,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Manic Brute",
-    "classIcon": "fa-hand-rock",
+    "classIcon": "hand-metal",
     "bond": "fast",
     "ability": {
       "name": "Even Odds",
@@ -149,7 +149,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Corrupted Brute",
-    "classIcon": "fa-hand-rock",
+    "classIcon": "hand-metal",
     "bond": "stable",
     "ability": {
       "name": "Coin Toss",
@@ -167,7 +167,7 @@
     "tier": "main",
     "rarity": "rare",
     "role": "Heavy Gunner",
-    "classIcon": "fa-crosshairs",
+    "classIcon": "crosshair",
     "bond": "tank",
     "ability": {
       "name": "Focus Fire + DM",
@@ -186,7 +186,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Precise Gunner",
-    "classIcon": "fa-crosshairs",
+    "classIcon": "crosshair",
     "bond": "arsenal",
     "ability": {
       "name": "Focus Fire",
@@ -204,7 +204,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Heavy Gunner",
-    "classIcon": "fa-crosshairs",
+    "classIcon": "crosshair",
     "bond": "fast",
     "ability": {
       "name": "Steady Aim",
@@ -222,7 +222,7 @@
     "tier": "main",
     "rarity": "rare",
     "role": "Vengeful Sworder",
-    "classIcon": "fa-cut",
+    "classIcon": "scissors",
     "bond": "elemental",
     "ability": {
       "name": "Leak",
@@ -240,7 +240,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Mournful Sworder",
-    "classIcon": "fa-cut",
+    "classIcon": "scissors",
     "bond": "fast",
     "ability": {
       "name": "Leak",
@@ -258,7 +258,7 @@
     "tier": "sub",
     "rarity": "common",
     "role": "Vengeful Sworder",
-    "classIcon": "fa-cut",
+    "classIcon": "scissors",
     "bond": "arsenal",
     "ability": {
       "name": "Gusher",
