@@ -684,23 +684,22 @@ button {
 }
 
 .mech-cards,
-.card.mech-cards,
-.card-scope-mechs {
+.card.mech-cards {
     --hero-bg: var(--mech-bg);
     --base-bg: var(--mech-bg);
 }
 
-.card-scope-darkMatter {
+.dm-cards {
     --hero-bg: var(--dm-bg);
     --base-bg: var(--dm-bg);
 }
 
-.card-scope-wildcards {
+.wc-cards {
     --hero-bg: var(--wc-bg);
     --base-bg: var(--wc-bg);
 }
 
-.card-scope-arena {
+.arena-cards {
     --hero-bg: var(--arena-bg);
     --base-bg: var(--arena-bg);
 }
@@ -1715,12 +1714,6 @@ button {
 .roster-pairing-select.bond-match {
     border-color: var(--rarity-legendary);
     box-shadow: 0 0 0 1px var(--rarity-legendary);
-}
-
-.roster-bond-match-note {
-    font-size: 0.7rem;
-    color: var(--rarity-legendary);
-    font-weight: 700;
 }
 
 .roster-darkmatter-list {
