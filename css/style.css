@@ -810,6 +810,28 @@ button {
     white-space: nowrap;
 }
 
+/* Roster view only - cards elsewhere (Collection, reveal, modal) keep the border. */
+
+#view-roster .card-tier.sub,
+#view-roster .card-role,
+#view-roster .card-tier.main {
+    border: none;
+    background: none;
+    padding-left: 0;
+}
+
+#view-roster .card-tier.main svg {
+    display: none;
+}
+
+#view-roster .card-bond {
+    display: none;
+}
+
+#view-roster .card-text {
+    margin-left: 0;
+}
+
 .card-role.gain {
     background: var(--gain-color);
     border-color: var(--gain-color);
@@ -1386,6 +1408,7 @@ button {
 /* ==========================================================================
    Roster builder
    ========================================================================== */
+
 .sr-only {
     position: absolute;
     width: 1px;
@@ -1494,8 +1517,14 @@ button {
 }
 
 @keyframes roster-panel-in {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .roster-pick-group {
@@ -1531,7 +1560,8 @@ button {
     max-width: 640px;
 }
 
-.roster-pool, .roster-slots {
+.roster-pool,
+.roster-slots {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 14px;
@@ -1556,7 +1586,8 @@ button {
     border-style: solid;
 }
 
-.roster-slots-empty-hint, .roster-pool-empty-hint {
+.roster-slots-empty-hint,
+.roster-pool-empty-hint {
     grid-column: 1 / -1;
     color: var(--app-muted);
     font-size: 0.85rem;
@@ -1580,7 +1611,7 @@ button {
 }
 
 .roster-card-chip .card-graphic {
-  margin: 0 -14px 1.5px -14px;
+    margin: 0 -14px 1.5px -14px;
 }
 
 /* .roster-card-chip:hover .card {
@@ -1599,7 +1630,8 @@ button {
     box-shadow: 0 10px 30px -6px #000000cc;
 }
 
-.roster-card-remove, .roster-card-add {
+.roster-card-remove,
+.roster-card-add {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1619,17 +1651,20 @@ button {
     transition: color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
-.roster-card-remove svg, .roster-card-add svg {
+.roster-card-remove svg,
+.roster-card-add svg {
     width: 11px;
     height: 11px;
 }
 
-.roster-card-remove:hover, .roster-card-add:hover {
+.roster-card-remove:hover,
+.roster-card-add:hover {
     color: var(--app-text);
     border-color: var(--app-muted);
 }
 
-.roster-card-remove:active, .roster-card-add:active {
+.roster-card-remove:active,
+.roster-card-add:active {
     transform: scale(0.96);
 }
 
@@ -1708,7 +1743,7 @@ button {
 }
 
 .roster-pairing-select option {
-  background: var(--app-surface);
+    background: var(--app-surface);
 }
 
 .roster-pairing-select.bond-match {
@@ -1935,10 +1970,9 @@ button {
 }
 
 @media print {
-    body > *:not(.roster-print-root) {
+    body>*:not(.roster-print-root) {
         display: none !important;
     }
-
     .roster-print-root {
         display: block !important;
         background: #fff;
