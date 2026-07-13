@@ -5,21 +5,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>HueShift Packs</title>
+    <meta name="description" content="Open booster packs for the HueShift tabletop card game, collect all 51 cards, and build a legal roster." />
+    <meta property="og:title" content="HueShift Packs" />
+    <meta property="og:description" content="Open booster packs for the HueShift tabletop card game, collect all 51 cards, and build a legal roster." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://play.thehueshift.com/" />
+    <meta property="og:image" content="https://play.thehueshift.com/icons/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="HueShift Packs" />
+    <meta name="twitter:description" content="Open booster packs for the HueShift tabletop card game, collect all 51 cards, and build a legal roster." />
+    <meta name="twitter:image" content="https://play.thehueshift.com/icons/icon.svg" />
     <meta name="theme-color" content="#14151a" />
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/icon.svg" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body>
     <header class="app-header">
         <h1 class="app-title">HueShift Packs</h1>
-        <div class="allowance">
-            Packs today: <strong id="allowance-count">–</strong>
-            <button id="reset-allowance-btn" class="allowance-reset" title="Dev: reset today's pack allowance">reset</button>
-            <button id="reset-collection-btn" class="allowance-reset" title="Beta: clear entire collection for testing">reset collection</button>
+        <div class="header-right">
+            <div class="allowance">
+                Packs today: <strong id="allowance-count">–</strong>
+            </div>
+            <div class="settings-menu">
+                <button id="settings-btn" class="icon-btn-ghost" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><i data-lucide="settings"></i></button>
+                <div id="settings-panel" class="settings-panel" role="menu">
+                    <button id="reset-allowance-btn" class="settings-panel-item" role="menuitem">Reset today's pack allowance</button>
+                    <button id="reset-collection-btn" class="settings-panel-item" role="menuitem">Reset collection</button>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -30,6 +46,8 @@
     </nav>
 
     <main id="view-open" class="view active">
+        <p class="app-tagline">Booster packs for the HueShift tabletop card game. Pull all 51 cards, then build a team. <br/>
+        <a href="https://cards.thehueshift.com" target="_blank" rel="noopener">See the rules</a></p>
         <div id="open-stage" class="open-stage">
             <button id="pack-btn" class="pack">
                 <span class="ember" style="--ember-x:-30px; --ember-delay:0s"></span>
@@ -41,7 +59,7 @@
                     <circle class="pack-progress-ring-bg" cx="50" cy="50" r="46"></circle>
                     <circle id="pack-progress-ring-fg" class="pack-progress-ring-fg" cx="50" cy="50" r="46"></circle>
                 </svg>
-                <span class="pack-label"><i class="fas fa-layer-group"></i>Booster Pack</span>
+                <span class="pack-label"><i data-lucide="layers"></i>Booster Pack</span>
             </button>
             <p id="open-hint" class="open-hint">Loading catalog…</p>
 
@@ -147,7 +165,7 @@
     <div id="card-modal" class="card-modal-overlay">
         <button id="card-modal-close" class="card-modal-close" aria-label="Close"><i data-lucide="x"></i></button>
         <div id="card-modal-flip" class="card-modal-flip">
-            <div class="card-modal-face card-modal-back"><i class="fas fa-question"></i></div>
+            <div class="card-modal-face card-modal-back"><i data-lucide="circle-help"></i></div>
             <div id="card-modal-front" class="card-modal-face card-modal-front"></div>
         </div>
         <p class="card-modal-hint">Tap the card to flip it</p>

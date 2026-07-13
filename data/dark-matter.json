@@ -5,7 +5,7 @@
     "rarity": "legendary",
     "kind": "gain",
     "pairNote": "paired with 1 Penalty",
-    "icon": "fa-arrow-up",
+    "icon": "arrow-up",
     "ability": {
       "name": "+2 AP (Flat)",
       "text": [
@@ -22,7 +22,7 @@
     "rarity": "legendary",
     "kind": "gain",
     "pairNote": "paired with 1 Penalty",
-    "icon": "fa-arrow-up",
+    "icon": "arrow-up",
     "ability": {
       "name": "Boost Ability +1",
       "text": [
@@ -39,7 +39,7 @@
     "rarity": "legendary",
     "kind": "penalty",
     "pairNote": "paired with 1 Gain",
-    "icon": "fa-arrow-down",
+    "icon": "arrow-down",
     "ability": {
       "name": "-2 HP (Flat)",
       "text": [
@@ -56,7 +56,7 @@
     "rarity": "legendary",
     "kind": "penalty",
     "pairNote": "paired with 1 Gain",
-    "icon": "fa-arrow-down",
+    "icon": "arrow-down",
     "ability": {
       "name": "No Revival",
       "text": [
@@ -73,7 +73,7 @@
     "rarity": "legendary",
     "kind": "penalty",
     "pairNote": "paired with 1 Gain",
-    "icon": "fa-arrow-down",
+    "icon": "arrow-down",
     "ability": {
       "name": "No Team Bonus",
       "text": [
@@ -90,7 +90,7 @@
     "rarity": "legendary",
     "kind": "penalty",
     "pairNote": "paired with 1 Gain",
-    "icon": "fa-arrow-down",
+    "icon": "arrow-down",
     "ability": {
       "name": "Friendly Fire",
       "text": [

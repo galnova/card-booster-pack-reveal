@@ -5,7 +5,7 @@
     "rarity": "common",
     "role": "Space Speed",
     "class": "fast",
-    "classIcon": "fa-bolt",
+    "classIcon": "zap",
     "ability": {
       "name": "Strike First + DM",
       "text": [
@@ -23,7 +23,7 @@
     "rarity": "common",
     "role": "Lit Speed",
     "class": "fast",
-    "classIcon": "fa-bolt",
+    "classIcon": "zap",
     "ability": {
       "name": "Strike Dodge",
       "text": [
@@ -40,7 +40,7 @@
     "rarity": "common",
     "role": "Space Speed",
     "class": "fast",
-    "classIcon": "fa-bolt",
+    "classIcon": "zap",
     "ability": {
       "name": "Strike First",
       "text": [
@@ -57,7 +57,7 @@
     "rarity": "common",
     "role": "Fortified Tank",
     "class": "tank",
-    "classIcon": "fa-shield-alt",
+    "classIcon": "shield",
     "ability": {
       "name": "Mega Armor",
       "text": [
@@ -74,7 +74,7 @@
     "rarity": "common",
     "role": "Lording Tank",
     "class": "tank",
-    "classIcon": "fa-shield-alt",
+    "classIcon": "shield",
     "ability": {
       "name": "Regen Armor",
       "text": [
@@ -91,7 +91,7 @@
     "rarity": "common",
     "role": "Lording Tank",
     "class": "tank",
-    "classIcon": "fa-shield-alt",
+    "classIcon": "shield",
     "ability": {
       "name": "Regen Armor",
       "text": [
@@ -108,7 +108,7 @@
     "rarity": "common",
     "role": "Arsenal",
     "class": "arsenal",
-    "classIcon": "fa-bomb",
+    "classIcon": "bomb",
     "ability": {
       "name": "Multi-Fire",
       "text": [
@@ -125,7 +125,7 @@
     "rarity": "common",
     "role": "Arsenal",
     "class": "arsenal",
-    "classIcon": "fa-bomb",
+    "classIcon": "bomb",
     "ability": {
       "name": "Multi-Fire",
       "text": [
@@ -142,7 +142,7 @@
     "rarity": "common",
     "role": "Arsenal",
     "class": "arsenal",
-    "classIcon": "fa-bomb",
+    "classIcon": "bomb",
     "ability": {
       "name": "Multi-Fire",
       "text": [
@@ -159,7 +159,7 @@
     "rarity": "common",
     "role": "Stable",
     "class": "stable",
-    "classIcon": "fa-anchor",
+    "classIcon": "anchor",
     "ability": {
       "name": "Steady",
       "text": [
@@ -176,7 +176,7 @@
     "rarity": "common",
     "role": "Stable",
     "class": "stable",
-    "classIcon": "fa-anchor",
+    "classIcon": "anchor",
     "ability": {
       "name": "Steady",
       "text": [
@@ -193,7 +193,7 @@
     "rarity": "common",
     "role": "Stable",
     "class": "stable",
-    "classIcon": "fa-anchor",
+    "classIcon": "anchor",
     "ability": {
       "name": "Steady",
       "text": [
@@ -210,7 +210,7 @@
     "rarity": "common",
     "role": "Elemental",
     "class": "elemental",
-    "classIcon": "fa-atom",
+    "classIcon": "atom",
     "ability": {
       "name": "Flame Infused",
       "text": [
@@ -227,7 +227,7 @@
     "rarity": "common",
     "role": "Elemental",
     "class": "elemental",
-    "classIcon": "fa-atom",
+    "classIcon": "atom",
     "ability": {
       "name": "Frost Infused",
       "text": [
@@ -244,7 +244,7 @@
     "rarity": "common",
     "role": "Elemental",
     "class": "elemental",
-    "classIcon": "fa-atom",
+    "classIcon": "atom",
     "ability": {
       "name": "Shock Infused + DM",
       "text": [

@@ -1,9 +1,9 @@
 const BOND_ICON = {
-  fast: "fa-bolt",
-  tank: "fa-shield-alt",
-  arsenal: "fa-bomb",
-  stable: "fa-anchor",
-  elemental: "fa-atom",
+  fast: "zap",
+  tank: "shield",
+  arsenal: "bomb",
+  stable: "anchor",
+  elemental: "atom",
 };
 
 function scopeClassFor(card, setById) {
@@ -31,10 +31,10 @@ export function renderCardFace(card, setById) {
       <span class="rarity-badge">${card.rarity}</span>
       <div class="card-header">
         <h2 class="card-name">${card.name}</h2>
-        <span class="card-cost"><i class="fas ${set.typeIcon}"></i></span>
+        <span class="card-cost"><i data-lucide="${set.typeIcon}"></i></span>
         ${secondCostIcon}
       </div>
-      <div class="card-graphic"><i class="fas ${set.typeIcon}"></i></div>
+      <div class="card-graphic"><i data-lucide="${set.typeIcon}"></i></div>
       <div class="card-body">
         <div class="card-meta">
           ${metaHtml}
@@ -53,9 +53,9 @@ export function renderLockedFace(card, setById) {
       <span class="rarity-badge">${card.rarity}</span>
       <div class="card-header">
         <h2 class="card-name">???</h2>
-        <span class="card-cost"><i class="fas fa-lock"></i></span>
+        <span class="card-cost"><i data-lucide="lock"></i></span>
       </div>
-      <div class="card-graphic"><i class="fas fa-question"></i></div>
+      <div class="card-graphic"><i data-lucide="circle-help"></i></div>
       <div class="card-body">
         <div class="card-meta">
           <span class="card-role">Undiscovered</span>
@@ -68,13 +68,13 @@ export function renderLockedFace(card, setById) {
 
 function secondCostIconHtml(card) {
   if (card.set === "characters") {
-    return `<span class="card-cost"><i class="fas ${card.classIcon}"></i></span>`;
+    return `<span class="card-cost"><i data-lucide="${card.classIcon}"></i></span>`;
   }
   if (card.set === "mechs") {
-    return `<span class="card-cost bond-${card.class}"><i class="fas ${card.classIcon}"></i></span>`;
+    return `<span class="card-cost bond-${card.class}"><i data-lucide="${card.classIcon}"></i></span>`;
   }
   if (card.set === "darkMatter") {
-    return `<span class="card-cost"><i class="fas ${card.icon}"></i></span>`;
+    return `<span class="card-cost"><i data-lucide="${card.icon}"></i></span>`;
   }
   return "";
 }
@@ -82,7 +82,7 @@ function secondCostIconHtml(card) {
 function metaHtml_(card) {
   const parts = [];
   if (card.tier) {
-    parts.push(`<span class="card-tier ${card.tier}">${card.tier === "main" ? '<i class="fas fa-star"></i> Main' : "Sub"}</span>`);
+    parts.push(`<span class="card-tier ${card.tier}">${card.tier === "main" ? '<i data-lucide="star"></i> Main' : "Sub"}</span>`);
   }
   if (card.set === "darkMatter") {
     parts.push(`<span class="card-role ${card.kind}">${capitalize(card.kind)}</span>`);
@@ -94,7 +94,7 @@ function metaHtml_(card) {
     parts.push(`<span class="card-role">${card.role}</span>`);
   }
   if (card.bond) {
-    parts.push(`<span class="card-bond bond-${card.bond}" title="Bonds with ${capitalize(card.bond)}"><i class="fas ${BOND_ICON[card.bond]}"></i></span>`);
+    parts.push(`<span class="card-bond bond-${card.bond}" title="Bonds with ${capitalize(card.bond)}"><i data-lucide="${BOND_ICON[card.bond]}"></i></span>`);
   }
   if (card.pairNote) {
     parts.push(`<span class="card-dm-pair">${card.pairNote}</span>`);

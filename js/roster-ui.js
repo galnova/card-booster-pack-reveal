@@ -26,6 +26,7 @@ let setById = null;
 let roster = null;
 let goToPacksTab = () => {};
 let cardsByCategory = {};
+let wasRosterComplete = false;
 
 const el = {};
 
@@ -59,6 +60,9 @@ export function initRosterUI({ catalog: cat, goToPacksTab: goPacks }) {
 
   roster = sanitizeRoster(getRoster(), getCollection());
   saveRoster(roster);
+  // Baseline so an already-complete roster from a previous session doesn't
+  // celebrate again on every load/tab-switch - only a genuine completion should.
+  wasRosterComplete = validateRoster(roster).complete;
 
   wireStepsNav();
   wireDragAndDrop();
@@ -115,11 +119,13 @@ function persistAndRender() {
 }
 
 function renderAll() {
-  for (const key of Object.keys(CATEGORY_DEFS)) renderCategory(key);
+  const collection = getCollection();
+  const validation = validateRoster(roster);
+  for (const key of Object.keys(CATEGORY_DEFS)) renderCategory(key, collection);
   renderPairing();
-  renderDarkMatter();
-  renderChecklist();
-  renderReview();
+  renderDarkMatter(collection);
+  renderChecklist(validation);
+  renderReview(validation);
   renderSavedRosters();
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
@@ -150,9 +156,8 @@ function setSelectedIds(category, ids) {
   else roster[category] = ids;
 }
 
-function renderCategory(key) {
+function renderCategory(key, collection) {
   const def = CATEGORY_DEFS[key];
-  const collection = getCollection();
   const owned = cardsByCategory[key].filter((c) => collection[c.id]);
   const selected = new Set(selectedIds(key));
   const poolCards = owned.filter((c) => !selected.has(c.id));
@@ -265,23 +270,24 @@ function renderPairing() {
   }
 
   el.pairingList.innerHTML = "";
+  const seated = seatedCharacterIds(roster);
   for (const mech of mechs) {
     const pairing = roster.pairings[mech.id] || { base: null, co: null };
     const row = document.createElement("div");
     row.className = "roster-pairing-row";
     row.innerHTML = `
       <div class="roster-pairing-mech">
-        <span class="roster-pairing-mech-icon"><i class="fas ${mech.classIcon}"></i></span>
+        <span class="roster-pairing-mech-icon"><i data-lucide="${mech.classIcon}"></i></span>
         ${mech.name}
       </div>
       <div class="roster-pairing-fields">
         <div class="roster-pairing-field">
           <label for="base-${mech.id}">Base Pilot</label>
-          ${buildPilotSelect(mech, characters, pairing, "base")}
+          ${buildPilotSelect(mech, characters, pairing, "base", seated)}
         </div>
         <div class="roster-pairing-field">
           <label for="co-${mech.id}">Co-Pilot</label>
-          ${buildPilotSelect(mech, characters, pairing, "co")}
+          ${buildPilotSelect(mech, characters, pairing, "co", seated)}
         </div>
       </div>
     `;
@@ -291,8 +297,7 @@ function renderPairing() {
   }
 }
 
-function buildPilotSelect(mech, characters, pairing, seat) {
-  const seated = seatedCharacterIds(roster);
+function buildPilotSelect(mech, characters, pairing, seat, seated) {
   const currentValue = pairing[seat];
   const otherSeatValue = seat === "base" ? pairing.co : pairing.base;
   const options = characters
@@ -315,12 +320,11 @@ function setPairing(mechId, seat, characterId) {
 // ---------------------------------------------------------------------------
 // Dark Matter
 // ---------------------------------------------------------------------------
-function renderDarkMatter() {
+function renderDarkMatter(collection) {
   const hosts = [
     ...rosterCharacterIds(roster).map((id) => catalog.cardsById.get(id)),
     ...roster.mechs.map((id) => catalog.cardsById.get(id)),
   ];
-  const collection = getCollection();
   const gains = catalog.bySet.darkMatter.filter((c) => c.kind === "gain" && collection[c.id]);
   const penalties = catalog.bySet.darkMatter.filter((c) => c.kind === "penalty" && collection[c.id]);
 
@@ -332,8 +336,9 @@ function renderDarkMatter() {
   }
 
   el.darkMatterList.innerHTML = "";
+  const allHostIds = roster.darkMatter.map((d) => d.hostId);
   roster.darkMatter.forEach((dm, i) => {
-    const usedHosts = new Set(roster.darkMatter.filter((_, j) => j !== i).map((d) => d.hostId));
+    const usedHosts = new Set(allHostIds.filter((_, j) => j !== i));
     const hostOptions = hosts
       .filter((h) => h.id === dm.hostId || !usedHosts.has(h.id))
       .map((h) => `<option value="${h.id}" ${h.id === dm.hostId ? "selected" : ""}>${h.name}</option>`)
@@ -372,13 +377,13 @@ function renderDarkMatter() {
 // ---------------------------------------------------------------------------
 // Checklist strip + step-nav checkmarks + review
 // ---------------------------------------------------------------------------
-function renderChecklist() {
-  const { checks } = validateRoster(roster);
+function renderChecklist(validation) {
+  const { checks } = validation;
   el.checklist.innerHTML = checks
     .map(
       (c) => `
       <li class="roster-checklist-item${c.ok ? " complete" : ""}">
-        <span class="roster-checklist-icon">${c.ok ? '<i class="fas fa-check"></i>' : `${c.have}/${c.need}`}</span>
+        <span class="roster-checklist-icon">${c.ok ? '<i data-lucide="check"></i>' : `${c.have}/${c.need}`}</span>
         ${c.label}
       </li>`
     )
@@ -394,16 +399,21 @@ function renderChecklist() {
     const done = stepCompletion[btn.dataset.step];
     const existing = btn.querySelector(".roster-step-check");
     if (done && !existing) {
-      btn.insertAdjacentHTML("beforeend", '<i class="fas fa-check roster-step-check"></i>');
+      btn.insertAdjacentHTML("beforeend", '<i data-lucide="check" class="roster-step-check"></i>');
     } else if (!done && existing) {
       existing.remove();
     }
   });
 }
 
-function renderReview() {
-  const { checks, complete, unseated } = validateRoster(roster);
+function renderReview(validation) {
+  const { checks, complete, unseated } = validation;
   el.exportBtn.disabled = !complete;
+
+  if (complete && !wasRosterComplete) {
+    celebrateRosterComplete();
+  }
+  wasRosterComplete = complete;
 
   const issues = [];
   for (const c of checks) {
@@ -415,18 +425,30 @@ function renderReview() {
 
   let html = "";
   if (complete) {
-    html += `<div class="roster-review-complete-banner"><i class="fas fa-check-circle"></i> Roster complete! Ready to export.</div>`;
+    html += `<div class="roster-review-complete-banner"><i data-lucide="circle-check"></i> Roster complete! Ready to export.</div>`;
   } else {
     html += `<div class="roster-review-summary">`;
     html += `<p class="roster-hint" style="margin-bottom:12px">Still needed:</p>`;
     for (const issue of issues) {
-      html += `<div class="roster-review-issue"><i class="fas fa-circle-exclamation"></i> ${issue}</div>`;
+      html += `<div class="roster-review-issue"><i data-lucide="circle-alert"></i> ${issue}</div>`;
     }
     html += `</div>`;
   }
 
   html += buildRosterSummaryHtml();
   el.review.innerHTML = html;
+}
+
+function celebrateRosterComplete() {
+  if (typeof confetti !== "function") return;
+  const gold = getComputedStyle(document.documentElement).getPropertyValue("--rarity-legendary").trim();
+  confetti({
+    particleCount: 90,
+    spread: 100,
+    origin: { y: 0.6 },
+    colors: [gold, "#ffffff"],
+    disableForReducedMotion: true,
+  });
 }
 
 function buildRosterSummaryHtml() {
@@ -540,7 +562,7 @@ function buildVisualRosterHtml() {
   function cardCell(card, caption) {
     const dm = dmByHost[card.id];
     const dmBadge = dm
-      ? `<p class="roster-print-dm-badge"><i class="fas fa-meteor"></i> ${dm.gain.name} / ${dm.penalty.name}</p>`
+      ? `<p class="roster-print-dm-badge"><i data-lucide="radiation"></i> ${dm.gain.name} / ${dm.penalty.name}</p>`
       : "";
     return `
       <div class="roster-print-cell">
@@ -578,6 +600,7 @@ function exportRoster() {
   const { complete } = validateRoster(roster);
   if (!complete) return;
   el.printRoot.innerHTML = `<h1 class="roster-print-title">HueShift Roster</h1>${buildVisualRosterHtml()}`;
+  if (typeof lucide !== "undefined") lucide.createIcons();
   window.print();
 }
 

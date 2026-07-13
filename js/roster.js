@@ -29,10 +29,6 @@ export function saveRoster(roster) {
   writeJson(ROSTER_KEY, roster);
 }
 
-export function resetRoster() {
-  localStorage.removeItem(ROSTER_KEY);
-}
-
 /** Named, saved rosters ("favorites") - separate from the single active working roster above. */
 export function getSavedRosters() {
   return readJson(SAVED_ROSTERS_KEY, []);
