@@ -182,7 +182,11 @@ button {
 }
 
 .app-tagline a {
-    color: var(--rarity-rare);
+    /* var(--rarity-rare) only hits ~3.9:1 on --app-bg at this text size -
+       fails WCAG AA (4.5:1). Lightened for the link only, not the shared
+       token, since rarity borders/badges elsewhere have different contrast
+       needs. This shade holds ~6.9:1. */
+    color: #6d9eff;
     font-weight: 700;
     text-decoration: none;
 }
@@ -1057,6 +1061,257 @@ button {
     }
 }
 
+/* Magic Card glow - rotating gradient ring + blurred aura, on top of the
+   static rare/legendary box-shadow above. Same perf tradeoff as the
+   uncommon-pulse animation: scoped to reveal/modal/spotlight only, never the
+   plain roster/collection grid where dozens of cards render at once. The
+   glow lives on the wrapper (not .card itself) because .card has
+   overflow:hidden for its corner ribbon, which would clip the pseudo-elements. */
+
+@property --card-glow-angle {
+    syntax: '<angle>';
+    /* true: ::before/::after (shine, glare) need to read these off .card,
+       and pseudo-elements inherit from their host like real children do. */
+    inherits: true;
+    initial-value: 0deg;
+}
+
+@keyframes card-glow-spin {
+    to {
+        --card-glow-angle: 360deg;
+    }
+}
+
+.reveal-slot.revealed:has(.card[data-rarity="rare"]),
+.card-modal-front:has(.card[data-rarity="rare"]) {
+    --glow-a: #5ddcff;
+    --glow-b: #3d6fd8;
+    --glow-c: #7a3cff;
+}
+
+.reveal-slot.revealed:has(.card[data-rarity="legendary"]),
+.card-modal-front:has(.card[data-rarity="legendary"]),
+.legendary-spotlight-overlay {
+    --glow-a: #fff2b8;
+    --glow-b: #d4af37;
+    --glow-c: #ff9d3c;
+}
+
+/* Reveal-row glow only kicks in once .revealed is added, which happens on
+   the flip spring's onComplete (see app.js flipSlot) - not at click time,
+   since the card is still mid-turn (showing its back) for most of that
+   animation. The modal glow doesn't need the same gate: .card-modal-front
+   is 3D-flipped with backface-visibility:hidden, so its own pseudo-elements
+   are already invisible until the face turns to the camera. */
+.reveal-slot.revealed:has(.card[data-rarity="rare"])::before,
+.reveal-slot.revealed:has(.card[data-rarity="rare"])::after,
+.reveal-slot.revealed:has(.card[data-rarity="legendary"])::before,
+.reveal-slot.revealed:has(.card[data-rarity="legendary"])::after,
+.card-modal-front:has(.card[data-rarity="rare"])::before,
+.card-modal-front:has(.card[data-rarity="rare"])::after,
+.card-modal-front:has(.card[data-rarity="legendary"])::before,
+.card-modal-front:has(.card[data-rarity="legendary"])::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    z-index: -1;
+    border-radius: calc(var(--radius-lg) + 3px);
+    background: linear-gradient(var(--card-glow-angle), var(--glow-a), var(--glow-b) 43%, var(--glow-c));
+    animation: card-glow-spin 2.5s linear infinite;
+}
+
+/* Modal cards also get the holographic tilt (see the holo-tilt section
+   below) - without this, the ring stayed flat while the card underneath it
+   visibly tilted, looking disconnected from it. --tilt-x/y are inherited
+   from .card-modal-front (same element js/holo-tilt.js writes them to), so
+   this just needs to consume them; they're 0deg/identity outside the modal
+   since nothing writes to them there. */
+.card-modal-front:has(.card[data-rarity="rare"])::before,
+.card-modal-front:has(.card[data-rarity="legendary"])::before {
+    transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+}
+
+/* Big soft bloom behind the card - full card-sized layer, scaled down and
+   pushed down slightly, then heavily blurred so it reads as ambient light
+   flooding the area behind the card rather than a hard-edged halo. Mirrors
+   the source pen's ::after (top: card-height/6, transform: scale(0.8),
+   filter: blur(card-height/6)) sized for our ~300-360px cards instead of
+   its vh-relative single card. */
+.reveal-slot.revealed:has(.card[data-rarity="rare"])::after,
+.reveal-slot.revealed:has(.card[data-rarity="legendary"])::after {
+    inset: 0;
+    top: 16%;
+    transform: scale(0.8);
+    opacity: 1;
+    filter: blur(60px);
+}
+
+/* The modal is the "focused" view - full-viewport dark backdrop, one card,
+   nothing competing for attention - so its bloom goes bigger and softer
+   than the reveal-row version: wider spread, heavier blur, less scale-down,
+   so it reads as the card lighting up the whole backdrop around it. */
+.card-modal-front:has(.card[data-rarity="rare"])::after,
+.card-modal-front:has(.card[data-rarity="legendary"])::after {
+    inset: -20%;
+    transform: scale(0.9);
+    opacity: 1;
+    filter: blur(110px);
+}
+
+.legendary-spotlight-overlay.open::before,
+.legendary-spotlight-overlay.open::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: min(80vw, 340px);
+    aspect-ratio: 2 / 3;
+    z-index: -1;
+    background: linear-gradient(var(--card-glow-angle), var(--glow-a), var(--glow-b) 43%, var(--glow-c));
+    animation: card-glow-spin 2.5s linear infinite;
+}
+
+.legendary-spotlight-overlay.open::before {
+    top: 50%;
+    border-radius: calc(var(--radius-lg) + 3px);
+    transform: translate(-50%, -50%) scale(1.02);
+}
+
+.legendary-spotlight-overlay.open::after {
+    top: 50%;
+    transform: translate(-50%, -42%) scale(0.8);
+    opacity: 1;
+    filter: blur(60px);
+}
+
+/* ==========================================================================
+   Holographic tilt + shine + glare - adapted from simeydotme/pokemon-cards-css
+   (https://poke-holo.simey.me/). Pointer position and tilt angle are written
+   as CSS vars by js/holo-tilt.js on pointermove; typed via @property so the
+   browser can transition them natively instead of needing spring physics.
+   Purely event-driven (no idle animation), so it's safe on any grid size.
+   ========================================================================== */
+
+@property --tilt-x {
+    syntax: '<angle>';
+    /* true: ::before/::after (shine, glare) need to read these off .card,
+       and pseudo-elements inherit from their host like real children do. */
+    inherits: true;
+    initial-value: 0deg;
+}
+
+@property --tilt-y {
+    syntax: '<angle>';
+    /* true: ::before/::after (shine, glare) need to read these off .card,
+       and pseudo-elements inherit from their host like real children do. */
+    inherits: true;
+    initial-value: 0deg;
+}
+
+@property --pointer-x {
+    syntax: '<percentage>';
+    /* true: ::before/::after (shine, glare) need to read these off .card,
+       and pseudo-elements inherit from their host like real children do. */
+    inherits: true;
+    initial-value: 50%;
+}
+
+@property --pointer-y {
+    syntax: '<percentage>';
+    /* true: ::before/::after (shine, glare) need to read these off .card,
+       and pseudo-elements inherit from their host like real children do. */
+    inherits: true;
+    initial-value: 50%;
+}
+
+@property --holo-opacity {
+    syntax: '<number>';
+    /* true: ::before/::after (shine, glare) need to read these off .card,
+       and pseudo-elements inherit from their host like real children do. */
+    inherits: true;
+    initial-value: 0;
+}
+
+/* js/holo-tilt.js writes the vars onto the CARD'S PARENT (.card-slot /
+   .roster-card-chip / .card-modal-face), not the card itself, and lets
+   inheritance carry them down. That's what lets the rarity glow ring
+   (::before/::after on this same parent, see the "Magic Card glow" rules
+   above) read --tilt-x/y too and tilt in sync with the card instead of
+   sitting flat while the card underneath it tilts. */
+.card-slot,
+.roster-card-chip,
+.card-modal-face {
+    perspective: 1000px;
+    transition: --tilt-x 500ms ease, --tilt-y 500ms ease, --pointer-x 500ms ease, --pointer-y 500ms ease, --holo-opacity 400ms ease;
+}
+
+.card-slot.holo-interacting,
+.roster-card-chip.holo-interacting,
+.card-modal-face.holo-interacting {
+    transition: --tilt-x 80ms linear, --tilt-y 80ms linear, --pointer-x 80ms linear, --pointer-y 80ms linear, --holo-opacity 200ms ease;
+}
+
+.holo-card {
+    transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+}
+
+.holo-card::after {
+    /* Universal plain glare - every card gets this regardless of rarity,
+       matching the source site's base.css (its .card__glare is generic;
+       only the rainbow .card__shine layer is added per-rarity). overlay
+       blend is nearly a no-op on this card's near-white face, so this uses
+       normal blending instead - a soft light sheen visible everywhere. */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    background-image: radial-gradient(circle at var(--pointer-x) var(--pointer-y), #ffffffee 0%, #ffffff66 22%, transparent 55%);
+    mix-blend-mode: normal;
+    opacity: calc(var(--holo-opacity) * 0.75);
+}
+
+/* Rainbow/gold shine - rare and legendary only. In the source, the shine
+   layer is added by per-rarity stylesheets (regular-holo.css, secret-rare.css,
+   etc.) on top of a shared base; basic/common cards get tilt+glare only, no
+   shine. Rare and legendary get different gradients here for the same reason
+   the source's "rare holo" and "rare secret" (gold) looks are distinct, not
+   one effect reused everywhere. */
+.holo-card[data-rarity="rare"]::before,
+.holo-card[data-rarity="legendary"]::before {
+    /* color-dodge (the source site's blend mode) washes out to nothing on
+       this card's mostly-white face - it only reads against painted art
+       with real midtones. multiply keeps it visible on white (multiply-
+       over-white ~= the color itself) while still tinting the colored
+       graphic band underneath. */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    background-size: 250% 250%;
+    background-position: calc(var(--pointer-x) * 1.5 - 25%) calc(var(--pointer-y) * 1.5 - 25%);
+    mix-blend-mode: multiply;
+    opacity: calc(var(--holo-opacity) * 0.8);
+}
+
+.holo-card[data-rarity="rare"]::before {
+    background-image: repeating-linear-gradient(115deg, #ff5e5e 0%, #ffee5e 12%, #5eff8f 24%, #5ecbff 36%, #a15eff 48%, #ff5e5e 60%);
+    filter: saturate(1.3);
+}
+
+.holo-card[data-rarity="legendary"]::before {
+    background-image: repeating-linear-gradient(115deg, #fff3c4 0%, #ffd76e 15%, #ffb347 30%, #ff8a3d 45%, #ffd76e 60%, #fff3c4 75%);
+    filter: saturate(1.15) brightness(1.05);
+}
+
+/* SortableJS drives the roster chip's own drag transform - don't let a
+   stale tilt fight it mid-drag. */
+.roster-card-chip.sortable-drag .card,
+.roster-card-chip.sortable-chosen .card,
+.roster-card-chip.sortable-ghost .card {
+    transform: none !important;
+}
+
 /* ==========================================================================
    Collection view
    ========================================================================== */
@@ -1225,6 +1480,12 @@ button {
 .card-modal-hint {
     color: var(--app-muted);
     font-size: 0.82rem;
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: 999px;
+    padding: 6px 14px;
+    position: relative;
+    z-index: 1;
 }
 
 /* ==========================================================================

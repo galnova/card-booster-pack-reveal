@@ -13,6 +13,7 @@ import {
 } from "./roster.js";
 import { renderCardFace } from "./card-render.js";
 import { confirmAction, promptAction } from "./confirm-modal.js";
+import { wireHoloTilt } from "./holo-tilt.js";
 
 const CATEGORY_DEFS = {
   main: { max: 1, label: "Main Character", setId: "characters", filter: (c) => c.tier === "main" },
@@ -197,6 +198,7 @@ function buildChip(card, mode, category) {
   const btnLabel = mode === "add" ? '<i data-lucide="plus"></i> Add' : '<i data-lucide="minus"></i> Remove';
   const btnClass = mode === "add" ? "roster-card-add" : "roster-card-remove";
   wrap.innerHTML = `${renderCardFace(card, setById)}<button type="button" class="${btnClass}">${btnLabel}</button>`;
+  wireHoloTilt(wrap.querySelector(".card"));
   wrap.querySelector("button").addEventListener("click", () => {
     if (mode === "add") addToCategory(category, card.id);
     else removeFromCategory(category, card.id);

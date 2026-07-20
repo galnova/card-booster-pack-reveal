@@ -4,6 +4,7 @@ import { spring, SPRING_PRESETS } from "./spring.js";
 import { renderCardFace as renderCardFaceShared, renderLockedFace as renderLockedFaceShared } from "./card-render.js";
 import { initRosterUI, refreshRosterUI } from "./roster-ui.js";
 import { confirmAction } from "./confirm-modal.js";
+import { wireHoloTilt } from "./holo-tilt.js";
 
 const RARITY_RANK = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
 const RARITY_LABEL = { common: "Common", uncommon: "Uncommon", rare: "Rare", legendary: "Legendary" };
@@ -269,10 +270,11 @@ function refreshIcons() {
 
 function openCardModal(card) {
   el.cardModalFront.innerHTML = renderCardFace(card);
+  wireHoloTilt(el.cardModalFront.querySelector(".card"));
   refreshIcons();
   if (cancelModalSpring) cancelModalSpring();
-  modalAngle = 0;
-  el.cardModalFlip.style.transform = "rotateY(0deg)";
+  modalAngle = 180;
+  el.cardModalFlip.style.transform = "rotateY(180deg)";
   el.cardModal.classList.add("open");
   document.body.style.overflow = "hidden";
 }
@@ -356,6 +358,7 @@ function flipSlot(slot) {
     onUpdate: (deg) => {
       flipEl.style.transform = `rotateY(${deg}deg)`;
     },
+    onComplete: () => slot.classList.add("revealed"),
   });
   playFlip();
 
@@ -536,6 +539,7 @@ function renderCollection() {
         const cardEl = holder.firstElementChild;
         cardEl.classList.add("clickable");
         cardEl.addEventListener("click", () => openCardModal(card));
+        wireHoloTilt(cardEl);
         slot.appendChild(cardEl);
         if (count > 1) {
           const caption = document.createElement("span");
