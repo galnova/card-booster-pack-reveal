@@ -23,6 +23,40 @@
 </head>
 
 <body>
+    
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+        <defs>
+            <filter id="foil-grain-holo" x="-100%" y="-100%" width="300%" height="300%">
+                <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="5" seed="15" stitchTiles="stitch" result="noise" />
+                <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 5 -3.6" result="contrastNoise" />
+                <feComponentTransfer in="contrastNoise" result="fadedNoise">
+                    <feFuncA type="linear" slope="1" intercept="0" />
+                </feComponentTransfer>
+                <feBlend in="SourceGraphic" in2="fadedNoise" mode="hard-light" />
+            </filter>
+
+            <filter id="foil-grain" x="-100%" y="-100%" width="300%" height="300%">
+
+                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="6" seed="7" stitchTiles="stitch" result="noise" />
+
+                <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 5 -3.6" result="contrastNoise" />
+                <feComponentTransfer in="contrastNoise" result="fadedNoise">
+                    <feFuncA type="linear" slope="1" intercept="0" />
+                </feComponentTransfer>
+                <feBlend in="SourceGraphic" in2="fadedNoise" mode="hard-light" />
+            </filter>
+
+            <filter id="foil-grain-secret" x="-100%" y="-100%" width="300%" height="300%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="6" seed="42" stitchTiles="stitch" result="noise" />
+                <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 5 -3.6" result="contrastNoise" />
+                <feComponentTransfer in="contrastNoise" result="fadedNoise">
+                    <feFuncA type="linear" slope="1" intercept="0" />
+                </feComponentTransfer>
+                <feBlend in="SourceGraphic" in2="fadedNoise" mode="hard-light" />
+            </filter>
+        </defs>
+    </svg>
+
     <header class="app-header">
         <h1 class="app-title">HueShift Packs</h1>
         <div class="header-right">
@@ -72,11 +106,18 @@
                 <button id="again-btn" class="btn secondary">Done</button>
             </div>
         </div>
+
+        <section class="foil-samples">
+            <h3 class="foil-samples-title">Foil Types</h3>
+            <p class="foil-samples-hint">Hover each card to see its tilt/shine/glare - one sample per foil variant, forced regardless of rarity, just for inspection.</p>
+            <div id="foil-samples-grid" class="foil-samples-grid"></div>
+        </section>
     </main>
 
     <main id="view-collection" class="view">
         <div class="collection-header">
             <h2 class="app-title">Your Collection</h2>
+            <span id="packs-opened-stat" class="set-section-count"></span>
         </div>
         <div id="collection-root"></div>
     </main>

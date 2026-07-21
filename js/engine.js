@@ -1,6 +1,7 @@
 const STORAGE_KEYS = {
   collection: "hs-packs:collection",
   allowance: "hs-packs:allowance",
+  packsOpened: "hs-packs:packs-opened",
 };
 
 export async function loadCatalog() {
@@ -57,6 +58,17 @@ export function getCollection() {
 
 export function resetCollection() {
   localStorage.removeItem(STORAGE_KEYS.collection);
+  localStorage.removeItem(STORAGE_KEYS.packsOpened);
+}
+
+export function getPacksOpenedCount() {
+  return readJson(STORAGE_KEYS.packsOpened, 0);
+}
+
+export function recordPackOpened() {
+  const count = getPacksOpenedCount() + 1;
+  writeJson(STORAGE_KEYS.packsOpened, count);
+  return count;
 }
 
 export function recordPulls(cardIds) {

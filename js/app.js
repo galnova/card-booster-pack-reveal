@@ -1,4 +1,4 @@
-import { loadCatalog, buildWeightedPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance, resetCollection } from "./engine.js";
+import { loadCatalog, buildWeightedPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance, resetCollection, getPacksOpenedCount, recordPackOpened } from "./engine.js";
 import { primeAudio, playTear, playFlip, playChime, playFanfare } from "./sound.js";
 import { spring, SPRING_PRESETS } from "./spring.js";
 import { renderCardFace as renderCardFaceShared, renderLockedFace as renderLockedFaceShared } from "./card-render.js";
@@ -31,6 +31,7 @@ const el = {
   revealAllBtn: document.getElementById("reveal-all-btn"),
   againBtn: document.getElementById("again-btn"),
   collectionRoot: document.getElementById("collection-root"),
+  packsOpenedStat: document.getElementById("packs-opened-stat"),
   tabs: document.querySelectorAll(".tab-btn"),
   views: document.querySelectorAll(".view"),
   cardModal: document.getElementById("card-modal"),
@@ -77,6 +78,62 @@ async function init() {
   initRosterUI({ catalog, goToPacksTab: () => switchToView("view-open") });
   updateAllowanceDisplay();
   renderCollection();
+  renderFoilSamples();
+}
+
+// ---------------------------------------------------------------------------
+// Foil inspection gallery (Open Packs tab) - one forced sample per data-foil
+// variant so they can be compared side by side, independent of the rarity-
+// gated odds that normally decide which foil a real pulled card gets.
+// ---------------------------------------------------------------------------
+const FOIL_SAMPLES = [
+  { foil: null, label: "Normal" },
+  { foil: "reverse", label: "Reverse" },
+  { foil: "holo", label: "Holo" },
+  { foil: "super-holo", label: "Super Holo" },
+  { foil: "cosmos", label: "Cosmos" },
+  { foil: "secret", label: "Secret" },
+];
+
+function renderFoilSamples() {
+  const grid = document.getElementById("foil-samples-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  FOIL_SAMPLES.forEach((sample, i) => {
+    const card = catalog.allCards[i % catalog.allCards.length];
+    const wrap = document.createElement("div");
+    wrap.className = "foil-sample";
+    const holder = document.createElement("div");
+    holder.innerHTML = renderCardFace(card);
+    const cardEl = holder.firstElementChild;
+    wireHoloTilt(cardEl);
+    if (sample.foil) {
+      cardEl.dataset.foil = sample.foil;
+      // Force the shine permanently visible (bypassing the hover-only
+      // opacity wireHoloTilt normally uses): at rest these samples look
+      // identical - there's nothing to tell them apart until you hover, so
+      // a glance at the gallery without moving the mouse over every single
+      // card looks like "none of these do anything." Hovering still works
+      // normally on top of this. "Normal" is deliberately excluded - it
+      // should show zero effect (no shine, no glare) at rest, not even the
+      // plain white highlight, since it's the flat baseline to compare
+      // the others against.
+      wrap.style.setProperty("--holo-opacity", "1");
+      wrap.style.setProperty("--pointer-x", "35%");
+      wrap.style.setProperty("--pointer-y", "30%");
+      wrap.style.setProperty("--bg-x", "38%");
+      wrap.style.setProperty("--bg-y", "35%");
+    } else {
+      delete cardEl.dataset.foil;
+    }
+    const label = document.createElement("span");
+    label.className = "foil-sample-label";
+    label.textContent = sample.label;
+    wrap.appendChild(cardEl);
+    wrap.appendChild(label);
+    grid.appendChild(wrap);
+  });
+  refreshIcons();
 }
 
 function wireTabs() {
@@ -291,6 +348,7 @@ function openPack() {
   const state = consumeAllowance(catalog.config.dailyAllowance);
   if (!state) return;
   updateAllowanceDisplay();
+  recordPackOpened();
 
   const pulled = drawPack(weightedPool, catalog.config.packSize)
     .slice()
@@ -511,6 +569,7 @@ function showNewToast(name) {
 // ---------------------------------------------------------------------------
 function renderCollection() {
   const collection = getCollection();
+  el.packsOpenedStat.textContent = `Packs opened: ${getPacksOpenedCount()}`;
   el.collectionRoot.innerHTML = "";
 
   for (const set of catalog.config.sets) {

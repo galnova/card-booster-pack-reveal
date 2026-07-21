@@ -27,7 +27,7 @@ export function renderCardFace(card, setById) {
     : "";
 
   return `
-    <div class="card${scopeClassFor(card, setById)}" data-rarity="${card.rarity}" data-set="${card.set}">
+    <div class="card${scopeClassFor(card, setById)}" data-id="${card.id}" data-rarity="${card.rarity}" data-set="${card.set}">
       <span class="rarity-badge">${card.rarity}</span>
       <div class="card-header">
         <h2 class="card-name">${card.name}</h2>
