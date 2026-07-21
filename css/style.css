@@ -1375,11 +1375,12 @@ button {
     .pack {
         width: 190px;
     }
-    .app-header {
+    .app-header { 
         padding: 10px 14px;
         flex-wrap: wrap;
         gap: 8px;
     }
+    
     .app-title {
         font-size: 1rem;
         white-space: nowrap;
