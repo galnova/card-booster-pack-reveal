@@ -10,10 +10,10 @@ import {
   getSavedRosters,
   saveRosterAsFavorite,
   deleteSavedRoster,
+  emptyRoster,
 } from "./roster.js";
 import { renderCardFace } from "./card-render.js";
 import { confirmAction, promptAction } from "./confirm-modal.js";
-import { wireHoloTilt } from "./holo-tilt.js";
 
 const CATEGORY_DEFS = {
   main: { max: 1, label: "Main Character", setId: "characters", filter: (c) => c.tier === "main" },
@@ -61,8 +61,7 @@ export function initRosterUI({ catalog: cat, goToPacksTab: goPacks }) {
 
   roster = sanitizeRoster(getRoster(), getCollection());
   saveRoster(roster);
-  // Baseline so an already-complete roster from a previous session doesn't
-  // celebrate again on every load/tab-switch - only a genuine completion should.
+  // Baseline so an already-complete roster doesn't re-celebrate on every load/tab-switch.
   wasRosterComplete = validateRoster(roster).complete;
 
   wireStepsNav();
@@ -91,7 +90,7 @@ export function initRosterUI({ catalog: cat, goToPacksTab: goPacks }) {
       confirmLabel: "Clear Roster",
     });
     if (!ok) return;
-    roster = { main: null, subs: [], mechs: [], wildcards: [], pairings: {}, darkMatter: [] };
+    roster = emptyRoster();
     persistAndRender();
   });
 
@@ -107,10 +106,7 @@ export function refreshRosterUI() {
 
 function persistAndRender() {
   saveRoster(roster);
-  // renderAll() rebuilds every select/button from scratch, which destroys whatever
-  // element the user just interacted with and drops focus to <body>. Restore focus
-  // to the element with the same id (ids are stable across rebuilds, e.g. dm-host-0)
-  // so keyboard flow and rapid sequential picks don't feel like they broke.
+  // renderAll() rebuilds everything from scratch and drops focus - restore it by stable id.
   const activeId = document.activeElement && document.activeElement.id;
   renderAll();
   if (activeId) {
@@ -137,9 +133,13 @@ function renderAll() {
 function wireStepsNav() {
   el.stepsNav.querySelectorAll(".roster-step-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      el.stepsNav.querySelectorAll(".roster-step-btn").forEach((b) => b.classList.remove("active"));
+      el.stepsNav.querySelectorAll(".roster-step-btn").forEach((b) => {
+        b.classList.remove("active");
+        b.setAttribute("aria-selected", "false");
+      });
       document.querySelectorAll(".roster-panel").forEach((p) => p.classList.remove("active"));
       btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
       document.querySelector(`.roster-panel[data-step-panel="${btn.dataset.step}"]`).classList.add("active");
     });
   });
@@ -198,7 +198,6 @@ function buildChip(card, mode, category) {
   const btnLabel = mode === "add" ? '<i data-lucide="plus"></i> Add' : '<i data-lucide="minus"></i> Remove';
   const btnClass = mode === "add" ? "roster-card-add" : "roster-card-remove";
   wrap.innerHTML = `${renderCardFace(card, setById)}<button type="button" class="${btnClass}">${btnLabel}</button>`;
-  wireHoloTilt(wrap.querySelector(".card"));
   wrap.querySelector("button").addEventListener("click", () => {
     if (mode === "add") addToCategory(category, card.id);
     else removeFromCategory(category, card.id);

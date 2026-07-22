@@ -38,6 +38,10 @@
     box-sizing: border-box;
 }
 
+.defs-only {
+    position: absolute;
+}
+
 body {
     margin: 0;
     min-height: 100vh;
@@ -49,6 +53,12 @@ button {
     font-family: inherit;
 }
 
+.app-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
 .app-header {
     display: flex;
     align-items: center;
@@ -57,9 +67,6 @@ button {
     padding: 16px 20px;
     background: var(--app-surface);
     border-bottom: 1px solid #2c2e38;
-    position: sticky;
-    top: 0;
-    z-index: 20;
 }
 
 .app-title {
@@ -188,9 +195,6 @@ button {
     padding: 0 20px;
     background: var(--app-surface);
     border-bottom: 1px solid #2c2e38;
-    position: sticky;
-    top: 61px;
-    z-index: 19;
     overflow-x: auto;
 }
 
@@ -267,6 +271,40 @@ button {
     border: 1px solid #33353f;
     border-radius: 999px;
     padding: 8px 18px;
+}
+
+/* Shrink-wraps around .pack (its only in-flow child), so the layers' inset:0 always matches its current size. */
+.pack-stack {
+    position: relative;
+    display: inline-block;
+}
+
+.pack-stack-layer {
+    display: none;
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--hero-bg) 0%, var(--mech-bg) 25%, var(--dm-bg) 50%, var(--wc-bg) 75%, var(--arena-bg) 100%);
+    box-shadow: 0 14px 30px -14px #000000aa, inset 0 0 0 2px #ffffff20;
+    filter: brightness(0.8) saturate(0.85);
+    pointer-events: none;
+}
+
+/* First layer in the DOM paints furthest back; the second sits between it and the real pack button. */
+.pack-stack-layer:nth-of-type(1) {
+    transform: translate(-14px, 20px) rotate(5deg);
+}
+
+.pack-stack-layer:nth-of-type(2) {
+    transform: translate(10px, 14px) rotate(-4deg);
+}
+
+.pack-stack.count-3 .pack-stack-layer {
+    display: block;
+}
+
+.pack-stack.count-2 .pack-stack-layer:nth-of-type(2) {
+    display: block;
 }
 
 .pack {
@@ -415,9 +453,22 @@ button {
     text-shadow: 0 2px 6px #00000080;
 }
 
+.pack-label-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .pack-label svg {
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 1.3rem;
+    height: 1.3rem;
+}
+
+.pack-logo {
+    width: 62%;
+    max-width: 150px;
+    border-radius: calc(var(--radius-lg) * 0.6);
+    box-shadow: 0 10px 22px -8px #00000090;
 }
 
 @keyframes pack-shimmer {
@@ -511,6 +562,15 @@ button {
     cursor: pointer;
 }
 
+.slot-back::before,
+.card-modal-back::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(45deg, #ffffff12 0 10px, transparent 10px 20px);
+    pointer-events: none;
+}
+
 .reveal-slot.flickering .slot-back {
     animation: reel-flicker 0.5s steps(5, end) 1;
 }
@@ -534,10 +594,12 @@ button {
     }
 }
 
-.slot-back svg {
-    width: 2.4rem;
-    height: 2.4rem;
-    color: #565a6b;
+.card-back-logo {
+    width: 64%;
+    max-width: 170px;
+    border-radius: calc(var(--radius-lg) * 0.6);
+    box-shadow: 0 10px 24px -8px #00000090;
+    position: relative;
 }
 
 .slot-front {
@@ -729,9 +791,6 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.card-header {
     margin-bottom: var(--spacing-sm);
     font-size: clamp(0.6rem, 4.3cqw, 0.88rem);
     font-weight: 800;
@@ -893,6 +952,7 @@ button {
 .card-tier svg {
     width: clamp(0.5rem, 3.8cqw, 0.78rem);
     height: clamp(0.5rem, 3.8cqw, 0.78rem);
+    fill: currentColor;
 }
 
 .card-tier.main {
@@ -962,7 +1022,7 @@ button {
     margin: 0;
     margin-top: auto;
     margin-bottom: 10px;
-    padding: clamp(4px, 2.5cqw, 6px) clamp(6px, 3.5cqw, 8px);
+    padding: clamp(2px, 2cqw, 2px) clamp(4px, 3cqw, 4px);
     border: 1px solid var(--card-border);
     border-radius: 8px;
     font-size: clamp(0.5rem, 3.8cqw, 0.72rem);
@@ -1008,7 +1068,6 @@ button {
 
 .rarity-badge {
     position: absolute;
-    z-index: 5000;
     left: 50%;
     bottom: 4px;
     transform: translateX(-50%);
@@ -1228,6 +1287,8 @@ button {
 
 .holo-card {
     transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    /* Avoids the tap-vs-scroll delay on touch that could drop the open-modal click. */
+    touch-action: manipulation;
 }
 
 .holo-card[data-foil]::after {
@@ -1267,14 +1328,14 @@ button {
 }
 
 .holo-card[data-foil="holo"]::before {
-    background-image: repeating-linear-gradient(115deg, #ff5e5e 0%, #ffee5e 12%, #5eff8f 24%, #5ecbff 36%, #a15eff 48%, #ff5e5e 60%);
+    background-image: repeating-linear-gradient(115deg, #ffabab 0%, #fff6ab 12%, #abffc4 24%, #abe4ff 36%, #ceabff 48%, #ffabab 60%);
     filter: url(#foil-grain-holo) saturate(1.3);
 }
 
 .holo-card[data-foil="cosmos"]::before {
     background-image:
-        repeating-linear-gradient(38deg, rgba(255, 255, 255, 0.6) 0px, rgba(255, 255, 255, 0.6) 2px, transparent 2px, transparent 17px),
-        repeating-linear-gradient(115deg, #1fd1c8 0%, #3ee6ff 12%, #5b6ee8 24%, #a15eff 36%, #ff5ec4 48%, #1fd1c8 60%);
+        repeating-linear-gradient(38deg, rgba(255, 255, 255, 0.6) 0px, rgba(255, 255, 255, 0.6) 1px, transparent 1px, transparent 8.5px),
+        repeating-linear-gradient(115deg, #56e6df 0%, #8bf0ff 12%, #9ea9f1 24%, #ceabff 36%, #ffabe0 48%, #56e6df 60%);
     background-size: 100% 100%, 220% 220%;
     background-repeat: no-repeat, repeat;
     background-position: 0 0, var(--bg-x) var(--bg-y);
@@ -1283,9 +1344,11 @@ button {
 
 .holo-card[data-foil="secret"]::before {
     background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M0 16L8 0L16 16L24 0L32 16' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-opacity='0.6'/%3E%3C/svg%3E"),
-        repeating-linear-gradient(115deg, #fff3c4 0%, #ffd76e 12%, #ffb347 24%, #ff8a3d 36%, #ff5e94 48%, #fff3c4 60%);
-    background-size: 32px 32px, 220% 220%;
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='rotate(45 16 16)'%3E%3Cpath d='M0 16L8 0L16 16L24 0L32 16' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-opacity='0.6'/%3E%3C/g%3E%3C/svg%3E"),
+        repeating-linear-gradient(115deg, #ffffff 0%, #ffecba 12%, #ffd393 24%, #ffb88a 36%, #ffabc7 48%, #ffffff 60%);
+    /* SVG draws 4 zigzag lines per 32px, then repeats to fill the card - so
+       the "/ 3" divisor here triples the line count (change to "/ N" for Nx). */
+    background-size: calc(32px / 3) calc(32px / 3), 220% 220%;
     background-position: 0 0, var(--bg-x) var(--bg-y);
     filter: url(#foil-grain-secret) saturate(1.35) brightness(1.05);
 }
@@ -1390,13 +1453,8 @@ button {
         padding: 5px 10px;
         gap: 6px;
     }
-    .allowance-reset {
-        font-size: 0.62rem;
-        padding: 2px 7px;
-    }
     .tabs {
         padding: 0 14px;
-        top: 57px;
     }
 }
 
@@ -1440,10 +1498,15 @@ button {
     height: 18px;
 }
 
-.card-modal-flip {
-    
+.card-modal-pop {
     width: min(82vw, 360px);
     aspect-ratio: 2 / 3;
+    position: relative;
+}
+
+.card-modal-flip {
+    width: 100%;
+    height: 100%;
     position: relative;
     transform-style: preserve-3d;
     cursor: pointer;
@@ -1464,11 +1527,6 @@ button {
     justify-content: center;
 }
 
-.card-modal-back svg {
-    width: 4.5rem;
-    height: 4.5rem;
-    color: #565a6b;
-}
 
 .card-modal-front {
     transform: rotateY(180deg);
@@ -1664,7 +1722,7 @@ button {
     padding: 0;
     margin: -1px;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
 }
@@ -1860,6 +1918,31 @@ button {
 
 .roster-card-chip .card-graphic {
     margin: 0 -14px 1.5px -14px;
+}
+
+/* Roster chips are too small for the full card's floors/badges/border box. */
+.roster-card-chip .card-name {
+    font-size: clamp(0.5rem, 6.2cqw, 1.18rem);
+}
+
+.roster-card-chip .card-cost {
+    background: none;
+    width: auto;
+    height: auto;
+    color: var(--card-border);
+}
+
+.roster-card-chip .card-cost svg {
+    position: static;
+    transform: none;
+    width: 0.85rem;
+    height: 0.85rem;
+}
+
+.roster-card-chip .card-flavor {
+    border: none;
+    padding: 0;
+    margin-bottom: 8px;
 }
 
 .roster-card-chip.sortable-ghost {

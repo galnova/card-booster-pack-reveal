@@ -110,8 +110,6 @@ function signed(n) {
   return n >= 0 ? `+${n}` : `${n}`;
 }
 
-export function capitalize(s) {
+function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
-
-export { BOND_ICON };
