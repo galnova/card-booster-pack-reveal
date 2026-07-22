@@ -56,4 +56,5 @@ export const SPRING_PRESETS = {
   rare: { stiffness: 170, damping: 19 },
   legendary: { stiffness: 140, damping: 15 },
   ui: { stiffness: 260, damping: 22 },
+  holoRelease: { stiffness: 140, damping: 16 },
 };

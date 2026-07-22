@@ -23,8 +23,7 @@
 </head>
 
 <body>
-    
-    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <svg width="0" height="0" class="defs-only" aria-hidden="true">
         <defs>
             <filter id="foil-grain-holo" x="-100%" y="-100%" width="300%" height="300%">
                 <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="5" seed="15" stitchTiles="stitch" result="noise" />
@@ -57,44 +56,54 @@
         </defs>
     </svg>
 
-    <header class="app-header">
-        <h1 class="app-title">HueShift Packs</h1>
-        <div class="header-right">
-            <div class="allowance">
-                Packs today: <strong id="allowance-count">–</strong>
-            </div>
-            <div class="settings-menu">
-                <button id="settings-btn" class="icon-btn-ghost" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><i data-lucide="settings"></i></button>
-                <div id="settings-panel" class="settings-panel" role="menu">
-                    <button id="reset-allowance-btn" class="settings-panel-item" role="menuitem">Reset today's pack allowance</button>
-                    <button id="reset-collection-btn" class="settings-panel-item" role="menuitem">Reset collection</button>
+    <div class="app-topbar">
+        <header class="app-header">
+            <h1 class="app-title">HueShift Packs</h1>
+            <div class="header-right">
+                <div class="allowance">
+                    Packs today: <strong id="allowance-count">–</strong>
+                </div>
+                <div class="settings-menu">
+                    <button type="button" id="settings-btn" class="icon-btn-ghost" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><i data-lucide="settings"></i></button>
+                    <div id="settings-panel" class="settings-panel" role="menu">
+                        <button type="button" id="reset-allowance-btn" class="settings-panel-item" role="menuitem">Reset today's pack allowance</button>
+                        <button type="button" id="reset-collection-btn" class="settings-panel-item" role="menuitem">Reset collection</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <nav class="tabs">
-        <button class="tab-btn active" data-view="view-open">Open Packs</button>
-        <button class="tab-btn" data-view="view-collection">Collection</button>
-        <button class="tab-btn" data-view="view-roster">Roster</button>
-    </nav>
+        <nav class="tabs" role="tablist" aria-label="View tabs">
+            <button type="button" class="tab-btn active" id="tab-view-open" role="tab" aria-selected="true" aria-controls="view-open" data-view="view-open">Open Packs</button>
+            <button type="button" class="tab-btn" id="tab-view-collection" role="tab" aria-selected="false" aria-controls="view-collection" data-view="view-collection">Collection</button>
+            <button type="button" class="tab-btn" id="tab-view-roster" role="tab" aria-selected="false" aria-controls="view-roster" data-view="view-roster">Roster</button>
+        </nav>
+    </div>
 
-    <main id="view-open" class="view active">
+    <main class="view-root">
+    <section id="view-open" class="view active" role="tabpanel" aria-labelledby="tab-view-open">
         <p class="app-tagline">Booster packs for the HueShift tabletop card game. Pull all 51 cards, then build a team. <br/>
         <a href="https://cards.thehueshift.com" target="_blank" rel="noopener">See the rules</a></p>
         <div id="open-stage" class="open-stage">
-            <button id="pack-btn" class="pack">
-                <span class="ember" style="--ember-x:-30px; --ember-delay:0s"></span>
-                <span class="ember" style="--ember-x:10px; --ember-delay:0.9s"></span>
-                <span class="ember" style="--ember-x:40px; --ember-delay:1.8s"></span>
-                <span class="ember" style="--ember-x:-55px; --ember-delay:2.6s"></span>
-                <span class="ember" style="--ember-x:60px; --ember-delay:3.4s"></span>
-                <svg id="pack-progress-ring" class="pack-progress-ring" viewBox="0 0 100 100">
-                    <circle class="pack-progress-ring-bg" cx="50" cy="50" r="46"></circle>
-                    <circle id="pack-progress-ring-fg" class="pack-progress-ring-fg" cx="50" cy="50" r="46"></circle>
-                </svg>
-                <span class="pack-label"><i data-lucide="layers"></i>Booster Pack</span>
-            </button>
+            <div id="pack-stack" class="pack-stack">
+                <span class="pack-stack-layer" aria-hidden="true"></span>
+                <span class="pack-stack-layer" aria-hidden="true"></span>
+                <button type="button" id="pack-btn" class="pack">
+                    <span class="ember" style="--ember-x:-30px; --ember-delay:0s"></span>
+                    <span class="ember" style="--ember-x:10px; --ember-delay:0.9s"></span>
+                    <span class="ember" style="--ember-x:40px; --ember-delay:1.8s"></span>
+                    <span class="ember" style="--ember-x:-55px; --ember-delay:2.6s"></span>
+                    <span class="ember" style="--ember-x:60px; --ember-delay:3.4s"></span>
+                    <svg id="pack-progress-ring" class="pack-progress-ring" viewBox="0 0 100 100">
+                        <circle class="pack-progress-ring-bg" cx="50" cy="50" r="46"></circle>
+                        <circle id="pack-progress-ring-fg" class="pack-progress-ring-fg" cx="50" cy="50" r="46"></circle>
+                    </svg>
+                    <span class="pack-label">
+                        <img class="pack-logo" src="icons/hue-shift-logo.png" alt="HueShift">
+                        <span class="pack-label-text"><i data-lucide="layers"></i>Booster Pack</span>
+                    </span>
+                </button>
+            </div>
             <p id="open-hint" class="open-hint">Loading catalog…</p>
 
             <div id="reveal-row" class="reveal-row"></div>
@@ -102,8 +111,8 @@
             <p id="pack-summary" class="pack-summary" style="display:none"></p>
 
             <div id="reveal-actions" class="reveal-actions" style="display:none">
-                <button id="reveal-all-btn" class="btn">Reveal All</button>
-                <button id="again-btn" class="btn secondary">Done</button>
+                <button type="button" id="reveal-all-btn" class="btn">Reveal All</button>
+                <button type="button" id="again-btn" class="btn secondary">Done</button>
             </div>
         </div>
 
@@ -112,17 +121,17 @@
             <p class="foil-samples-hint">Hover each card to see its tilt/shine/glare - one sample per foil variant, forced regardless of rarity, just for inspection.</p>
             <div id="foil-samples-grid" class="foil-samples-grid"></div>
         </section>
-    </main>
+    </section>
 
-    <main id="view-collection" class="view">
+    <section id="view-collection" class="view" role="tabpanel" aria-labelledby="tab-view-collection">
         <div class="collection-header">
             <h2 class="app-title">Your Collection</h2>
             <span id="packs-opened-stat" class="set-section-count"></span>
         </div>
         <div id="collection-root"></div>
-    </main>
+    </section>
 
-    <main id="view-roster" class="view">
+    <section id="view-roster" class="view" role="tabpanel" aria-labelledby="tab-view-roster">
         <div class="collection-header">
             <h2 class="app-title">Build Your Roster</h2>
         </div>
@@ -130,68 +139,68 @@
         <ol class="roster-checklist" id="roster-checklist" aria-label="Roster completion checklist"></ol>
         <p class="roster-live-status sr-only" id="roster-live-status" role="status" aria-live="polite"></p>
 
-        <nav class="roster-steps" id="roster-steps">
-            <button class="roster-step-btn active" data-step="characters">1. Characters</button>
-            <button class="roster-step-btn" data-step="mechs">2. Mechs</button>
-            <button class="roster-step-btn" data-step="wildcards">3. Wildcards</button>
-            <button class="roster-step-btn" data-step="pairing">4. Pairing</button>
-            <button class="roster-step-btn" data-step="darkmatter">5. Dark Matter</button>
-            <button class="roster-step-btn" data-step="review">6. Review</button>
+        <nav class="roster-steps" id="roster-steps" role="tablist" aria-label="Roster steps">
+            <button type="button" class="roster-step-btn active" id="tab-step-characters" role="tab" aria-selected="true" aria-controls="panel-step-characters" data-step="characters">1. Characters</button>
+            <button type="button" class="roster-step-btn" id="tab-step-mechs" role="tab" aria-selected="false" aria-controls="panel-step-mechs" data-step="mechs">2. Mechs</button>
+            <button type="button" class="roster-step-btn" id="tab-step-wildcards" role="tab" aria-selected="false" aria-controls="panel-step-wildcards" data-step="wildcards">3. Wildcards</button>
+            <button type="button" class="roster-step-btn" id="tab-step-pairing" role="tab" aria-selected="false" aria-controls="panel-step-pairing" data-step="pairing">4. Pairing</button>
+            <button type="button" class="roster-step-btn" id="tab-step-darkmatter" role="tab" aria-selected="false" aria-controls="panel-step-darkmatter" data-step="darkmatter">5. Dark Matter</button>
+            <button type="button" class="roster-step-btn" id="tab-step-review" role="tab" aria-selected="false" aria-controls="panel-step-review" data-step="review">6. Review</button>
         </nav>
 
-        <section class="roster-panel active" data-step-panel="characters">
+        <section class="roster-panel active" id="panel-step-characters" data-step-panel="characters" role="tabpanel" aria-labelledby="tab-step-characters">
             <div class="roster-pick-group">
                 <h3 class="roster-section-title">Main Character <span class="roster-section-count" id="count-main">0 / 1</span></h3>
                 <p class="roster-hint">Your signature hero for this roster. Drag a card down, or click it to add.</p>
-                <div class="roster-pool" id="pool-main" data-slot="main" aria-label="Owned Main-tier characters"></div>
-                <div class="roster-slots" id="slot-main" data-slot="main" aria-label="Main Character roster slot"></div>
+                <div class="roster-pool" id="pool-main" data-slot="main" role="group" aria-label="Owned Main-tier characters"></div>
+                <div class="roster-slots" id="slot-main" data-slot="main" role="group" aria-label="Main Character roster slot"></div>
             </div>
             <div class="roster-pick-group">
                 <h3 class="roster-section-title">Sub Characters <span class="roster-section-count" id="count-subs">0 / 4</span></h3>
                 <p class="roster-hint">Four supporting heroes with utility-focused abilities.</p>
-                <div class="roster-pool" id="pool-subs" data-slot="subs" aria-label="Owned Sub-tier characters"></div>
-                <div class="roster-slots" id="slot-subs" data-slot="subs" aria-label="Sub Character roster slots"></div>
+                <div class="roster-pool" id="pool-subs" data-slot="subs" role="group" aria-label="Owned Sub-tier characters"></div>
+                <div class="roster-slots" id="slot-subs" data-slot="subs" role="group" aria-label="Sub Character roster slots"></div>
             </div>
         </section>
 
-        <section class="roster-panel" data-step-panel="mechs">
+        <section class="roster-panel" id="panel-step-mechs" data-step-panel="mechs" role="tabpanel" aria-labelledby="tab-step-mechs">
             <div class="roster-pick-group">
                 <h3 class="roster-section-title">Mechs <span class="roster-section-count" id="count-mechs">0 / 5</span></h3>
                 <p class="roster-hint">Five chassis for your characters to pilot.</p>
-                <div class="roster-pool" id="pool-mechs" data-slot="mechs" aria-label="Owned Mechs"></div>
-                <div class="roster-slots" id="slot-mechs" data-slot="mechs" aria-label="Mech roster slots"></div>
+                <div class="roster-pool" id="pool-mechs" data-slot="mechs" role="group" aria-label="Owned Mechs"></div>
+                <div class="roster-slots" id="slot-mechs" data-slot="mechs" role="group" aria-label="Mech roster slots"></div>
             </div>
         </section>
 
-        <section class="roster-panel" data-step-panel="wildcards">
+        <section class="roster-panel" id="panel-step-wildcards" data-step-panel="wildcards" role="tabpanel" aria-labelledby="tab-step-wildcards">
             <div class="roster-pick-group">
                 <h3 class="roster-section-title">Wildcards <span class="roster-section-count" id="count-wildcards">0 / 3</span></h3>
                 <p class="roster-hint">Three one-time interrupt effects for your hand.</p>
-                <div class="roster-pool" id="pool-wildcards" data-slot="wildcards" aria-label="Owned Wildcards"></div>
-                <div class="roster-slots" id="slot-wildcards" data-slot="wildcards" aria-label="Wildcard roster slots"></div>
+                <div class="roster-pool" id="pool-wildcards" data-slot="wildcards" role="group" aria-label="Owned Wildcards"></div>
+                <div class="roster-slots" id="slot-wildcards" data-slot="wildcards" role="group" aria-label="Wildcard roster slots"></div>
             </div>
         </section>
 
-        <section class="roster-panel" data-step-panel="pairing">
+        <section class="roster-panel" id="panel-step-pairing" data-step-panel="pairing" role="tabpanel" aria-labelledby="tab-step-pairing">
             <h3 class="roster-section-title">Pilot Assignments</h3>
             <p class="roster-hint">Assign each character to a Mech as Base Pilot or Co-Pilot. A gold ring means the Bond Trait matches the Mech's class for a +1 AP / +1 HP bonus.</p>
             <div id="roster-pairing-list" class="roster-pairing-list"></div>
         </section>
 
-        <section class="roster-panel" data-step-panel="darkmatter">
+        <section class="roster-panel" id="panel-step-darkmatter" data-step-panel="darkmatter" role="tabpanel" aria-labelledby="tab-step-darkmatter">
             <h3 class="roster-section-title">Dark Matter <span class="roster-section-count">optional, up to 2</span></h3>
             <p class="roster-hint">Corrupt one of your own roster cards with 1 Gain + 1 Penalty, taken together as a trade.</p>
             <div id="roster-darkmatter-list" class="roster-darkmatter-list"></div>
-            <button id="add-darkmatter-btn" class="btn secondary">+ Add Corruption</button>
+            <button type="button" id="add-darkmatter-btn" class="btn secondary">+ Add Corruption</button>
         </section>
 
-        <section class="roster-panel" data-step-panel="review">
+        <section class="roster-panel" id="panel-step-review" data-step-panel="review" role="tabpanel" aria-labelledby="tab-step-review">
             <h3 class="roster-section-title">Review &amp; Export</h3>
             <div id="roster-review" class="roster-review"></div>
             <div class="roster-actions">
-                <button id="export-roster-btn" class="btn" disabled>Export Roster</button>
-                <button id="save-favorite-btn" class="btn secondary"><i data-lucide="star"></i> Save as Favorite</button>
-                <button id="reset-roster-btn" class="btn secondary">Clear Roster</button>
+                <button type="button" id="export-roster-btn" class="btn" disabled>Export Roster</button>
+                <button type="button" id="save-favorite-btn" class="btn secondary"><i data-lucide="star"></i> Save as Favorite</button>
+                <button type="button" id="reset-roster-btn" class="btn secondary">Clear Roster</button>
             </div>
 
             <div class="roster-saved-section">
@@ -199,15 +208,18 @@
                 <div id="saved-rosters-list" class="roster-saved-list"></div>
             </div>
         </section>
+    </section>
     </main>
 
     <div id="roster-print-root" class="roster-print-root"></div>
 
     <div id="card-modal" class="card-modal-overlay">
-        <button id="card-modal-close" class="card-modal-close" aria-label="Close"><i data-lucide="x"></i></button>
-        <div id="card-modal-flip" class="card-modal-flip">
-            <div class="card-modal-face card-modal-back"><i data-lucide="circle-help"></i></div>
-            <div id="card-modal-front" class="card-modal-face card-modal-front"></div>
+        <button type="button" id="card-modal-close" class="card-modal-close" aria-label="Close"><i data-lucide="x"></i></button>
+        <div id="card-modal-pop" class="card-modal-pop">
+            <div id="card-modal-flip" class="card-modal-flip">
+                <div class="card-modal-face card-modal-back"><img class="card-back-logo" src="icons/hue-shift-logo.png" alt="HueShift"></div>
+                <div id="card-modal-front" class="card-modal-face card-modal-front"></div>
+            </div>
         </div>
         <p class="card-modal-hint">Tap the card to flip it</p>
     </div>
@@ -217,8 +229,8 @@
             <p id="confirm-modal-message" class="confirm-modal-message"></p>
             <input type="text" id="confirm-modal-input" class="confirm-modal-input" style="display:none" />
             <div class="confirm-modal-actions">
-                <button id="confirm-modal-cancel" class="btn secondary">Cancel</button>
-                <button id="confirm-modal-confirm" class="btn confirm-modal-danger">Confirm</button>
+                <button type="button" id="confirm-modal-cancel" class="btn secondary">Cancel</button>
+                <button type="button" id="confirm-modal-confirm" class="btn confirm-modal-danger">Confirm</button>
             </div>
         </div>
     </div>
@@ -233,10 +245,7 @@
     <script src="https://cdn.jsdelivr.net/npm/lucide@1.23.0/dist/umd/lucide.min.js"></script>
     <script type="module" src="js/app.js"></script>
     <script>
-        // Service worker registration is off while we're actively iterating on css/js -
-        // a stale cached worker was masking edits. This actively tears down any worker
-        // left over from earlier testing so pages self-heal without manual DevTools steps.
-        // Re-enable registration (see service-worker.js) once the app has stabilized.
+        // Tears down any leftover service worker/cache from earlier testing (registration is off while iterating - see service-worker.js).
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.getRegistrations().then((regs) => {
                 regs.forEach((reg) => reg.unregister());

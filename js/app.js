@@ -21,6 +21,7 @@ let packSize = 0;
 const el = {
   allowanceCount: document.getElementById("allowance-count"),
   openStage: document.getElementById("open-stage"),
+  packStack: document.getElementById("pack-stack"),
   packBtn: document.getElementById("pack-btn"),
   packProgressRing: document.getElementById("pack-progress-ring"),
   packProgressRingFg: document.getElementById("pack-progress-ring-fg"),
@@ -35,6 +36,7 @@ const el = {
   tabs: document.querySelectorAll(".tab-btn"),
   views: document.querySelectorAll(".view"),
   cardModal: document.getElementById("card-modal"),
+  cardModalPop: document.getElementById("card-modal-pop"),
   cardModalFlip: document.getElementById("card-modal-flip"),
   cardModalFront: document.getElementById("card-modal-front"),
   cardModalClose: document.getElementById("card-modal-close"),
@@ -82,9 +84,7 @@ async function init() {
 }
 
 // ---------------------------------------------------------------------------
-// Foil inspection gallery (Open Packs tab) - one forced sample per data-foil
-// variant so they can be compared side by side, independent of the rarity-
-// gated odds that normally decide which foil a real pulled card gets.
+// Foil inspection gallery: one forced sample per data-foil variant, independent of real pull odds.
 // ---------------------------------------------------------------------------
 const FOIL_SAMPLES = [
   { foil: null, label: "Normal" },
@@ -109,15 +109,8 @@ function renderFoilSamples() {
     wireHoloTilt(cardEl);
     if (sample.foil) {
       cardEl.dataset.foil = sample.foil;
-      // Force the shine permanently visible (bypassing the hover-only
-      // opacity wireHoloTilt normally uses): at rest these samples look
-      // identical - there's nothing to tell them apart until you hover, so
-      // a glance at the gallery without moving the mouse over every single
-      // card looks like "none of these do anything." Hovering still works
-      // normally on top of this. "Normal" is deliberately excluded - it
-      // should show zero effect (no shine, no glare) at rest, not even the
-      // plain white highlight, since it's the flat baseline to compare
-      // the others against.
+      // Forces the shine visible at rest (normally hover-only) so samples aren't
+      // indistinguishable until hovered; "Normal" stays excluded as the zero-effect baseline.
       wrap.style.setProperty("--holo-opacity", "1");
       wrap.style.setProperty("--pointer-x", "35%");
       wrap.style.setProperty("--pointer-y", "30%");
@@ -146,7 +139,11 @@ function wireTabs() {
 }
 
 function switchToView(viewId) {
-  el.tabs.forEach((b) => b.classList.toggle("active", b.dataset.view === viewId));
+  el.tabs.forEach((b) => {
+    const selected = b.dataset.view === viewId;
+    b.classList.toggle("active", selected);
+    b.setAttribute("aria-selected", String(selected));
+  });
   el.views.forEach((v) => v.classList.toggle("active", v.id === viewId));
 }
 
@@ -178,21 +175,19 @@ function updateAllowanceDisplay() {
   el.openHint.textContent = state.remaining > 0
     ? "Hold the pack to open it."
     : "No packs left today - come back tomorrow.";
+  // Only 2 decorative layers exist, so the stack tops out at "3" regardless of a higher allowance.
+  el.packStack.className = `pack-stack count-${Math.min(state.remaining, 3)}`;
 }
 
 // ---------------------------------------------------------------------------
-// Press-and-hold-to-open. Pointer devices must hold for HOLD_DURATION_MS;
-// keyboard activation (Enter/Space -> native click, no preceding pointerdown)
-// opens immediately since a hold gesture isn't meaningful there.
+// Press-and-hold-to-open. Keyboard activation opens immediately (no hold) since a hold gesture isn't meaningful there.
 // ---------------------------------------------------------------------------
 let holdRafId = null;
 let holdStartTime = null;
 let holdTriggeredOpen = false;
 let hadPointerInteraction = false;
 
-// Pack hover/press/hold feedback is spring-driven rather than CSS-transitioned
-// (see the .pack rule in style.css for why) - two independent springs for
-// scale and lift, combined into one transform on every tick.
+// Spring-driven (not CSS-transitioned, see .pack in style.css) - scale + lift combined into one transform per tick.
 const PACK_TARGETS = {
   rest: { scale: 1, lift: 0 },
   hover: { scale: 1.02, lift: -4 },
@@ -325,7 +320,47 @@ function refreshIcons() {
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
-function openCardModal(card) {
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let popCancels = [];
+
+// FLIP-technique entrance: grows from the clicked card's own position/size into the centered modal.
+function animatePopFromSource(sourceEl) {
+  popCancels.forEach((cancel) => cancel());
+  popCancels = [];
+  const pop = el.cardModalPop;
+  pop.style.transform = "";
+  if (!sourceEl || prefersReducedMotion) return;
+
+  const from = sourceEl.getBoundingClientRect();
+  const to = pop.getBoundingClientRect();
+  if (!from.width || !from.height || !to.width || !to.height) return;
+
+  const state = {
+    x: from.left + from.width / 2 - (to.left + to.width / 2),
+    y: from.top + from.height / 2 - (to.top + to.height / 2),
+    sx: from.width / to.width,
+    sy: from.height / to.height,
+  };
+  const target = { x: 0, y: 0, sx: 1, sy: 1 };
+  const apply = () => {
+    pop.style.transform = `translate(${state.x.toFixed(2)}px, ${state.y.toFixed(2)}px) scale(${state.sx.toFixed(3)}, ${state.sy.toFixed(3)})`;
+  };
+  apply();
+
+  popCancels = Object.keys(target).map((key) =>
+    spring({
+      from: state[key],
+      to: target[key],
+      ...SPRING_PRESETS.ui,
+      onUpdate: (v) => {
+        state[key] = v;
+        apply();
+      },
+    })
+  );
+}
+
+function openCardModal(card, sourceEl) {
   el.cardModalFront.innerHTML = renderCardFace(card);
   wireHoloTilt(el.cardModalFront.querySelector(".card"));
   refreshIcons();
@@ -334,6 +369,7 @@ function openCardModal(card) {
   el.cardModalFlip.style.transform = "rotateY(180deg)";
   el.cardModal.classList.add("open");
   document.body.style.overflow = "hidden";
+  animatePopFromSource(sourceEl);
 }
 
 function closeCardModal() {
@@ -368,7 +404,7 @@ function openPack() {
 
 function showRevealRow(pulled) {
   el.packBtn.classList.remove("opening");
-  el.packBtn.style.display = "none";
+  el.packStack.style.display = "none";
   el.openHint.style.display = "none";
   el.packSummary.style.display = "none";
   el.revealRow.innerHTML = "";
@@ -384,13 +420,13 @@ function showRevealRow(pulled) {
     slot.dataset.rarity = card.rarity;
     slot.innerHTML = `
       <div class="reveal-flip">
-        <div class="slot-face slot-back"><i data-lucide="circle-help"></i></div>
+        <div class="slot-face slot-back"><img class="card-back-logo" src="icons/hue-shift-logo.png" alt="HueShift"></div>
         <div class="slot-face slot-front">${renderCardFace(card)}</div>
       </div>
     `;
     slot.addEventListener("click", () => {
       if (slot.classList.contains("flipped")) {
-        openCardModal(card);
+        openCardModal(card, slot);
       } else {
         flipSlot(slot);
       }
@@ -480,7 +516,7 @@ function resetOpenStage() {
   el.revealRow.innerHTML = "";
   el.revealActions.style.display = "none";
   el.packSummary.style.display = "none";
-  el.packBtn.style.display = "";
+  el.packStack.style.display = "";
   el.openHint.style.display = "";
   revealedCount = 0;
   if (cancelPackScaleSpring) cancelPackScaleSpring();
@@ -597,7 +633,7 @@ function renderCollection() {
         holder.innerHTML = renderCardFace(card);
         const cardEl = holder.firstElementChild;
         cardEl.classList.add("clickable");
-        cardEl.addEventListener("click", () => openCardModal(card));
+        cardEl.addEventListener("click", (e) => openCardModal(card, e.currentTarget));
         wireHoloTilt(cardEl);
         slot.appendChild(cardEl);
         if (count > 1) {

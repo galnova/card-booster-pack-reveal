@@ -47,9 +47,7 @@ export function deleteSavedRoster(id) {
   return list;
 }
 
-/** Drops any card reference the player no longer owns, so a roster built
- * before a "Reset Collection" (or a future trade-away feature) never points
- * at cards that have vanished. Called once on load, not on every render. */
+/** Drops any card reference the player no longer owns (e.g. after Reset Collection). Called once on load. */
 export function sanitizeRoster(roster, collection) {
   const owns = (id) => Boolean(collection[id]);
   const next = emptyRoster();
