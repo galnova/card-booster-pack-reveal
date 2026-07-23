@@ -23,39 +23,6 @@
 </head>
 
 <body>
-    <svg width="0" height="0" class="defs-only" aria-hidden="true">
-        <defs>
-            <filter id="foil-grain-holo" x="-100%" y="-100%" width="300%" height="300%">
-                <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="5" seed="15" stitchTiles="stitch" result="noise" />
-                <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 5 -3.6" result="contrastNoise" />
-                <feComponentTransfer in="contrastNoise" result="fadedNoise">
-                    <feFuncA type="linear" slope="1" intercept="0" />
-                </feComponentTransfer>
-                <feBlend in="SourceGraphic" in2="fadedNoise" mode="hard-light" />
-            </filter>
-
-            <filter id="foil-grain" x="-100%" y="-100%" width="300%" height="300%">
-
-                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="6" seed="7" stitchTiles="stitch" result="noise" />
-
-                <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 5 -3.6" result="contrastNoise" />
-                <feComponentTransfer in="contrastNoise" result="fadedNoise">
-                    <feFuncA type="linear" slope="1" intercept="0" />
-                </feComponentTransfer>
-                <feBlend in="SourceGraphic" in2="fadedNoise" mode="hard-light" />
-            </filter>
-
-            <filter id="foil-grain-secret" x="-100%" y="-100%" width="300%" height="300%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="6" seed="42" stitchTiles="stitch" result="noise" />
-                <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 5 -3.6" result="contrastNoise" />
-                <feComponentTransfer in="contrastNoise" result="fadedNoise">
-                    <feFuncA type="linear" slope="1" intercept="0" />
-                </feComponentTransfer>
-                <feBlend in="SourceGraphic" in2="fadedNoise" mode="hard-light" />
-            </filter>
-        </defs>
-    </svg>
-
     <div class="app-topbar">
         <header class="app-header">
             <h1 class="app-title">HueShift Packs</h1>
