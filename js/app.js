@@ -360,6 +360,27 @@ function animatePopFromSource(sourceEl) {
   );
 }
 
+// `overflow: hidden` on body alone doesn't stop background scroll/rubber-band on iOS Safari
+// behind a `position: fixed` overlay - pinning the body in place with a negative top offset
+// (restored on unlock) is the fix that actually holds on iOS.
+let lockedScrollY = 0;
+
+function lockScroll() {
+  lockedScrollY = window.scrollY;
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${lockedScrollY}px`;
+  document.body.style.width = "100%";
+  document.body.style.overflow = "hidden";
+}
+
+function unlockScroll() {
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.width = "";
+  document.body.style.overflow = "";
+  window.scrollTo(0, lockedScrollY);
+}
+
 function openCardModal(card, sourceEl) {
   el.cardModalFront.innerHTML = renderCardFace(card);
   wireHoloTilt(el.cardModalFront.querySelector(".card"));
@@ -368,13 +389,13 @@ function openCardModal(card, sourceEl) {
   modalAngle = 180;
   el.cardModalFlip.style.transform = "rotateY(180deg)";
   el.cardModal.classList.add("open");
-  document.body.style.overflow = "hidden";
+  lockScroll();
   animatePopFromSource(sourceEl);
 }
 
 function closeCardModal() {
   el.cardModal.classList.remove("open");
-  document.body.style.overflow = "";
+  unlockScroll();
 }
 
 // ---------------------------------------------------------------------------
@@ -566,10 +587,12 @@ function showLegendarySpotlight(card) {
   el.legendarySpotlight.innerHTML = renderCardFace(card);
   refreshIcons();
   el.legendarySpotlight.classList.add("open");
+  lockScroll();
   legendaryFireworks();
   setTimeout(() => {
     el.legendarySpotlight.classList.remove("open");
     el.legendarySpotlight.innerHTML = "";
+    unlockScroll();
   }, 1700);
 }
 
