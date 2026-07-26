@@ -750,20 +750,33 @@ button {
 }
 
 .card {
+    --card-border-w: 10px;
     width: 100%;
     max-width: 320px;
     aspect-ratio: 2 / 3;
     display: flex;
     flex-direction: column;
     background: var(--card-bg);
-    box-shadow: inset 0 0 0 10px var(--hero-bg);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg);
     border-radius: var(--radius-lg);
-    padding: calc(var(--spacing-md) + 10px);
+    padding: calc(var(--spacing-md) + var(--card-border-w));
     position: relative;
     overflow: hidden;
     color: var(--card-border);
     container-type: inline-size;
     container-name: card;
+}
+
+.card.card-image-sample {
+    padding: 0;
+    box-shadow: none;
+}
+
+.card-image-sample-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .mech-cards,
@@ -1106,11 +1119,11 @@ button {
 }
 
 .card[data-rarity="rare"] {
-    box-shadow: inset 0 0 0 10px var(--hero-bg), 0 0 0 2px var(--rarity-rare), 0 0 26px -4px var(--rarity-rare);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 2px var(--rarity-rare), 0 0 26px -4px var(--rarity-rare);
 }
 
 .card[data-rarity="legendary"] {
-    box-shadow: inset 0 0 0 10px var(--hero-bg), 0 0 0 3px var(--rarity-legendary), 0 0 34px -2px var(--rarity-legendary);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 3px var(--rarity-legendary), 0 0 34px -2px var(--rarity-legendary);
 }
 
 .reveal-slot .card[data-rarity="uncommon"],
@@ -1122,10 +1135,10 @@ button {
 @keyframes uncommon-pulse {
     0%,
     100% {
-        box-shadow: inset 0 0 0 10px var(--hero-bg), 0 0 0 1px var(--rarity-uncommon), 0 0 10px -4px var(--rarity-uncommon);
+        box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 1px var(--rarity-uncommon), 0 0 10px -4px var(--rarity-uncommon);
     }
     50% {
-        box-shadow: inset 0 0 0 10px var(--hero-bg), 0 0 0 2px var(--rarity-uncommon), 0 0 22px -2px var(--rarity-uncommon);
+        box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 2px var(--rarity-uncommon), 0 0 22px -2px var(--rarity-uncommon);
     }
 }
 
@@ -1971,8 +1984,9 @@ button {
 }
 
 .roster-card-chip .card {
+    --card-border-w: 5px;
     max-width: 100%;
-    box-shadow: inset 0 0 0 5px var(--hero-bg);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -2010,35 +2024,35 @@ button {
 }
 
 .roster-card-chip.sortable-chosen .card {
-    box-shadow: inset 0 0 0 5px var(--hero-bg), 0 0 0 3px var(--wc-bg);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 3px var(--wc-bg);
 }
 
 .roster-card-chip.sortable-drag .card {
-    box-shadow: inset 0 0 0 5px var(--hero-bg), 0 10px 30px -6px #000000cc;
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 10px 30px -6px #000000cc;
 }
 
 .roster-card-chip .card[data-rarity="rare"] {
-    box-shadow: inset 0 0 0 5px var(--hero-bg), 0 0 0 2px var(--rarity-rare), 0 0 26px -4px var(--rarity-rare);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 2px var(--rarity-rare), 0 0 26px -4px var(--rarity-rare);
 }
 
 .roster-card-chip .card[data-rarity="legendary"] {
-    box-shadow: inset 0 0 0 5px var(--hero-bg), 0 0 0 3px var(--rarity-legendary), 0 0 34px -2px var(--rarity-legendary);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 3px var(--rarity-legendary), 0 0 34px -2px var(--rarity-legendary);
 }
 
 .roster-card-chip.sortable-chosen .card[data-rarity="rare"] {
-    box-shadow: inset 0 0 0 5px var(--hero-bg), 0 0 0 3px var(--wc-bg), 0 0 26px -4px var(--rarity-rare);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 3px var(--wc-bg), 0 0 26px -4px var(--rarity-rare);
 }
 
 .roster-card-chip.sortable-chosen .card[data-rarity="legendary"] {
-    box-shadow: inset 0 0 0 5px var(--hero-bg), 0 0 0 3px var(--wc-bg), 0 0 34px -2px var(--rarity-legendary);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 0 0 3px var(--wc-bg), 0 0 34px -2px var(--rarity-legendary);
 }
 
 .roster-card-chip.sortable-drag .card[data-rarity="rare"] {
-    box-shadow: inset 0 0 0 5px var(--hero-bg), 0 10px 30px -6px #000000cc, 0 0 26px -4px var(--rarity-rare);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 10px 30px -6px #000000cc, 0 0 26px -4px var(--rarity-rare);
 }
 
 .roster-card-chip.sortable-drag .card[data-rarity="legendary"] {
-    box-shadow: inset 0 0 0 5px var(--hero-bg), 0 10px 30px -6px #000000cc, 0 0 34px -2px var(--rarity-legendary);
+    box-shadow: inset 0 0 0 var(--card-border-w) var(--hero-bg), 0 10px 30px -6px #000000cc, 0 0 34px -2px var(--rarity-legendary);
 }
 
 .roster-card-remove,
@@ -2378,6 +2392,20 @@ button {
     width: 12px;
     height: 12px;
     vertical-align: middle;
+}
+
+/* The card border is a fixed-px inset box-shadow, so at the small rendered widths cards get
+   pushed to on narrow screens it reads visibly thicker/chunkier than on desktop. Thinning it
+   here (via the --card-border-w custom property every border/padding declaration above reads
+   from) keeps the proportions closer to the desktop look instead of resizing the whole card. */
+@media (max-width: 600px) {
+    .card {
+        --card-border-w: 6px;
+    }
+
+    .roster-card-chip .card {
+        --card-border-w: 3px;
+    }
 }
 
 @media print {
