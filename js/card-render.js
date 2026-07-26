@@ -6,6 +6,13 @@ const BOND_ICON = {
   elemental: "atom",
 };
 
+// Temporary: swap in finished PNG samples for these two cards so the image version
+// can be compared against the live HTML render. Revert by removing this override.
+const CARD_IMAGE_OVERRIDES = {
+  "char-sadie": "card-samples/HS-Card-Sadie.png",
+  "mech-cidermayer": "card-samples/HS-Card-Cidermayer.png",
+};
+
 function scopeClassFor(card, setById) {
   const set = setById[card.set];
   return set.scopeClass ? ` ${set.scopeClass}` : "";
@@ -13,6 +20,14 @@ function scopeClassFor(card, setById) {
 
 export function renderCardFace(card, setById) {
   const set = setById[card.set];
+
+  if (CARD_IMAGE_OVERRIDES[card.id]) {
+    return `
+    <div class="card card-image-sample${scopeClassFor(card, setById)}" data-id="${card.id}" data-rarity="${card.rarity}" data-set="${card.set}">
+      <img class="card-image-sample-img" src="${CARD_IMAGE_OVERRIDES[card.id]}" alt="${card.name}" />
+    </div>
+  `;
+  }
 
   const secondCostIcon = secondCostIconHtml(card);
   const metaHtml = metaHtml_(card);
