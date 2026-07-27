@@ -15,7 +15,8 @@ const CARD_IMAGE_OVERRIDES = {
   "char-zo": "card-samples/HS-Card-Human-Hero-Sub-Zo.png",
   "char-rufus": "card-samples/HS-Card-Human-Sworder-Rufus.png",
   "char-llewellyn": "card-samples/HS-Card-Human-Leader-Llewellyn.png",
-  "char-blac": "card-samples/HS-Card-Human-Brute-Blac.png"
+  "char-blac": "card-samples/HS-Card-Human-Brute-Blac.png",
+  "char-cagney": "card-samples/HS-Card-Human-Leader-Sub-Cagney.png"
 };
 
 function scopeClassFor(card, setById) {

@@ -1,4 +1,4 @@
-import { loadCatalog, buildWeightedPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance, resetCollection, getPacksOpenedCount, recordPackOpened } from "./engine.js";
+import { loadCatalog, buildWeightedPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance, resetCollection, getPacksOpenedCount, recordPackOpened, ownedVariants, totalOwned, isOwned } from "./engine.js";
 import { primeAudio, playTear, playFlip, playChime, playFanfare } from "./sound.js";
 import { spring, SPRING_PRESETS } from "./spring.js";
 import { renderCardFace as renderCardFaceShared, renderLockedFace as renderLockedFaceShared } from "./card-render.js";
@@ -8,6 +8,8 @@ import { wireHoloTilt } from "./holo-tilt.js";
 
 const RARITY_RANK = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
 const RARITY_LABEL = { common: "Common", uncommon: "Uncommon", rare: "Rare", legendary: "Legendary" };
+const FOIL_LABEL = { none: "Normal", reverse: "Reverse", tin: "Tin", holo: "Holo", cosmos: "Cosmos", "super-holo": "Super Holo", secret: "Secret" };
+const FOIL_ORDER = ["none", "reverse", "tin", "holo", "super-holo", "cosmos", "secret"];
 const HOLD_DURATION_MS = 600;
 const RING_CIRCUMFERENCE = 289;
 
@@ -86,21 +88,24 @@ async function init() {
 // ---------------------------------------------------------------------------
 // Foil inspection gallery: one forced sample per data-foil variant, independent of real pull odds.
 // ---------------------------------------------------------------------------
+// Each sample uses one of the real PNG art cards, paired with a foil that card can actually roll
+// (see CARD_FOIL_OPTIONS in foil-config.js) so the gallery never shows an impossible combination.
 const FOIL_SAMPLES = [
-  { foil: null, label: "Normal" },
-  { foil: "reverse", label: "Reverse" },
-  { foil: "holo", label: "Holo" },
-  { foil: "super-holo", label: "Super Holo" },
-  { foil: "cosmos", label: "Cosmos" },
-  { foil: "secret", label: "Secret" },
+  { foil: null, label: "Normal", cardId: "char-zo" },
+  { foil: "reverse", label: "Reverse", cardId: "char-llewellyn" },
+  { foil: "tin", label: "Tin", cardId: "char-starlot" },
+  { foil: "holo", label: "Holo", cardId: "char-rufus" },
+  { foil: "super-holo", label: "Super Holo", cardId: "char-sadie" },
+  { foil: "cosmos", label: "Cosmos", cardId: "mech-cidermayer" },
+  { foil: "secret", label: "Secret", cardId: "char-blac" },
 ];
 
 function renderFoilSamples() {
   const grid = document.getElementById("foil-samples-grid");
   if (!grid) return;
   grid.innerHTML = "";
-  FOIL_SAMPLES.forEach((sample, i) => {
-    const card = catalog.allCards[i % catalog.allCards.length];
+  FOIL_SAMPLES.forEach((sample) => {
+    const card = catalog.cardsById.get(sample.cardId);
     const wrap = document.createElement("div");
     wrap.className = "foil-sample";
     const holder = document.createElement("div");
@@ -381,9 +386,9 @@ function unlockScroll() {
   window.scrollTo(0, lockedScrollY);
 }
 
-function openCardModal(card, sourceEl) {
+function openCardModal(card, sourceEl, variant) {
   el.cardModalFront.innerHTML = renderCardFace(card);
-  wireHoloTilt(el.cardModalFront.querySelector(".card"));
+  wireHoloTilt(el.cardModalFront.querySelector(".card"), variant);
   refreshIcons();
   if (cancelModalSpring) cancelModalSpring();
   modalAngle = 180;
@@ -410,7 +415,8 @@ function openPack() {
   const pulled = drawPack(weightedPool, catalog.config.packSize)
     .slice()
     .sort((a, b) => RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity]);
-  currentIsNew = recordPulls(pulled.map((c) => c.id));
+  const { isNew, pulls } = recordPulls(pulled);
+  currentIsNew = isNew;
   renderCollection();
   refreshRosterUI();
 
@@ -420,10 +426,10 @@ function openPack() {
   triggerShake();
 
   el.packBtn.classList.add("opening");
-  setTimeout(() => showRevealRow(pulled), 480);
+  setTimeout(() => showRevealRow(pulls), 480);
 }
 
-function showRevealRow(pulled) {
+function showRevealRow(pulls) {
   el.packBtn.classList.remove("opening");
   el.packStack.style.display = "none";
   el.openHint.style.display = "none";
@@ -432,11 +438,11 @@ function showRevealRow(pulled) {
   el.revealActions.style.display = "flex";
   el.revealAllBtn.disabled = false;
   revealedCount = 0;
-  packSize = pulled.length;
+  packSize = pulls.length;
 
-  pulled.forEach((card, i) => {
+  pulls.forEach(({ card, variant }, i) => {
     const slot = document.createElement("div");
-    slot.className = "reveal-slot flickering";
+    slot.className = "reveal-slot";
     slot.dataset.cardId = card.id;
     slot.dataset.rarity = card.rarity;
     slot.innerHTML = `
@@ -445,9 +451,10 @@ function showRevealRow(pulled) {
         <div class="slot-face slot-front">${renderCardFace(card)}</div>
       </div>
     `;
+    wireHoloTilt(slot.querySelector(".slot-front .card"), variant);
     slot.addEventListener("click", () => {
       if (slot.classList.contains("flipped")) {
-        openCardModal(card, slot);
+        openCardModal(card, slot, variant);
       } else {
         flipSlot(slot);
       }
@@ -633,7 +640,7 @@ function renderCollection() {
 
   for (const set of catalog.config.sets) {
     const cards = catalog.bySet[set.id];
-    const ownedCount = cards.filter((c) => collection[c.id]).length;
+    const ownedCount = cards.filter((c) => isOwned(collection[c.id])).length;
 
     const section = document.createElement("div");
     section.className = "set-section";
@@ -648,23 +655,55 @@ function renderCollection() {
 
     const wrap = section.querySelector(".card-wrap");
     for (const card of cards) {
-      const count = collection[card.id] || 0;
+      const entry = collection[card.id];
+      const count = totalOwned(entry);
       const slot = document.createElement("div");
       slot.className = "card-slot";
       if (count > 0) {
+        const owned = ownedVariants(entry);
+        const variants = FOIL_ORDER.filter((v) => owned.includes(v));
+        let activeVariant = variants[Math.floor(Math.random() * variants.length)];
+
         const holder = document.createElement("div");
         holder.innerHTML = renderCardFace(card);
         const cardEl = holder.firstElementChild;
         cardEl.classList.add("clickable");
-        cardEl.addEventListener("click", (e) => openCardModal(card, e.currentTarget));
-        wireHoloTilt(cardEl);
+        cardEl.addEventListener("click", (e) => openCardModal(card, e.currentTarget, activeVariant));
+        wireHoloTilt(cardEl, activeVariant);
         slot.appendChild(cardEl);
-        if (count > 1) {
-          const caption = document.createElement("span");
-          caption.className = "card-owned-count";
-          caption.textContent = `Owned ×${count}`;
-          slot.appendChild(caption);
-        }
+
+        const caption = document.createElement("span");
+        caption.className = "card-owned-count";
+        caption.textContent = `Owned ×${count}`;
+        slot.appendChild(caption);
+
+        // One pill per owned variant, in a fixed foil order - none/single-variant cards still get
+        // a pill (just one, inert) so every card consistently shows what it's currently displaying,
+        // not just the ones with something to switch between.
+        const ctas = document.createElement("div");
+        ctas.className = "card-foil-ctas";
+        const buttons = variants.map((variant) => {
+          const cta = document.createElement("button");
+          cta.type = "button";
+          cta.className = "card-foil-cta";
+          cta.textContent = FOIL_LABEL[variant] || variant;
+          cta.classList.toggle("active", variant === activeVariant);
+          cta.disabled = variants.length === 1;
+          cta.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (variant === activeVariant) return;
+            activeVariant = variant;
+            if (variant !== "none") {
+              cardEl.dataset.foil = variant;
+            } else {
+              delete cardEl.dataset.foil;
+            }
+            buttons.forEach((btn) => btn.classList.toggle("active", btn === cta));
+          });
+          ctas.appendChild(cta);
+          return cta;
+        });
+        slot.appendChild(ctas);
       } else {
         const holder = document.createElement("div");
         holder.innerHTML = renderLockedFace(card);
