@@ -1572,7 +1572,7 @@ button {
 }
 
 .card-modal-pop {
-    width: min(82vw, 360px);
+    width: min(85vw, 480px);
     aspect-ratio: 2 / 3;
     position: relative;
 }
