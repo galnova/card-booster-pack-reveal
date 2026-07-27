@@ -13,6 +13,9 @@ const CARD_IMAGE_OVERRIDES = {
   "mech-cidermayer": "card-samples/HS-Card-Mech-Strategist-Cidermayer.png",
   "char-starlot": "card-samples/HS-Card-Human-Gunner-Starlot.png",
   "char-zo": "card-samples/HS-Card-Human-Hero-Sub-Zo.png",
+  "char-rufus": "card-samples/HS-Card-Human-Sworder-Rufus.png",
+  "char-llewellyn": "card-samples/HS-Card-Human-Leader-Llewellyn.png",
+  "char-blac": "card-samples/HS-Card-Human-Brute-Blac.png"
 };
 
 function scopeClassFor(card, setById) {
