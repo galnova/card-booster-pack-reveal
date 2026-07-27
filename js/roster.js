@@ -1,4 +1,4 @@
-import { readJson, writeJson } from "./engine.js";
+import { readJson, writeJson, isOwned } from "./engine.js";
 
 const ROSTER_KEY = "hs-packs:roster";
 const SAVED_ROSTERS_KEY = "hs-packs:saved-rosters";
@@ -49,7 +49,7 @@ export function deleteSavedRoster(id) {
 
 /** Drops any card reference the player no longer owns (e.g. after Reset Collection). Called once on load. */
 export function sanitizeRoster(roster, collection) {
-  const owns = (id) => Boolean(collection[id]);
+  const owns = (id) => isOwned(collection[id]);
   const next = emptyRoster();
   next.main = roster.main && owns(roster.main) ? roster.main : null;
   next.subs = roster.subs.filter(owns);

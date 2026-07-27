@@ -1,4 +1,5 @@
 import { spring, SPRING_PRESETS } from "./spring.js";
+import { pickDeterministicFoil } from "./foil-config.js";
 
 const REST_NUM = { tiltX: 0, tiltY: 0, pointerX: 50, pointerY: 50, bgX: 50, bgY: 50, opacity: 0 };
 const TILT_MAX = 16;
@@ -15,37 +16,19 @@ function setVars(el, v) {
   el.style.setProperty("--holo-opacity", v.opacity.toFixed(3));
 }
 
-// Foil variants a rarity can roll (see [data-foil] in style.css), picked deterministically from the card's own id hash.
-const FOIL_OPTIONS = {
-  common: ["none", "none", "none", "reverse"],
-  uncommon: ["none", "none", "reverse", "reverse"],
-  rare: ["holo", "cosmos", "none"],
-  legendary: ["secret", "secret", "super-holo", "none"],
-};
-
-function hashString(s) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (h * 31 + s.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
-
-function assignFoil(cardEl) {
-  const options = FOIL_OPTIONS[cardEl.dataset.rarity];
-  if (!options) return;
-  const variant = options[hashString(cardEl.dataset.id || "") % options.length];
-  if (variant !== "none") {
-    cardEl.dataset.foil = variant;
-  }
-}
-
 /** Wires the pointer-tracking 3D tilt + rainbow shine + glare onto a .card element (adapted from
  * simeydotme/pokemon-cards-css). CSS vars are written on the PARENT, not cardEl, so a rarity glow
- * ring sharing that parent tilts in sync instead of sitting flat under the tilting card. */
-export function wireHoloTilt(cardEl) {
+ * ring sharing that parent tilts in sync instead of sitting flat under the tilting card.
+ * Pass `variant` when the caller already knows the card's actual owned/pulled foil (skips the
+ * deterministic id-hash guess used for locked previews and other ownership-less contexts). */
+export function wireHoloTilt(cardEl, variant) {
   cardEl.classList.add("holo-card");
-  assignFoil(cardEl);
+  const resolved = variant !== undefined ? variant : pickDeterministicFoil({ id: cardEl.dataset.id, rarity: cardEl.dataset.rarity });
+  if (resolved && resolved !== "none") {
+    cardEl.dataset.foil = resolved;
+  } else {
+    delete cardEl.dataset.foil;
+  }
   let rafId = null;
   let pending = null;
   let current = { ...REST_NUM };

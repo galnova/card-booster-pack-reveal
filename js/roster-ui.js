@@ -1,4 +1,4 @@
-import { getCollection } from "./engine.js";
+import { getCollection, isOwned } from "./engine.js";
 import {
   getRoster,
   saveRoster,
@@ -159,7 +159,7 @@ function setSelectedIds(category, ids) {
 
 function renderCategory(key, collection) {
   const def = CATEGORY_DEFS[key];
-  const owned = cardsByCategory[key].filter((c) => collection[c.id]);
+  const owned = cardsByCategory[key].filter((c) => isOwned(collection[c.id]));
   const selected = new Set(selectedIds(key));
   const poolCards = owned.filter((c) => !selected.has(c.id));
   const slotCards = selectedIds(key).map((id) => catalog.cardsById.get(id)).filter(Boolean);
@@ -326,8 +326,8 @@ function renderDarkMatter(collection) {
     ...rosterCharacterIds(roster).map((id) => catalog.cardsById.get(id)),
     ...roster.mechs.map((id) => catalog.cardsById.get(id)),
   ];
-  const gains = catalog.bySet.darkMatter.filter((c) => c.kind === "gain" && collection[c.id]);
-  const penalties = catalog.bySet.darkMatter.filter((c) => c.kind === "penalty" && collection[c.id]);
+  const gains = catalog.bySet.darkMatter.filter((c) => c.kind === "gain" && isOwned(collection[c.id]));
+  const penalties = catalog.bySet.darkMatter.filter((c) => c.kind === "penalty" && isOwned(collection[c.id]));
 
   el.addDarkMatterBtn.disabled = roster.darkMatter.length >= ROSTER_RULES.darkMatterMax || hosts.length === 0;
 

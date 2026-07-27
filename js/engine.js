@@ -1,3 +1,5 @@
+import { pickRandomFoil } from "./foil-config.js";
+
 const STORAGE_KEYS = {
   collection: "hs-packs:collection",
   allowance: "hs-packs:allowance",
@@ -52,8 +54,31 @@ export function drawPack(weightedPool, packSize) {
   return results;
 }
 
+// Collection entries are a per-variant map, e.g. { normal: 2, cosmos: 1 }. Legacy saves stored a
+// bare count instead (pre-foil-tracking) - migrated here in-memory, and persisted in the new shape
+// the next time recordPulls() writes.
 export function getCollection() {
-  return readJson(STORAGE_KEYS.collection, {});
+  const collection = readJson(STORAGE_KEYS.collection, {});
+  for (const id of Object.keys(collection)) {
+    if (typeof collection[id] === "number") {
+      // "none" matches the FOIL_OPTIONS/CARD_FOIL_OPTIONS sentinel for "no foil" everywhere else.
+      collection[id] = { none: collection[id] };
+    }
+  }
+  return collection;
+}
+
+export function ownedVariants(entry) {
+  if (!entry) return [];
+  return Object.keys(entry).filter((variant) => entry[variant] > 0);
+}
+
+export function totalOwned(entry) {
+  return ownedVariants(entry).reduce((sum, variant) => sum + entry[variant], 0);
+}
+
+export function isOwned(entry) {
+  return totalOwned(entry) > 0;
 }
 
 export function resetCollection() {
@@ -71,15 +96,20 @@ export function recordPackOpened() {
   return count;
 }
 
-export function recordPulls(cardIds) {
+export function recordPulls(cards) {
   const collection = getCollection();
   const isNew = {};
-  for (const id of cardIds) {
-    isNew[id] = !collection[id];
-    collection[id] = (collection[id] || 0) + 1;
+  const pulls = [];
+  for (const card of cards) {
+    const entry = collection[card.id] || {};
+    isNew[card.id] = !isOwned(entry);
+    const variant = pickRandomFoil(card);
+    entry[variant] = (entry[variant] || 0) + 1;
+    collection[card.id] = entry;
+    pulls.push({ card, variant });
   }
   writeJson(STORAGE_KEYS.collection, collection);
-  return isNew;
+  return { isNew, pulls };
 }
 
 function todayKey() {
