@@ -6,11 +6,13 @@ const BOND_ICON = {
   elemental: "atom",
 };
 
-// Temporary: swap in finished PNG samples for these two cards so the image version
+// Temporary: swap in finished PNG samples for these cards so the image version
 // can be compared against the live HTML render. Revert by removing this override.
 const CARD_IMAGE_OVERRIDES = {
-  "char-sadie": "card-samples/HS-Card-Sadie.png",
-  "mech-cidermayer": "card-samples/HS-Card-Cidermayer.png",
+  "char-sadie": "card-samples/HS-Card-Human-Hero-Sadie.png",
+  "mech-cidermayer": "card-samples/HS-Card-Mech-Strategist-Cidermayer.png",
+  "char-starlot": "card-samples/HS-Card-Human-Gunner-Starlot.png",
+  "char-zo": "card-samples/HS-Card-Human-Hero-Sub-Zo.png",
 };
 
 function scopeClassFor(card, setById) {
