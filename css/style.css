@@ -283,7 +283,6 @@ button {
     display: none;
     position: absolute;
     inset: 0;
-    /* border-radius: var(--radius-lg); */
     background: linear-gradient(135deg, var(--hero-bg) 0%, var(--mech-bg) 25%, var(--dm-bg) 50%, var(--wc-bg) 75%, var(--arena-bg) 100%);
     box-shadow: 0 14px 30px -14px #000000aa, inset 0 0 0 2px #ffffff20;
     filter: brightness(0.8) saturate(0.85);
@@ -309,11 +308,9 @@ button {
 
 .pack {
     width: 270px;
-    /* 390px, not aspect-ratio-derived - gives exactly 15px top/bottom around the 360px-tall
-       .pack-inner-frame below, matching the 15px left/right around its 240px width (same card
-       size as the .foil-sample cards further down the page: 240x360, 2:3). */
+    /* Gives 15px margin around the 240x360 .pack-inner-frame on every side, matching its own
+       240px-wide card shape (see .foil-sample/.card further down the page). */
     height: 390px;
-    /* border-radius: var(--radius-lg); */
     position: relative;
     cursor: pointer;
     border: none;
@@ -324,13 +321,10 @@ button {
     box-shadow: 0 18px 40px -12px #000000aa, inset 0 0 0 2px #ffffff30;
 }
 
-/* Smaller card-sized frame inset within the pack, carrying the rounded top-left/bottom-right
-   corners and their accent - keeps the outer pack's own edge sharp. */
+/* Card-sized frame inset within the pack, exactly matching .foil-sample/.card's 240x360 - keeps
+   the outer pack's own edge sharp while this carries the rounded top-left/bottom-right corners. */
 .pack-inner-frame {
     position: absolute;
-    /* Exactly the size of a real card (see .foil-sample/.card: 240px wide, 2:3), not just some
-       2:3-ish shape sized off the pack's own padding - centered, with .pack sized above so the
-       resulting margin matches on all 4 sides. */
     left: 50%;
     top: 50%;
     width: 240px;
@@ -341,13 +335,10 @@ button {
     border-radius: 16px 0 16px 0;
 }
 
-/* Corner-only accents, not a plain box-shadow - an inset box-shadow with an offset casts a band
-   along BOTH full edges in that direction (e.g. the entire top edge and entire left edge), not a
-   shape confined to just the corner. Small radial gradients anchored at each corner and sized to
-   a fraction of the frame fade out well before reaching the other two corners.
-   A bright fleck right at the corner point, transitioning fast into a dark shadow just inside it,
-   reads as a card's edge catching light and casting a shadow as it pokes out of the pack - not
-   just a flat dark smudge. */
+/* Corner-only accents, not a box-shadow - an inset box-shadow with an offset casts a band along
+   both full edges in that direction, not a shape confined to just the corner. Radial gradients
+   anchored at each corner, sized to a fraction of the frame, fade out before reaching the other
+   two corners instead. */
 .pack-inner-frame::before,
 .pack-inner-frame::after {
     content: "";
@@ -1234,11 +1225,9 @@ button {
     --glow-c: #ff9d3c;
 }
 
-/* No rotating border-ring glow in the reveal row (.reveal-slot) - only the modal keeps it. Getting
-   it to tilt in sync with the card there wasn't working out, so simplest fix is to not show it in
-   this view rather than keep chasing the sync. The ambient blurred glow (::after) never rotated
-   even in the modal, so it's unaffected and still shows in both places - it needs its own
-   content/position/background base declaration since it's no longer sharing one with ::before. */
+/* The rotating border-ring glow (::before) only shows in the modal, not the reveal row - the
+   ambient blurred glow (::after) has its own base declaration here since it's no longer sharing
+   one with ::before. */
 .reveal-slot.revealed:has(.card[data-rarity="rare"])::after,
 .reveal-slot.revealed:has(.card[data-rarity="legendary"])::after,
 .card-modal-front:has(.card[data-rarity="rare"])::before,
@@ -1386,28 +1375,21 @@ button {
     touch-action: manipulation;
 }
 
-/* Promotes the card to its own compositor layer only while actively tilting, so mobile
-   doesn't repaint the surrounding layout every rAF frame; not left on at rest to avoid
-   pinning a GPU layer per idle card in a full collection grid.
-   The tilt transform itself also only applies here, not unconditionally on .holo-card - even at
-   rotateX(0) rotateY(0) that's still a real 3D transform value, not "none". A card sitting at
-   rest inside an ancestor that's mid-flip (the pack reveal's spring-driven rotateY animation) was
-   getting its rasterized image visibly sheared by Chromium for the ~100ms the flip spends near
-   the 90deg edge-on point - 3 nested 3D-transform participants at once (.reveal-flip, .slot-front,
-   and this card). Dropping this one whenever it's not actually needed removes one of them. */
+/* The tilt transform is scoped to .holo-interacting rather than unconditional on .holo-card, and
+   will-change only applies here too (not left on at rest) - even rotateX(0) is a real 3D transform
+   value, and having it always-on made an idle card in the pack reveal's mid-flip animation a 3rd
+   nested 3D-transform participant, which Chromium would visibly shear. Also avoids pinning a GPU
+   layer per idle card in a full Collection grid. */
 .holo-card.holo-interacting {
     transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
     will-change: transform;
 }
 
-/* Removing the card's own unconditional transform (above) stopped IT from being a 3rd nested 3D
-   participant, but 2 remain regardless (.reveal-flip animating + .slot-front's static rotateY),
-   and that's still enough for Chromium to visibly shear this card's rounded/clipped image content
-   while .reveal-flip is mid-rotation. will-change here forces the card onto its own stable
-   compositor layer - rasterized once and repositioned as a texture by the animation, instead of
-   being re-rasterized inline with its rotating ancestors every frame (which is where the shear
-   comes from). Scoped to reveal-slot specifically, not all .holo-card, so idle cards in a full
-   Collection grid don't all pin a GPU layer for no reason. */
+/* Even with the above fix, 2 nested 3D-transform participants remain in the reveal row regardless
+   (.reveal-flip animating + .slot-front's static rotateY) - enough on their own for Chromium to
+   shear this card's rounded/clipped content mid-flip. will-change forces it onto a stable
+   compositor layer instead of being re-rasterized inline with its rotating ancestors every frame.
+   Scoped to reveal-slot only so idle Collection cards don't all pin a GPU layer for no reason. */
 .reveal-slot .card {
     will-change: transform;
 }
@@ -1449,16 +1431,11 @@ button {
 }
 
 .holo-card[data-foil="holo"]::before {
-    /* Rayed sunburst radiating from center is holo's identity mark, the same way cosmos gets
-       diagonal pinstripes and super-holo gets concentric rings. No grain layer - see the comment
-       on the cosmos rule below for why that's gone from all four of these.
-       Rays were 3deg wide at 44% opacity - both too thin and too faint to read, especially near
-       the card's center where a conic gradient's wedges are narrowest in absolute pixels. Now
-       6deg wide at ~75% opacity, matching cosmos's line weight so it's actually visible.
-       The rainbow stripe's angle is tied to --tilt-y (the card's live rotateY from holo-tilt.js),
-       not fixed at 115deg - lifted from simeydotme's poke-151 "rare holo" pattern, where the
-       stripe angle actually rotates as the card tilts instead of just sliding position. Makes it
-       read as light catching real foil rather than a background scrolling under a static mask. */
+    /* Rayed sunburst is holo's identity mark, the same way cosmos gets pinstripes and super-holo
+       gets rings. The rainbow stripe's angle is tied to --tilt-y (the card's live rotateY from
+       holo-tilt.js) rather than fixed, so it rotates as the card tilts instead of just sliding
+       position - reads as light catching real foil rather than a background scrolling under a
+       static mask. */
     background-image:
         repeating-conic-gradient(from 0deg at 50% 50%, #ffffffc0 0deg 6deg, transparent 6deg 15deg),
         repeating-linear-gradient(calc(115deg + (var(--tilt-y, 0deg) * 2)), #ffabab 0%, #fff6ab 12%, #abffc4 24%, #abe4ff 36%, #ceabff 48%, #ffabab 60%);
@@ -1469,11 +1446,6 @@ button {
     filter: saturate(1.3);
 }
 
-/* The pinstripes here are the one motif that was already reading well - denser and more opaque
-   now (was 1px lines / 8.5px apart at 60% opacity; now 1.5px / 6px at 75%) since the ask was
-   more of the lines and less of the texture. The old grain-*.png layers on all four of these
-   rules are gone entirely: at normal viewing size they're indistinguishable near-blank noise
-   that only muddied the pattern each type is actually supposed to be recognized by. */
 .holo-card[data-foil="cosmos"]::before {
     background-image:
         repeating-linear-gradient(38deg, rgba(255, 255, 255, 0.75) 0px, rgba(255, 255, 255, 0.75) 1.5px, transparent 1.5px, transparent 6px),
@@ -1509,14 +1481,12 @@ button {
     filter: saturate(1.3);
 }
 
-/* Plain metallic grain, no rainbow - literally "just the grain" the way normal/reverse are plain
-   colors. This is a real pre-rendered PNG (like the other foil-grain-*.png files), not a live SVG
-   filter - an inline feTurbulence filter renders fine as a standalone image but browsers commonly
-   refuse to run it when it's only referenced from a CSS background-image, so it was silently
-   showing nothing. Baking it to a static texture sidesteps that entirely. The texture itself is
-   pure white with the noise baked into the alpha channel (not grayscale light+dark speckle), then
-   blended with plain "normal" - the same white-on-top, alpha-composited approach cosmos's lines and
-   super-holo's rings use - so it reads as the same kind of white sparkle, not dark/dirty specks. */
+/* Plain metallic grain, no rainbow. The grain is a pre-rendered PNG, not a live SVG filter -
+   browsers commonly refuse to run an inline feTurbulence filter when it's only referenced from a
+   CSS background-image (it renders fine as a standalone image, just not this way), so it silently
+   showed nothing until baked to a static texture. The texture is white with the noise in its alpha
+   channel (not grayscale light+dark speckle), blended as plain white-on-top like cosmos's lines
+   and super-holo's rings, so it reads as the same kind of sparkle rather than dark/dirty specks. */
 .holo-card[data-foil="tin"]::before {
     background-image:
         url("textures/foil-grain-tin-v2.png"),
@@ -1595,10 +1565,20 @@ button {
 }
 
 @media (max-width: 640px) {
+    /* .pack's height and .pack-inner-frame's size are fixed px, not aspect-ratio/percentage
+       derived (see their base rules), so shrinking only .pack's width here - as this used to -
+       left the height at the full desktop 390px (a badly distorted, over-tall sliver) and the
+       240px-wide inner frame overflowing past both edges of a 190px pack entirely. Scaling both
+       by the same ~0.7 factor keeps the same proportions and the ~10px margin around the frame. */
     .pack {
         width: 190px;
+        height: 274px;
     }
-    .app-header { 
+    .pack-inner-frame {
+        width: 170px;
+        height: 254px;
+    }
+    .app-header {
         padding: 10px 14px;
         flex-wrap: wrap;
         gap: 8px;
