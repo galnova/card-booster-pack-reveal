@@ -17,7 +17,11 @@ const CARD_IMAGE_OVERRIDES = {
   "char-llewellyn": "card-samples/HS-Card-Human-Leader-Llewellyn.png",
   "char-blac": "card-samples/HS-Card-Human-Brute-Blac.png",
   "char-cagney": "card-samples/HS-Card-Human-Leader-Sub-Cagney.png",
-  "char-let": "card-samples/HS-Card-Human-Brute-Sub-Let.png"
+  "char-let": "card-samples/HS-Card-Human-Brute-Sub-Let.png",
+  "char-silvy": "card-samples/HS-Card-Human-Hero-Sub-Silvy.png",
+  "char-brb": "card-samples/HS-Card-Human-Sworder-Sub-BRB.png",
+  "char-bethany": "card-samples/HS-Card-Human-Leader-Sub-Bethany.png",
+  "char-celia": "card-samples/HS-Card-Human-Sworder-Sub-Celia.png"
 };
 
 function scopeClassFor(card, setById) {
@@ -71,19 +75,8 @@ export function renderCardFace(card, setById) {
 
 export function renderLockedFace(card, setById) {
   return `
-    <div class="card locked${scopeClassFor(card, setById)}" data-rarity="${card.rarity}" data-set="${card.set}">
-      <span class="rarity-badge">${card.rarity}</span>
-      <div class="card-header">
-        <h2 class="card-name">???</h2>
-        <span class="card-cost"><i data-lucide="lock"></i></span>
-      </div>
-      <div class="card-graphic"><i data-lucide="circle-help"></i></div>
-      <div class="card-body">
-        <div class="card-meta">
-          <span class="card-role">Undiscovered</span>
-        </div>
-        <p class="card-flavor">Open packs to reveal this card.</p>
-      </div>
+    <div class="card card-image-sample locked${scopeClassFor(card, setById)}" data-rarity="${card.rarity}" data-set="${card.set}">
+      <img class="card-image-sample-img" src="card-samples/HS-Card-Undiscovered.png" alt="Undiscovered card" />
     </div>
   `;
 }

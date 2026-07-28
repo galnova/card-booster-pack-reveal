@@ -8,10 +8,20 @@ import { wireHoloTilt } from "./holo-tilt.js";
 
 const RARITY_RANK = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
 const RARITY_LABEL = { common: "Common", uncommon: "Uncommon", rare: "Rare", legendary: "Legendary" };
-const FOIL_LABEL = { none: "Normal", reverse: "Reverse", tin: "Tin", holo: "Holo", cosmos: "Cosmos", "super-holo": "Super Holo", secret: "Secret" };
-const FOIL_ORDER = ["none", "reverse", "tin", "holo", "super-holo", "cosmos", "secret"];
+const FOIL_LABEL = { none: "Normal", reverse: "Reverse", tin: "Tin", holo: "Holo", cosmos: "Cosmos", "super-holo": "Super Holo", secret: "Secret", frost: "Frost" };
+const FOIL_ORDER = ["none", "reverse", "tin", "holo", "super-holo", "cosmos", "secret", "frost"];
 const HOLD_DURATION_MS = 600;
 const RING_CIRCUMFERENCE = 289;
+
+// Sort options for the characters set in Collection. Class is read off the last word of `role`
+// ("Brave Hero" -> Hero) rather than a dedicated field, since that's already guaranteed consistent
+// across every character entry. Affinity sorts by `bond` directly.
+const CHARACTER_CLASS_ORDER = ["Hero", "Leader", "Brute", "Sworder", "Gunner"];
+const CHARACTER_BOND_ORDER = ["fast", "tank", "arsenal", "stable", "elemental"];
+
+function characterClass(card) {
+  return card.role ? card.role.split(" ").pop() : "";
+}
 
 let catalog = null;
 let weightedPool = null;
@@ -19,6 +29,7 @@ let setById = {};
 let currentIsNew = {};
 let revealedCount = 0;
 let packSize = 0;
+let collectionSort = "default";
 
 const el = {
   allowanceCount: document.getElementById("allowance-count"),
@@ -98,6 +109,7 @@ const FOIL_SAMPLES = [
   { foil: "super-holo", label: "Super Holo", cardId: "char-sadie" },
   { foil: "cosmos", label: "Cosmos", cardId: "mech-cidermayer" },
   { foil: "secret", label: "Secret", cardId: "char-blac" },
+  { foil: "frost", label: "Frost", cardId: "char-brb" },
 ];
 
 function renderFoilSamples() {
@@ -639,8 +651,24 @@ function renderCollection() {
   el.collectionRoot.innerHTML = "";
 
   for (const set of catalog.config.sets) {
-    const cards = catalog.bySet[set.id];
+    const isCharacters = set.id === "characters";
+    let cards = catalog.bySet[set.id];
+    if (isCharacters && collectionSort !== "default") {
+      const order = collectionSort === "class" ? CHARACTER_CLASS_ORDER : CHARACTER_BOND_ORDER;
+      const key = collectionSort === "class" ? characterClass : (c) => c.bond;
+      cards = [...cards].sort((a, b) => order.indexOf(key(a)) - order.indexOf(key(b)));
+    }
     const ownedCount = cards.filter((c) => isOwned(collection[c.id])).length;
+
+    const sortCtasHtml = isCharacters
+      ? `
+      <div class="set-sort-ctas">
+        <button type="button" class="set-sort-cta${collectionSort === "default" ? " active" : ""}" data-sort="default">Default</button>
+        <button type="button" class="set-sort-cta${collectionSort === "class" ? " active" : ""}" data-sort="class">Class</button>
+        <button type="button" class="set-sort-cta${collectionSort === "affinity" ? " active" : ""}" data-sort="affinity">Affinity</button>
+      </div>
+    `
+      : "";
 
     const section = document.createElement("div");
     section.className = "set-section";
@@ -649,9 +677,20 @@ function renderCollection() {
         <span class="set-swatch" style="background:var(${set.accentVar})"></span>
         ${set.label}s
         <span class="set-section-count">${ownedCount} / ${cards.length} discovered</span>
+        ${sortCtasHtml}
       </div>
       <div class="card-wrap"></div>
     `;
+
+    if (isCharacters) {
+      section.querySelectorAll(".set-sort-cta").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (btn.dataset.sort === collectionSort) return;
+          collectionSort = btn.dataset.sort;
+          renderCollection();
+        });
+      });
+    }
 
     const wrap = section.querySelector(".card-wrap");
     for (const card of cards) {

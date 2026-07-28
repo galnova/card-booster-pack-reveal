@@ -36,8 +36,8 @@
     "stats": { "ap": 0, "hp": 1 }
   },
   {
-    "id": "char-fir",
-    "name": "Fir",
+    "id": "char-silvy",
+    "name": "Silvy",
     "tier": "sub",
     "rarity": "common",
     "role": "Fearful Hero",
@@ -235,8 +235,8 @@
     "stats": { "ap": 1, "hp": 1 }
   },
   {
-    "id": "char-cecilia",
-    "name": "Cecilia",
+    "id": "char-celia",
+    "name": "Celia",
     "tier": "sub",
     "rarity": "common",
     "role": "Mournful Sworder",
@@ -253,8 +253,8 @@
     "stats": { "ap": 0, "hp": 1 }
   },
   {
-    "id": "char-jackie",
-    "name": "Jackie",
+    "id": "char-brb",
+    "name": "BRB",
     "tier": "sub",
     "rarity": "common",
     "role": "Vengeful Sworder",

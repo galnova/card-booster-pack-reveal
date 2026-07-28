@@ -747,10 +747,18 @@ button {
 
 .card-wrap {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    /* Fixed at 3 so the column count doesn't depend on monitor width/orientation; the
+       auto-fit fallback below only kicks in once there's no room for 3 comfortably. */
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     justify-items: center;
     margin-bottom: 50px;
+}
+
+@media (max-width: 640px) {
+    .card-wrap {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
 }
 
 .card-slot {
@@ -760,6 +768,7 @@ button {
     gap: 6px;
     width: 100%;
     max-width: 320px;
+    margin-bottom: 40px;
 }
 
 .card-owned-count {
@@ -1497,11 +1506,25 @@ button {
     background-blend-mode: normal, normal;
 }
 
+/* Frost: icy blue-white foil with a snowflake pattern. Gradient's first and last stop must match
+   (like the other foils below) or the repeat seam shows as a hard edge. */
+.holo-card[data-foil="frost"]::before {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'%3E%3Cg stroke='%23ffffff' stroke-opacity='0.8' stroke-linecap='round'%3E%3Cg stroke-width='2.4'%3E%3Cline x1='18' y1='0' x2='18' y2='36'/%3E%3Cline x1='0' y1='18' x2='36' y2='18'/%3E%3Cline x1='5.4' y1='5.4' x2='30.6' y2='30.6'/%3E%3Cline x1='30.6' y1='5.4' x2='5.4' y2='30.6'/%3E%3C/g%3E%3Cg stroke-width='1.1'%3E%3Cline x1='65' y1='5' x2='65' y2='19'/%3E%3Cline x1='58' y1='12' x2='72' y2='12'/%3E%3Cline x1='60.1' y1='7.1' x2='69.9' y2='16.9'/%3E%3Cline x1='69.9' y1='7.1' x2='60.1' y2='16.9'/%3E%3C/g%3E%3Cg stroke-width='1.5'%3E%3Cline x1='45' y1='35' x2='45' y2='55'/%3E%3Cline x1='35' y1='45' x2='55' y2='45'/%3E%3Cline x1='38' y1='38' x2='52' y2='52'/%3E%3Cline x1='52' y1='38' x2='38' y2='52'/%3E%3C/g%3E%3Cg stroke-width='2'%3E%3Cline x1='75' y1='36' x2='75' y2='64'/%3E%3Cline x1='61' y1='50' x2='89' y2='50'/%3E%3Cline x1='65.2' y1='40.2' x2='84.8' y2='59.8'/%3E%3Cline x1='84.8' y1='40.2' x2='65.2' y2='59.8'/%3E%3C/g%3E%3Cg stroke-width='0.8'%3E%3Cline x1='25' y1='65.5' x2='25' y2='74.5'/%3E%3Cline x1='20.5' y1='70' x2='29.5' y2='70'/%3E%3Cline x1='21.85' y1='66.85' x2='28.15' y2='73.15'/%3E%3Cline x1='28.15' y1='66.85' x2='21.85' y2='73.15'/%3E%3C/g%3E%3Cg stroke-width='1.5'%3E%3Cline x1='10' y1='45' x2='10' y2='65'/%3E%3Cline x1='0' y1='55' x2='20' y2='55'/%3E%3Cline x1='3' y1='48' x2='17' y2='62'/%3E%3Cline x1='17' y1='48' x2='3' y2='62'/%3E%3C/g%3E%3Cg stroke-width='1.1'%3E%3Cline x1='55' y1='73' x2='55' y2='87'/%3E%3Cline x1='48' y1='80' x2='62' y2='80'/%3E%3Cline x1='50.1' y1='75.1' x2='59.9' y2='84.9'/%3E%3Cline x1='59.9' y1='75.1' x2='50.1' y2='84.9'/%3E%3C/g%3E%3Cg stroke-width='0.8'%3E%3Cline x1='85' y1='10.5' x2='85' y2='19.5'/%3E%3Cline x1='80.5' y1='15' x2='89.5' y2='15'/%3E%3Cline x1='81.85' y1='11.85' x2='88.15' y2='18.15'/%3E%3Cline x1='88.15' y1='11.85' x2='81.85' y2='18.15'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+        repeating-linear-gradient(115deg, #eafbff 0%, #4fb8e8 12%, #1c6fa8 24%, #7fd4ff 36%, #4fb8e8 48%, #eafbff 60%);
+    background-size: 90px 90px, 220% 220%;
+    background-repeat: repeat, repeat;
+    background-position: 0 0, var(--bg-x) var(--bg-y);
+    background-blend-mode: normal, normal;
+    filter: saturate(1.2);
+}
+
 .holo-card[data-foil="holo"]::after,
 .holo-card[data-foil="cosmos"]::after,
 .holo-card[data-foil="secret"]::after,
 .holo-card[data-foil="super-holo"]::after,
-.holo-card[data-foil="tin"]::after {
+.holo-card[data-foil="tin"]::after,
+.holo-card[data-foil="frost"]::after {
     background-image: radial-gradient(circle, #ffffffee 0%, #ffffff66 22%, transparent 55%);
     background-size: 300% 300%;
     background-repeat: repeat;
@@ -1537,6 +1560,7 @@ button {
     margin-bottom: 40px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
@@ -1544,6 +1568,35 @@ button {
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--app-muted);
+}
+
+.set-sort-ctas {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.set-sort-cta {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--app-muted);
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: 999px;
+    padding: 4px 12px;
+    cursor: pointer;
+}
+
+.set-sort-cta:hover:not(.active) {
+    border-color: #4a4d5c;
+    color: var(--app-text);
+}
+
+.set-sort-cta.active {
+    color: #fff;
+    background: var(--wc-bg);
+    border-color: transparent;
+    cursor: default;
 }
 
 .set-swatch {
@@ -1558,10 +1611,6 @@ button {
 
 .card.clickable {
     cursor: pointer;
-}
-
-.card.locked .card-graphic svg {
-    color: #ffffff22;
 }
 
 @media (max-width: 640px) {

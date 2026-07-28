@@ -18,6 +18,7 @@ export const CARD_FOIL_OPTIONS = {
   "char-rufus": ["none", "reverse", "holo"],
   "char-llewellyn": ["none", "reverse"],
   "char-blac": ["none", "reverse", "secret"],
+  "char-brb": ["none", "reverse", "frost"],
 };
 
 export function hashString(s) {
