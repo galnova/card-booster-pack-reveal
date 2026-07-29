@@ -22,7 +22,7 @@ const CARD_IMAGE_OVERRIDES = {
   "char-brb": "card-samples/HS-Card-Human-Sworder-Sub-BRB.png",
   "char-bethany": "card-samples/HS-Card-Human-Leader-Sub-Bethany.png",
   "char-celia": "card-samples/HS-Card-Human-Sworder-Sub-Celia.png",
-  "char-coldshoulder": "card-samples/HS-Card-Mech-Elemental-Coldshoulder.png"
+  "mech-coldshoulder": "card-samples/HS-Card-Mech-Elemental-Coldshoulder.png"
 };
 
 function scopeClassFor(card, setById) {
