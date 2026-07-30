@@ -10,7 +10,6 @@ const BOND_ICON = {
 // can be compared against the live HTML render. Revert by removing this override.
 const CARD_IMAGE_OVERRIDES = {
   "char-sadie": "card-samples/HS-Card-Human-Hero-Sadie.png",
-  "mech-cidermayer": "card-samples/HS-Card-Mech-Strategist-Cidermayer.png",
   "char-starlot": "card-samples/HS-Card-Human-Gunner-Starlot.png",
   "char-zo": "card-samples/HS-Card-Human-Hero-Sub-Zo.png",
   "char-rufus": "card-samples/HS-Card-Human-Sworder-Rufus.png",
@@ -22,7 +21,9 @@ const CARD_IMAGE_OVERRIDES = {
   "char-brb": "card-samples/HS-Card-Human-Sworder-Sub-BRB.png",
   "char-bethany": "card-samples/HS-Card-Human-Leader-Sub-Bethany.png",
   "char-celia": "card-samples/HS-Card-Human-Sworder-Sub-Celia.png",
-  "mech-coldshoulder": "card-samples/HS-Card-Mech-Elemental-Coldshoulder.png"
+  "mech-cidermayer": "card-samples/HS-Card-Mech-Strategist-Cidermayer.png",
+  "mech-coldshoulder": "card-samples/HS-Card-Mech-Elemental-Coldshoulder.png",
+  "mech-linwood": "card-samples/HS-Card-Mech-Strategist-Linwood.png"
 };
 
 function scopeClassFor(card, setById) {
