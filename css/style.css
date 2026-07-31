@@ -604,21 +604,11 @@ button {
     cursor: pointer;
 }
 
-.slot-back::before,
-.card-modal-back::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(45deg, #ffffff12 0 10px, transparent 10px 20px);
-    pointer-events: none;
-}
-
-.card-back-logo {
-    width: 64%;
-    max-width: 170px;
-    border-radius: calc(var(--radius-lg) * 0.6);
-    box-shadow: 0 10px 24px -8px #00000090;
-    position: relative;
+.card-back-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .slot-front {
@@ -1743,6 +1733,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 
