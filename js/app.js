@@ -30,6 +30,7 @@ let currentIsNew = {};
 let revealedCount = 0;
 let packSize = 0;
 let collectionSort = "default";
+const collapsedSets = new Set();
 
 const el = {
   allowanceCount: document.getElementById("allowance-count"),
@@ -670,21 +671,31 @@ function renderCollection() {
     `
       : "";
 
-    const section = document.createElement("div");
+    const section = document.createElement("details");
     section.className = "set-section";
+    section.style.setProperty("--section-accent", `var(${set.accentVar})`);
+    section.open = !collapsedSets.has(set.id);
     section.innerHTML = `
-      <div class="set-section-title">
+      <summary class="set-section-title">
         <span class="set-swatch" style="background:var(${set.accentVar})"></span>
         ${set.label}s
         <span class="set-section-count">${ownedCount} / ${cards.length} discovered</span>
         ${sortCtasHtml}
-      </div>
+      </summary>
       <div class="card-wrap"></div>
     `;
+    section.addEventListener("toggle", () => {
+      if (section.open) {
+        collapsedSets.delete(set.id);
+      } else {
+        collapsedSets.add(set.id);
+      }
+    });
 
     if (isCharacters) {
       section.querySelectorAll(".set-sort-cta").forEach((btn) => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
           if (btn.dataset.sort === collectionSort) return;
           collectionSort = btn.dataset.sort;
           renderCollection();
