@@ -460,7 +460,7 @@ function showRevealRow(pulls) {
     slot.dataset.rarity = card.rarity;
     slot.innerHTML = `
       <div class="reveal-flip">
-        <div class="slot-face slot-back"><img class="card-back-logo" src="icons/hue-shift-logo.png" alt="HueShift"></div>
+        <div class="slot-face slot-back"><img class="card-back-img" src="card-samples/HS-Card-Back.png" alt="Card back"></div>
         <div class="slot-face slot-front">${renderCardFace(card)}</div>
       </div>
     `;
