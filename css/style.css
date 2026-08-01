@@ -936,13 +936,6 @@ button {
     color: var(--muted-text);
 }
 
-.card-dm-pair {
-    font-size: clamp(0.46rem, 3.5cqw, 0.66rem);
-    font-weight: 700;
-    font-style: italic;
-    color: var(--muted-text);
-}
-
 .card-tier,
 .card-role {
     display: inline-flex;

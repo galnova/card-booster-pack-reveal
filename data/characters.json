@@ -28,8 +28,8 @@
     "ability": {
       "name": "Steady Hand",
       "text": [
-        { "text": "Survives with 1 HP instead of destruction.", "secondary": false },
-        { "text": "The first time an allied unit (other than Zo) would be destroyed each game, it survives with +1 HP instead.", "secondary": true }
+        { "text": "Prevent 1 damage once per game.", "secondary": false },
+        { "text": "Prevented damage also removes 1 status effect.", "secondary": true }
       ]
     },
     "flavor": "\"Leans in when everyone else backs down.\"",
@@ -46,8 +46,8 @@
     "ability": {
       "name": "Rally",
       "text": [
-        { "text": "Prevent 1 damage once per game.", "secondary": false },
-        { "text": "Prevented damage also removes 1 status effect.", "secondary": true }
+        { "text": "Survives with 1 HP instead of destruction.", "secondary": false },
+        { "text": "The first time an allied unit (other than Silvy) would be destroyed each game, it survives with +1 HP instead.", "secondary": true }
       ]
     },
     "flavor": "\"A shield has no name!\"",
@@ -82,12 +82,11 @@
     "ability": {
       "name": "Quick Study",
       "text": [
-        { "text": "Allied unit gains +1 AP on first destruction.", "secondary": false },
-        { "text": "Quick Study's +1 AP is also granted to Cagney herself.", "secondary": true }
+        { "text": "The first time any allied unit (including Cagney herself) destroys an enemy, Cagney gains +1 AP for the rest of the game.", "secondary": false }
       ]
     },
     "flavor": "\"Crybabies need to grow up!\"",
-    "stats": { "ap": 0, "hp": 1 }
+    "stats": { "ap": 1, "hp": 1 }
   },
   {
     "id": "char-bethany",
@@ -100,7 +99,7 @@
     "ability": {
       "name": "Quick Study",
       "text": [
-        { "text": "Allied unit gains +1 AP on first destruction.", "secondary": false },
+        { "text": "The first time any allied unit (including Bethany herself) destroys an enemy, Bethany gains +1 AP for the rest of the game.", "secondary": false },
         { "text": "Quick Study also triggers when an ally plays a Wildcard.", "secondary": true }
       ]
     },
@@ -116,7 +115,7 @@
     "classIcon": "hand-metal",
     "bond": "elemental",
     "ability": {
-      "name": "Wildcard + DM",
+      "name": "Wildcard",
       "text": [
         { "text": "Flip coin: Heads +2 AP, Tails +2 HP.", "secondary": false },
         { "text": "Two Heads in a row lets her flip again for free.", "secondary": true },
@@ -154,8 +153,8 @@
     "ability": {
       "name": "Coin Toss",
       "text": [
-        { "text": "Flip coin: Heads +1 AP, Tails +1 HP.", "secondary": false },
-        { "text": "Once per game, choose the coin result instead of flipping.", "secondary": true }
+        { "text": "Once per game, flip a coin: Heads +1 AP, Tails +1 HP.", "secondary": false },
+        { "text": "You may choose the result instead of flipping.", "secondary": true }
       ]
     },
     "flavor": "\"A coin flip is better than a bad plan.\"",
@@ -170,14 +169,14 @@
     "classIcon": "crosshair",
     "bond": "tank",
     "ability": {
-      "name": "Focus Fire + DM",
+      "name": "Focus Fire",
       "text": [
         { "text": "Ignore Tank damage reduction.", "secondary": false },
         { "text": "Focus Fire also ignores Stable status immunity once.", "secondary": true },
         { "text": "First use permanently ignores Stable immunity.", "secondary": true }
       ]
     },
-    "flavor": "\"Defenses fall to a well-aimed shot.\"",
+    "flavor": "\"Defenses crumble to a well-aimed shot.\"",
     "stats": { "ap": 2, "hp": 0 }
   },
   {
@@ -228,7 +227,7 @@
       "name": "Leak",
       "text": [
         { "text": "Target loses 1 HP next turn.", "secondary": false },
-        { "text": "Leak damage doubles against a target already Leaking.", "secondary": true }
+        { "text": "If the target is already Leaking, this hit doubles the pending loss to 2 HP instead of just refreshing it.", "secondary": true }
       ]
     },
     "flavor": "\"One clean slice...\"",

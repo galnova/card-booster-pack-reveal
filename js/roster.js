@@ -66,9 +66,7 @@ export function sanitizeRoster(roster, collection) {
   }
 
   const rosterCardIds = new Set([...rosterCharacterIds, ...next.mechs]);
-  next.darkMatter = roster.darkMatter.filter(
-    (dm) => rosterCardIds.has(dm.hostId) && owns(dm.gainId) && owns(dm.penaltyId)
-  );
+  next.darkMatter = roster.darkMatter.filter((dm) => rosterCardIds.has(dm.hostId) && owns(dm.cardId));
 
   return next;
 }

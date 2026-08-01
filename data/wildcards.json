@@ -101,8 +101,8 @@
     "rarity": "uncommon",
     "kind": "gain",
     "text": [
-      { "text": "Return one destroyed unit from your trash to the field with 1 HP. (Once per game.)", "secondary": false },
-      { "text": "Cannot target a No Redemption unit.", "secondary": false }
+      { "text": "Return one destroyed Mech from your trash to the field with 1 HP, unpaired. (Once per game.)", "secondary": false },
+      { "text": "It needs a Character paired to it again before it can act. Cannot target a Nil Fate Mech.", "secondary": false }
     ],
     "flavor": "\"I ain't over until I say it's over.\""
   }
