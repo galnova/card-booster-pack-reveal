@@ -308,9 +308,11 @@ button {
 
 .pack {
     width: 270px;
-    /* Gives 15px margin around the 240x360 .pack-inner-frame on every side, matching its own
-       240px-wide card shape (see .foil-sample/.card further down the page). */
-    height: 390px;
+    /* No height of its own - it's the sum of its flex children: a .ridges band, the fixed-size
+       .pack-core, and another .ridges band. That's what lets the ridges add to the container's
+       total height instead of overlapping inside a fixed one. */
+    display: flex;
+    flex-direction: column;
     position: relative;
     cursor: pointer;
     border: none;
@@ -318,7 +320,30 @@ button {
     background: linear-gradient(135deg, var(--hero-bg) 0%, var(--mech-bg) 25%, var(--dm-bg) 50%, var(--wc-bg) 75%, var(--arena-bg) 100%);
     background-size: 220% 220%;
     animation: pack-shimmer 6s ease-in-out infinite, pack-breathe 3s ease-in-out infinite;
-    box-shadow: 0 18px 40px -12px #000000aa, inset 0 0 0 2px #ffffff30;
+    box-shadow: 0 18px 40px -12px #000000aa, inset 0 0 0 2px #ffffff10;
+}
+
+/* The old .pack box, unchanged in size - .pack-inner-frame and every other absolutely-positioned
+   piece (embers, progress ring, label) still measure themselves against this exact 240x360-plus-
+   15px-margin footprint, now just nested one level down so .ridges can add height around it. */
+.pack-core {
+    position: relative;
+    flex: none;
+    width: 100%;
+    /* Gives 15px margin around the 240x360 .pack-inner-frame on every side, matching its own
+       240px-wide card shape (see .foil-sample/.card further down the page). */
+    height: 390px;
+}
+
+/* Crimped foil-seal band, top and bottom - a real flex child, not absolutely positioned, so its
+   height is added to .pack's own total height rather than overlapping .pack-core. */
+.ridges {
+    display: flex;
+    flex: none;
+    height: 20px;
+    width: 100%;
+    background: repeating-linear-gradient(to right, #00000000 0px, #00000000 2px, #00000033 2px, #00000033 4px);
+    pointer-events: none;
 }
 
 /* Card-sized frame inset within the pack, exactly matching .foil-sample/.card's 240x360 - keeps
@@ -372,7 +397,7 @@ button {
 @keyframes pack-breathe {
     0%,
     100% {
-        box-shadow: 0 18px 40px -12px #000000aa, inset 0 0 0 2px #ffffff30;
+        box-shadow: 0 18px 40px -12px #000000aa, inset 0 0 0 2px #ffffff18;
     }
     50% {
         box-shadow: 0 24px 52px -10px #000000cc, inset 0 0 0 3px #ffffff55;
@@ -1626,25 +1651,38 @@ button {
 }
 
 @media (max-width: 640px) {
-    /* .pack's height and .pack-inner-frame's size are fixed px, not aspect-ratio/percentage
+    /* .pack-core's height and .pack-inner-frame's size are fixed px, not aspect-ratio/percentage
        derived (see their base rules), so shrinking only .pack's width here - as this used to -
        left the height at the full desktop 390px (a badly distorted, over-tall sliver) and the
        240px-wide inner frame overflowing past both edges of a 190px pack entirely. Scaling both
        by the same ~0.7 factor keeps the same proportions and the ~10px margin around the frame. */
+
+    .ridges {
+        height: 14px;
+    }
     .pack {
         width: 190px;
+    }
+    .pack-core {
         height: 274px;
     }
     .pack-inner-frame {
         width: 170px;
         height: 254px;
     }
+    .pack-label {
+        font-size: 0.7rem;
+    }
+    .pack-label svg {
+        width: 1rem;
+        height: 1rem;
+    }
     .app-header {
         padding: 10px 14px;
         flex-wrap: wrap;
         gap: 8px;
     }
-    
+
     .app-title {
         font-size: 1rem;
         white-space: nowrap;
@@ -1653,6 +1691,17 @@ button {
         font-size: 0.75rem;
         padding: 5px 10px;
         gap: 6px;
+    }
+    /* .app-header wraps here, and justify-content:space-between leaves a lone wrapped item
+       (.header-right, holding the settings button) pinned to the start of its own line instead of
+       the end - margin-left:auto keeps it flush right regardless, so .settings-panel's right:0
+       anchor still opens near the true screen edge instead of clipping off the left side. */
+    .header-right {
+        margin-left: auto;
+    }
+    .new-toast {
+        font-size: 0.8rem;
+        padding: 8px 18px;
     }
     .tabs {
         padding: 0 14px;
