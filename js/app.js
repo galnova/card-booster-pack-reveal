@@ -253,7 +253,10 @@ function wirePack() {
       setTimeout(() => flipSlot(slot), i * 150);
     });
   });
-  el.againBtn.addEventListener("click", resetOpenStage);
+  el.againBtn.addEventListener("click", () => {
+    resetOpenStage();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 }
 
 function onPackPointerDown() {
