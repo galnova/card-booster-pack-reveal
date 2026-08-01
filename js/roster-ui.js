@@ -68,7 +68,7 @@ export function initRosterUI({ catalog: cat, goToPacksTab: goPacks }) {
   wireDragAndDrop();
   el.addDarkMatterBtn.addEventListener("click", () => {
     if (roster.darkMatter.length >= ROSTER_RULES.darkMatterMax) return;
-    roster.darkMatter.push({ hostId: null, gainId: null, penaltyId: null });
+    roster.darkMatter.push({ hostId: null, cardId: null });
     persistAndRender();
   });
   el.exportBtn.addEventListener("click", exportRoster);
@@ -326,8 +326,7 @@ function renderDarkMatter(collection) {
     ...rosterCharacterIds(roster).map((id) => catalog.cardsById.get(id)),
     ...roster.mechs.map((id) => catalog.cardsById.get(id)),
   ];
-  const gains = catalog.bySet.darkMatter.filter((c) => c.kind === "gain" && isOwned(collection[c.id]));
-  const penalties = catalog.bySet.darkMatter.filter((c) => c.kind === "penalty" && isOwned(collection[c.id]));
+  const dmCards = catalog.bySet.darkMatter.filter((c) => isOwned(collection[c.id]));
 
   el.addDarkMatterBtn.disabled = roster.darkMatter.length >= ROSTER_RULES.darkMatterMax || hosts.length === 0;
 
@@ -344,8 +343,7 @@ function renderDarkMatter(collection) {
       .filter((h) => h.id === dm.hostId || !usedHosts.has(h.id))
       .map((h) => `<option value="${h.id}" ${h.id === dm.hostId ? "selected" : ""}>${h.name}</option>`)
       .join("");
-    const gainOptions = gains.map((g) => `<option value="${g.id}" ${g.id === dm.gainId ? "selected" : ""}>${g.name}</option>`).join("");
-    const penaltyOptions = penalties.map((p) => `<option value="${p.id}" ${p.id === dm.penaltyId ? "selected" : ""}>${p.name}</option>`).join("");
+    const cardOptions = dmCards.map((c) => `<option value="${c.id}" ${c.id === dm.cardId ? "selected" : ""}>${c.name}</option>`).join("");
 
     const row = document.createElement("div");
     row.className = "roster-darkmatter-row";
@@ -355,18 +353,13 @@ function renderDarkMatter(collection) {
         <select id="dm-host-${i}" class="roster-pairing-select"><option value="">(Choose)</option>${hostOptions}</select>
       </div>
       <div class="roster-pairing-field">
-        <label for="dm-gain-${i}">Gain</label>
-        <select id="dm-gain-${i}" class="roster-pairing-select"><option value="">(Choose)</option>${gainOptions}</select>
-      </div>
-      <div class="roster-pairing-field">
-        <label for="dm-penalty-${i}">Penalty</label>
-        <select id="dm-penalty-${i}" class="roster-pairing-select"><option value="">(Choose)</option>${penaltyOptions}</select>
+        <label for="dm-card-${i}">Dark Matter</label>
+        <select id="dm-card-${i}" class="roster-pairing-select"><option value="">(Choose)</option>${cardOptions}</select>
       </div>
       <button type="button" class="icon-btn-danger" aria-label="Remove this corruption"><i data-lucide="x"></i></button>
     `;
     row.querySelector(`#dm-host-${i}`).addEventListener("change", (e) => { dm.hostId = e.target.value || null; persistAndRender(); });
-    row.querySelector(`#dm-gain-${i}`).addEventListener("change", (e) => { dm.gainId = e.target.value || null; persistAndRender(); });
-    row.querySelector(`#dm-penalty-${i}`).addEventListener("change", (e) => { dm.penaltyId = e.target.value || null; persistAndRender(); });
+    row.querySelector(`#dm-card-${i}`).addEventListener("change", (e) => { dm.cardId = e.target.value || null; persistAndRender(); });
     row.querySelector(".icon-btn-danger").addEventListener("click", () => {
       roster.darkMatter.splice(i, 1);
       persistAndRender();
@@ -464,12 +457,11 @@ function buildRosterSummaryHtml() {
     return `<li><strong>${mech.name}</strong> - Base: ${base ? base.name : "-"}${co ? `, Co-Pilot: ${co.name}` : ""}</li>`;
   });
   const dmRows = roster.darkMatter
-    .filter((d) => d.hostId && d.gainId && d.penaltyId)
+    .filter((d) => d.hostId && d.cardId)
     .map((d) => {
       const host = catalog.cardsById.get(d.hostId);
-      const gain = catalog.cardsById.get(d.gainId);
-      const penalty = catalog.cardsById.get(d.penaltyId);
-      return `<li>${host.name}: ${gain.name} + ${penalty.name}</li>`;
+      const card = catalog.cardsById.get(d.cardId);
+      return `<li>${host.name}: ${card.name}</li>`;
     });
 
   return `
@@ -553,17 +545,14 @@ function buildVisualRosterHtml() {
 
   const dmByHost = {};
   for (const dm of roster.darkMatter) {
-    if (!dm.hostId || !dm.gainId || !dm.penaltyId) continue;
-    dmByHost[dm.hostId] = {
-      gain: catalog.cardsById.get(dm.gainId),
-      penalty: catalog.cardsById.get(dm.penaltyId),
-    };
+    if (!dm.hostId || !dm.cardId) continue;
+    dmByHost[dm.hostId] = catalog.cardsById.get(dm.cardId);
   }
 
   function cardCell(card, caption) {
-    const dm = dmByHost[card.id];
-    const dmBadge = dm
-      ? `<p class="roster-print-dm-badge"><i data-lucide="radiation"></i> ${dm.gain.name} / ${dm.penalty.name}</p>`
+    const dmCard = dmByHost[card.id];
+    const dmBadge = dmCard
+      ? `<p class="roster-print-dm-badge"><i data-lucide="radiation"></i> ${dmCard.name}</p>`
       : "";
     return `
       <div class="roster-print-cell">

@@ -3,11 +3,11 @@
     "id": "mech-cidermayer",
     "name": "Cidermayer",
     "rarity": "common",
-    "role": "Space Speed",
+    "role": "Strategist-X",
     "class": "fast",
     "classIcon": "zap",
     "ability": {
-      "name": "Strike First + DM",
+      "name": "Strike First",
       "text": [
         { "text": "Attacks before any enemy unit this turn.", "secondary": false },
         { "text": "If this attack destroys the target, act again this turn.", "secondary": true },
@@ -21,7 +21,7 @@
     "id": "mech-linwood",
     "name": "Linwood",
     "rarity": "common",
-    "role": "Lit Speed",
+    "role": "Strategist-X",
     "class": "fast",
     "classIcon": "zap",
     "ability": {
@@ -38,7 +38,7 @@
     "id": "mech-sydney",
     "name": "Sydney",
     "rarity": "common",
-    "role": "Space Speed",
+    "role": "Strategist-X",
     "class": "fast",
     "classIcon": "zap",
     "ability": {
@@ -55,7 +55,7 @@
     "id": "mech-bowler",
     "name": "Bowler",
     "rarity": "common",
-    "role": "Fortified Tank",
+    "role": "Fortifyer-X",
     "class": "tank",
     "classIcon": "shield",
     "ability": {
@@ -72,7 +72,7 @@
     "id": "mech-myriad",
     "name": "Myriad",
     "rarity": "common",
-    "role": "Lording Tank",
+    "role": "Fortifyer-X",
     "class": "tank",
     "classIcon": "shield",
     "ability": {
@@ -89,7 +89,7 @@
     "id": "mech-gigatear",
     "name": "Gigatear",
     "rarity": "common",
-    "role": "Lording Tank",
+    "role": "Fortifyer-X",
     "class": "tank",
     "classIcon": "shield",
     "ability": {
@@ -106,7 +106,7 @@
     "id": "mech-olaf",
     "name": "Olaf",
     "rarity": "common",
-    "role": "Arsenal",
+    "role": "Arsenal-X",
     "class": "arsenal",
     "classIcon": "bomb",
     "ability": {
@@ -123,7 +123,7 @@
     "id": "mech-lasereater",
     "name": "Lasereater",
     "rarity": "common",
-    "role": "Arsenal",
+    "role": "Arsenal-X",
     "class": "arsenal",
     "classIcon": "bomb",
     "ability": {
@@ -140,7 +140,7 @@
     "id": "mech-cidermajor",
     "name": "Cidermajor",
     "rarity": "common",
-    "role": "Arsenal",
+    "role": "Arsenal-X",
     "class": "arsenal",
     "classIcon": "bomb",
     "ability": {
@@ -157,11 +157,11 @@
     "id": "mech-leadfoot",
     "name": "Leadfoot",
     "rarity": "common",
-    "role": "Stable",
+    "role": "STEALTH-X",
     "class": "stable",
     "classIcon": "anchor",
     "ability": {
-      "name": "Steady",
+      "name": "Malleable",
       "text": [
         { "text": "Cannot be moved by enemy effects.", "secondary": false },
         { "text": "Also immune to being redirected as an attack target.", "secondary": true }
@@ -174,11 +174,11 @@
     "id": "mech-cassidy",
     "name": "Cassidy",
     "rarity": "common",
-    "role": "Stable",
+    "role": "STEALTH-X",
     "class": "stable",
     "classIcon": "anchor",
     "ability": {
-      "name": "Steady",
+      "name": "Malleable",
       "text": [
         { "text": "Cannot be moved by enemy effects.", "secondary": false },
         { "text": "Passes status immunity to its paired Character.", "secondary": true }
@@ -191,11 +191,11 @@
     "id": "mech-ciderheart",
     "name": "Ciderheart",
     "rarity": "common",
-    "role": "Stable",
+    "role": "STEALTH-X",
     "class": "stable",
     "classIcon": "anchor",
     "ability": {
-      "name": "Steady",
+      "name": "Malleable",
       "text": [
         { "text": "Cannot be moved by enemy effects.", "secondary": false },
         { "text": "Once per game, cleanses a status effect from an ally.", "secondary": true }
@@ -208,13 +208,13 @@
     "id": "mech-ciderlord",
     "name": "Ciderlord",
     "rarity": "common",
-    "role": "Elemental",
+    "role": "Elemental-X",
     "class": "elemental",
     "classIcon": "atom",
     "ability": {
       "name": "Flame Infused",
       "text": [
-        { "text": "Deals bonus elemental damage on hit.", "secondary": false },
+        { "text": "Applies Burn (1 dmg next turn) on hit.", "secondary": false },
         { "text": "Burn damage increases by 1 against Tank targets.", "secondary": true }
       ]
     },
@@ -225,30 +225,30 @@
     "id": "mech-coldshoulder",
     "name": "Coldshoulder",
     "rarity": "common",
-    "role": "Elemental",
+    "role": "Elemental-X",
     "class": "elemental",
     "classIcon": "atom",
     "ability": {
       "name": "Frost Infused",
       "text": [
-        { "text": "Deals bonus elemental damage on hit.", "secondary": false },
+        { "text": "Applies Freeze (target skips its next action) on hit.", "secondary": false },
         { "text": "Freeze also zeroes the target's HP regen that turn.", "secondary": true }
       ]
     },
-    "flavor": "\"Frosted steps behind, pain ahead.\"",
+    "flavor": "“It's not you, it's me!”",
     "stats": { "ap": 3, "hp": 5 }
   },
   {
     "id": "mech-derrick",
     "name": "Derrick",
     "rarity": "common",
-    "role": "Elemental",
+    "role": "Elemental-X",
     "class": "elemental",
     "classIcon": "atom",
     "ability": {
-      "name": "Shock Infused + DM",
+      "name": "Shock Infused",
       "text": [
-        { "text": "Deals bonus elemental damage on hit.", "secondary": false },
+        { "text": "Applies Corrode (-1 AP next turn) on hit.", "secondary": false },
         { "text": "Corrode stacks instead of refreshing, up to a maximum of 3 stacks (-3 AP).", "secondary": true }
       ]
     },

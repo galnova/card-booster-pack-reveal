@@ -44,7 +44,9 @@ export function renderCardFace(card, setById) {
 
   const secondCostIcon = secondCostIconHtml(card);
   const metaHtml = metaHtml_(card);
-  const abilityHtml = card.ability
+  const abilityHtml = card.set === "darkMatter"
+    ? darkMatterAbilityHtml(card)
+    : card.ability
     ? `<p class="card-ability">${card.ability.name}</p><ul class="card-text">${bulletsHtml(card.ability.text)}</ul>`
     : `<ul class="card-text">${bulletsHtml(card.text)}</ul>`;
   const footerHtml = card.stats
@@ -90,10 +92,17 @@ function secondCostIconHtml(card) {
   if (card.set === "mechs") {
     return `<span class="card-cost bond-${card.class}"><i data-lucide="${card.classIcon}"></i></span>`;
   }
-  if (card.set === "darkMatter") {
-    return `<span class="card-cost"><i data-lucide="${card.icon}"></i></span>`;
-  }
   return "";
+}
+
+function darkMatterAbilityHtml(card) {
+  return `
+    <p class="card-ability">${card.gain.abilityName} / ${card.penalty.abilityName}</p>
+    <ul class="card-text">
+      <li><strong>${card.gain.name}:</strong> ${card.gain.text}</li>
+      <li><strong>${card.penalty.name}:</strong> ${card.penalty.text}</li>
+    </ul>
+  `;
 }
 
 function metaHtml_(card) {
@@ -102,7 +111,7 @@ function metaHtml_(card) {
     parts.push(`<span class="card-tier ${card.tier}">${card.tier === "main" ? '<i data-lucide="star"></i> Main' : "Sub"}</span>`);
   }
   if (card.set === "darkMatter") {
-    parts.push(`<span class="card-role ${card.kind}">${capitalize(card.kind)}</span>`);
+    parts.push(`<span class="card-role gain">Gain</span><span class="card-role penalty">Penalty</span>`);
   } else if (card.set === "wildcards") {
     parts.push(`<span class="card-role ${card.kind}">${capitalize(card.kind)}</span>`);
   } else if (card.set === "arena") {
@@ -112,9 +121,6 @@ function metaHtml_(card) {
   }
   if (card.bond) {
     parts.push(`<span class="card-bond bond-${card.bond}" title="Bonds with ${capitalize(card.bond)}"><i data-lucide="${BOND_ICON[card.bond]}"></i></span>`);
-  }
-  if (card.pairNote) {
-    parts.push(`<span class="card-dm-pair">${card.pairNote}</span>`);
   }
   return parts.join("");
 }
