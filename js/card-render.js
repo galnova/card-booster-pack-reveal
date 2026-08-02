@@ -39,6 +39,7 @@ export function renderCardFace(card, setById) {
     return `
     <div class="card card-image-sample${scopeClassFor(card, setById)}" data-id="${card.id}" data-rarity="${card.rarity}" data-set="${card.set}">
       <img class="card-image-sample-img" src="${CARD_IMAGE_OVERRIDES[card.id]}" alt="${card.name}" />
+      <span class="rarity-badge">${card.rarity}</span>
     </div>
   `;
   }
