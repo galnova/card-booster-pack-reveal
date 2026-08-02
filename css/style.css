@@ -858,6 +858,11 @@ button {
     display: block;
 }
 
+.card-image-sample .rarity-badge {
+    bottom: 32px;
+    line-height: 10px;
+}
+
 .mech-cards,
 .card.mech-cards {
     --hero-bg: var(--mech-bg);
