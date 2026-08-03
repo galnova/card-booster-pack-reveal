@@ -475,11 +475,13 @@ button {
 }
 
 .pack-progress-ring {
+    /* Square, not stretched to .pack-core's shape - rotate(-90deg) would swap w/h and overflow. */
     position: absolute;
-    inset: 20px;
+    top: 50%;
+    left: 50%;
     width: calc(100% - 40px);
-    height: calc(100% - 40px);
-    transform: rotate(-90deg);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) rotate(-90deg);
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.15s ease;
@@ -639,6 +641,9 @@ button {
 .slot-front {
     transform: rotateY(180deg);
     position: relative;
+    /* position:relative breaks .slot-face's inset:0 stretch, so it was shrink-wrapping to .card's size. */
+    width: 100%;
+    height: 100%;
 }
 
 .slot-front::after {
@@ -791,6 +796,55 @@ button {
     font-weight: 700;
     margin-top: 10px;
     color: var(--app-muted);
+}
+
+.card-rarity-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.card-rarity-cta {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 4px 12px;
+    cursor: pointer;
+    opacity: 0.55;
+}
+
+.card-rarity-cta[data-rarity="common"] {
+    background: var(--rarity-common);
+}
+
+.card-rarity-cta[data-rarity="uncommon"] {
+    background: var(--rarity-uncommon);
+}
+
+.card-rarity-cta[data-rarity="rare"] {
+    background: var(--rarity-rare);
+}
+
+.card-rarity-cta[data-rarity="legendary"] {
+    background: var(--rarity-legendary);
+    color: #3a2c00;
+}
+
+.card-rarity-cta:hover:not(.active) {
+    opacity: 0.8;
+}
+
+.card-rarity-cta.active {
+    opacity: 1;
+    border-color: #fff;
+}
+
+.card-rarity-cta:disabled {
+    cursor: default;
 }
 
 .card-foil-ctas {
@@ -1612,6 +1666,40 @@ button {
     color: var(--app-muted);
 }
 
+.set-rarity-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.set-rarity-count {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 10px;
+    border-radius: 999px;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.set-rarity-count[data-rarity="common"] {
+    background: var(--rarity-common);
+}
+
+.set-rarity-count[data-rarity="uncommon"] {
+    background: var(--rarity-uncommon);
+}
+
+.set-rarity-count[data-rarity="rare"] {
+    background: var(--rarity-rare);
+}
+
+.set-rarity-count[data-rarity="legendary"] {
+    background: var(--rarity-legendary);
+    color: #3a2c00;
+}
+
 .set-sort-ctas {
     display: flex;
     gap: 6px;
@@ -1656,24 +1744,27 @@ button {
 }
 
 @media (max-width: 640px) {
-    /* .pack-core's height and .pack-inner-frame's size are fixed px, not aspect-ratio/percentage
-       derived (see their base rules), so shrinking only .pack's width here - as this used to -
-       left the height at the full desktop 390px (a badly distorted, over-tall sliver) and the
-       240px-wide inner frame overflowing past both edges of a 190px pack entirely. Scaling both
-       by the same ~0.7 factor keeps the same proportions and the ~10px margin around the frame. */
+    /* .pack-core/.pack-inner-frame are fixed px, not aspect-ratio derived, so all four scale
+       together here to avoid distortion. Sized bigger than the cards it holds (300px), matching
+       desktop's pack > card relationship. */
 
+    /* Pinned fixed instead of the base rule's inset:-50%, which scales with .pack's width and
+       overflowed the viewport at this bigger size. */
+    .pack::before {
+        inset: -28px;
+    }
     .ridges {
-        height: 14px;
+        height: 23px;
     }
     .pack {
-        width: 190px;
+        width: 310px;
     }
     .pack-core {
-        height: 274px;
+        height: 448px;
     }
     .pack-inner-frame {
-        width: 170px;
-        height: 254px;
+        width: 276px;
+        height: 413px;
     }
     .pack-label {
         font-size: 0.7rem;
@@ -1710,6 +1801,67 @@ button {
     }
     .tabs {
         padding: 0 14px;
+    }
+
+    /* Swipeable one-card carousel below this width (js/app.js buildCarouselContainer). */
+    .reveal-row.carousel-mode {
+        display: block;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .reveal-carousel-track {
+        display: flex;
+        width: 100%;
+        touch-action: pan-y;
+    }
+
+    /* One page = one track-width paging step; centers the normal-sized card inside it. */
+    .reveal-carousel-page {
+        flex: 0 0 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .reveal-carousel-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 14px;
+    }
+
+    .reveal-carousel-counter {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--app-muted);
+        min-width: 3.5em;
+        text-align: center;
+    }
+
+    .reveal-carousel-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        border: 1px solid #2c2e38;
+        background: var(--app-surface);
+        color: var(--app-text);
+        cursor: pointer;
+    }
+
+    .reveal-carousel-btn:disabled {
+        opacity: 0.35;
+        cursor: default;
+    }
+
+    .reveal-carousel-btn svg {
+        width: 1.1rem;
+        height: 1.1rem;
     }
 }
 

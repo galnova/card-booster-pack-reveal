@@ -1,4 +1,4 @@
-import { getCollection, isOwned } from "./engine.js";
+import { getCollection, isOwned, dominantRarity } from "./engine.js";
 import {
   getRoster,
   saveRoster,
@@ -175,7 +175,7 @@ function renderCategory(key, collection) {
     poolEl.innerHTML = `<div class="roster-pool-empty-hint">All owned ${def.label.toLowerCase()} are in your roster.</div>`;
   } else {
     for (const card of poolCards) {
-      poolEl.appendChild(buildChip(card, "add", key));
+      poolEl.appendChild(buildChip(card, "add", key, dominantRarity(collection[card.id], catalog.config.rarities)));
     }
   }
 
@@ -186,18 +186,18 @@ function renderCategory(key, collection) {
     slotEl.innerHTML = `<div class="roster-slots-empty-hint">Drag cards here, or click "Add" on a card above.</div>`;
   } else {
     for (const card of slotCards) {
-      slotEl.appendChild(buildChip(card, "remove", key));
+      slotEl.appendChild(buildChip(card, "remove", key, dominantRarity(collection[card.id], catalog.config.rarities)));
     }
   }
 }
 
-function buildChip(card, mode, category) {
+function buildChip(card, mode, category, rarity) {
   const wrap = document.createElement("div");
   wrap.className = "roster-card-chip";
   wrap.dataset.cardId = card.id;
   const btnLabel = mode === "add" ? '<i data-lucide="plus"></i> Add' : '<i data-lucide="minus"></i> Remove';
   const btnClass = mode === "add" ? "roster-card-add" : "roster-card-remove";
-  wrap.innerHTML = `${renderCardFace(card, setById)}<button type="button" class="${btnClass}">${btnLabel}</button>`;
+  wrap.innerHTML = `${renderCardFace(card, setById, rarity)}<button type="button" class="${btnClass}">${btnLabel}</button>`;
   wrap.querySelector("button").addEventListener("click", () => {
     if (mode === "add") addToCategory(category, card.id);
     else removeFromCategory(category, card.id);
@@ -538,6 +538,7 @@ async function loadSavedRoster(entry) {
 // Export / print
 // ---------------------------------------------------------------------------
 function buildVisualRosterHtml() {
+  const collection = getCollection();
   const main = roster.main ? catalog.cardsById.get(roster.main) : null;
   const subs = roster.subs.map((id) => catalog.cardsById.get(id));
   const wildcards = roster.wildcards.map((id) => catalog.cardsById.get(id));
@@ -554,9 +555,10 @@ function buildVisualRosterHtml() {
     const dmBadge = dmCard
       ? `<p class="roster-print-dm-badge"><i data-lucide="radiation"></i> ${dmCard.name}</p>`
       : "";
+    const rarity = dominantRarity(collection[card.id], catalog.config.rarities);
     return `
       <div class="roster-print-cell">
-        ${renderCardFace(card, setById)}
+        ${renderCardFace(card, setById, rarity)}
         ${caption ? `<p class="roster-print-caption">${caption}</p>` : ""}
         ${dmBadge}
       </div>

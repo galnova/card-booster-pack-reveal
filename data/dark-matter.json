@@ -2,65 +2,121 @@
   {
     "id": "dm-dark-fragile-core",
     "name": "Dark Fragile Core",
-    "rarity": "legendary",
-    "gain": { "name": "Dark Energy", "abilityName": "+2 AP (Flat)", "text": "Add +2 AP permanently to the corrupted unit's stats." },
-    "penalty": { "name": "Fragile Core", "abilityName": "-2 HP (Flat)", "text": "The corrupted unit's max HP is permanently reduced by 2." },
+    "gain": {
+      "name": "Dark Energy",
+      "abilityName": "+2 AP (Flat)",
+      "text": "Add +2 AP permanently to the corrupted unit's stats."
+    },
+    "penalty": {
+      "name": "Fragile Core",
+      "abilityName": "-2 HP (Flat)",
+      "text": "The corrupted unit's max HP is permanently reduced by 2."
+    },
     "flavor": "\"This is the ticking time bomb.\""
   },
   {
     "id": "dm-dark-nil-fate",
     "name": "Dark Nil Fate",
-    "rarity": "legendary",
-    "gain": { "name": "Dark Energy", "abilityName": "+2 AP (Flat)", "text": "Add +2 AP permanently to the corrupted unit's stats." },
-    "penalty": { "name": "Nil Fate", "abilityName": "No Revival", "text": "If destroyed, removed from the game entirely. Revival effects can't target it." },
+    "gain": {
+      "name": "Dark Energy",
+      "abilityName": "+2 AP (Flat)",
+      "text": "Add +2 AP permanently to the corrupted unit's stats."
+    },
+    "penalty": {
+      "name": "Nil Fate",
+      "abilityName": "No Revival",
+      "text": "If destroyed, removed from the game entirely. Revival effects can't target it."
+    },
     "flavor": "\"This is the finale. No turning back!\""
   },
   {
     "id": "dm-dark-lonliness",
     "name": "Dark Lonliness",
-    "rarity": "legendary",
-    "gain": { "name": "Dark Energy", "abilityName": "+2 AP (Flat)", "text": "Add +2 AP permanently to the corrupted unit's stats." },
-    "penalty": { "name": "Lonliness", "abilityName": "No Team Bonus", "text": "This unit can never benefit from another Character's Team Building effects." },
+    "gain": {
+      "name": "Dark Energy",
+      "abilityName": "+2 AP (Flat)",
+      "text": "Add +2 AP permanently to the corrupted unit's stats."
+    },
+    "penalty": {
+      "name": "Lonliness",
+      "abilityName": "No Team Bonus",
+      "text": "This unit can never benefit from another Character's Team Building effects."
+    },
     "flavor": "\"I did not choose to end it like this.\""
   },
   {
     "id": "dm-dark-possession",
     "name": "Dark Possession",
-    "rarity": "legendary",
-    "gain": { "name": "Dark Energy", "abilityName": "+2 AP (Flat)", "text": "Add +2 AP permanently to the corrupted unit's stats." },
-    "penalty": { "name": "Possession", "abilityName": "Friendly Fire", "text": "Once per game, redirect this unit's next attack to one of your own units instead." },
+    "gain": {
+      "name": "Dark Energy",
+      "abilityName": "+2 AP (Flat)",
+      "text": "Add +2 AP permanently to the corrupted unit's stats."
+    },
+    "penalty": {
+      "name": "Possession",
+      "abilityName": "Friendly Fire",
+      "text": "Once per game, redirect this unit's next attack to one of your own units instead."
+    },
     "flavor": "\"Is that my voice...in the distance?\""
   },
   {
     "id": "dm-shaded-fragile-core",
     "name": "Shaded Fragile Core",
-    "rarity": "legendary",
-    "gain": { "name": "Shaded", "abilityName": "Boost Ability +1", "text": "All numeric values in the corrupted unit's ability increase by 1." },
-    "penalty": { "name": "Fragile Core", "abilityName": "-2 HP (Flat)", "text": "The corrupted unit's max HP is permanently reduced by 2." },
+    "gain": {
+      "name": "Shaded",
+      "abilityName": "Boost Ability +1",
+      "text": "All numeric values in the corrupted unit's ability increase by 1."
+    },
+    "penalty": {
+      "name": "Fragile Core",
+      "abilityName": "-2 HP (Flat)",
+      "text": "The corrupted unit's max HP is permanently reduced by 2."
+    },
     "flavor": "\"Let's all wait for the end.\""
   },
   {
     "id": "dm-shaded-nil-fate",
     "name": "Shaded Nil Fate",
-    "rarity": "legendary",
-    "gain": { "name": "Shaded", "abilityName": "Boost Ability +1", "text": "All numeric values in the corrupted unit's ability increase by 1." },
-    "penalty": { "name": "Nil Fate", "abilityName": "No Revival", "text": "If destroyed, removed from the game entirely. Revival effects can't target it." },
+    "gain": {
+      "name": "Shaded",
+      "abilityName": "Boost Ability +1",
+      "text": "All numeric values in the corrupted unit's ability increase by 1."
+    },
+    "penalty": {
+      "name": "Nil Fate",
+      "abilityName": "No Revival",
+      "text": "If destroyed, removed from the game entirely. Revival effects can't target it."
+    },
     "flavor": "\"The edge of nothingness!\""
   },
   {
     "id": "dm-shaded-lonliness",
     "name": "Shaded Lonliness",
-    "rarity": "legendary",
-    "gain": { "name": "Shaded", "abilityName": "Boost Ability +1", "text": "All numeric values in the corrupted unit's ability increase by 1." },
-    "penalty": { "name": "Lonliness", "abilityName": "No Team Bonus", "text": "This unit can never benefit from another Character's Team Building effects." },
+    "gain": {
+      "name": "Shaded",
+      "abilityName": "Boost Ability +1",
+      "text": "All numeric values in the corrupted unit's ability increase by 1."
+    },
+    "penalty": {
+      "name": "Lonliness",
+      "abilityName": "No Team Bonus",
+      "text": "This unit can never benefit from another Character's Team Building effects."
+    },
     "flavor": "\"So quiet at the end.\""
   },
   {
     "id": "dm-shaded-possession",
     "name": "Shaded Possession",
-    "rarity": "legendary",
-    "gain": { "name": "Shaded", "abilityName": "Boost Ability +1", "text": "All numeric values in the corrupted unit's ability increase by 1." },
-    "penalty": { "name": "Possession", "abilityName": "Friendly Fire", "text": "Once per game, redirect this unit's next attack to one of your own units instead." },
+    "gain": {
+      "name": "Shaded",
+      "abilityName": "Boost Ability +1",
+      "text": "All numeric values in the corrupted unit's ability increase by 1."
+    },
+    "penalty": {
+      "name": "Possession",
+      "abilityName": "Friendly Fire",
+      "text": "Once per game, redirect this unit's next attack to one of your own units instead."
+    },
     "flavor": "\"I am not myself anymore.\""
   }
 ]
