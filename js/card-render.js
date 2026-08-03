@@ -32,14 +32,14 @@ function scopeClassFor(card, setById) {
   return set.scopeClass ? ` ${set.scopeClass}` : "";
 }
 
-export function renderCardFace(card, setById) {
+export function renderCardFace(card, setById, rarity) {
   const set = setById[card.set];
 
   if (CARD_IMAGE_OVERRIDES[card.id]) {
     return `
-    <div class="card card-image-sample${scopeClassFor(card, setById)}" data-id="${card.id}" data-rarity="${card.rarity}" data-set="${card.set}">
+    <div class="card card-image-sample${scopeClassFor(card, setById)}" data-id="${card.id}" data-rarity="${rarity}" data-set="${card.set}">
       <img class="card-image-sample-img" src="${CARD_IMAGE_OVERRIDES[card.id]}" alt="${card.name}" />
-      <span class="rarity-badge">${card.rarity}</span>
+      <span class="rarity-badge">${rarity}</span>
     </div>
   `;
   }
@@ -59,8 +59,8 @@ export function renderCardFace(card, setById) {
     : "";
 
   return `
-    <div class="card${scopeClassFor(card, setById)}" data-id="${card.id}" data-rarity="${card.rarity}" data-set="${card.set}">
-      <span class="rarity-badge">${card.rarity}</span>
+    <div class="card${scopeClassFor(card, setById)}" data-id="${card.id}" data-rarity="${rarity}" data-set="${card.set}">
+      <span class="rarity-badge">${rarity}</span>
       <div class="card-header">
         <h2 class="card-name">${card.name}</h2>
         <span class="card-cost"><i data-lucide="${set.typeIcon}"></i></span>
@@ -81,7 +81,7 @@ export function renderCardFace(card, setById) {
 
 export function renderLockedFace(card, setById) {
   return `
-    <div class="card card-image-sample locked${scopeClassFor(card, setById)}" data-rarity="${card.rarity}" data-set="${card.set}">
+    <div class="card card-image-sample locked${scopeClassFor(card, setById)}" data-set="${card.set}">
       <img class="card-image-sample-img" src="card-samples/HS-Card-Undiscovered.png" alt="Undiscovered card" />
     </div>
   `;

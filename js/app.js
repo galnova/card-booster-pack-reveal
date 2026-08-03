@@ -1,4 +1,4 @@
-import { loadCatalog, buildWeightedPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance, resetCollection, getPacksOpenedCount, recordPackOpened, ownedVariants, totalOwned, isOwned } from "./engine.js";
+import { loadCatalog, buildDrawPool, drawPack, getCollection, recordPulls, getAllowance, consumeAllowance, resetAllowance, resetCollection, getPacksOpenedCount, recordPackOpened, totalOwned, isOwned, rarityCount, rarityVariants } from "./engine.js";
 import { primeAudio, playTear, playFlip, playChime, playFanfare } from "./sound.js";
 import { spring, SPRING_PRESETS } from "./spring.js";
 import { renderCardFace as renderCardFaceShared, renderLockedFace as renderLockedFaceShared } from "./card-render.js";
@@ -12,6 +12,13 @@ const FOIL_LABEL = { none: "Normal", reverse: "Reverse", tin: "Tin", holo: "Holo
 const FOIL_ORDER = ["none", "reverse", "tin", "holo", "super-holo", "cosmos", "secret", "frost"];
 const HOLD_DURATION_MS = 600;
 const RING_CIRCUMFERENCE = 289;
+
+// Below this width the reveal switches from an all-at-once grid to a swipeable one-card carousel
+// (10 pulled cards collapse to a single scrolling column otherwise). Matches the breakpoint already
+// used elsewhere for mobile-tuned layout (pack-button shrink, Collection grid reflow).
+const MOBILE_REVEAL_QUERY = "(max-width: 640px)";
+const SWIPE_ADVANCE_PX = 50;
+const TAP_VS_DRAG_PX = 8;
 
 // Sort options for the characters set in Collection. Class is read off the last word of `role`
 // ("Brave Hero" -> Hero) rather than a dedicated field, since that's already guaranteed consistent
@@ -27,10 +34,24 @@ let catalog = null;
 let weightedPool = null;
 let setById = {};
 let currentIsNew = {};
+let currentPulls = null;
+let lastRevealIsMobile = null;
 let revealedCount = 0;
 let packSize = 0;
 let collectionSort = "default";
 const collapsedSets = new Set();
+
+// Mobile reveal carousel state - all reset per pack open (resetOpenStage) / rebuilt per showRevealRow.
+let carouselTrackEl = null;
+let carouselIndex = 0;
+let carouselSlotCount = 0;
+let cancelCarouselSpring = null;
+let carouselOffsetPx = 0;
+let dragPointerId = null;
+let dragStartX = 0;
+let lastPointerX = 0;
+let dragStartOffsetPx = 0;
+let dragDistancePx = 0;
 
 const el = {
   allowanceCount: document.getElementById("allowance-count"),
@@ -69,12 +90,13 @@ init();
 async function init() {
   catalog = await loadCatalog();
   setById = Object.fromEntries(catalog.config.sets.map((s) => [s.id, s]));
-  weightedPool = buildWeightedPool(catalog.allCards, catalog.config.rarities);
+  weightedPool = buildDrawPool(catalog.allCards);
 
   wireTabs();
   wirePack();
   wireCardModal();
   wireSettingsMenu();
+  wireRevealResize();
   el.resetAllowanceBtn.addEventListener("click", () => {
     resetAllowance();
     resetOpenStage();
@@ -103,14 +125,14 @@ async function init() {
 // Each sample uses one of the real PNG art cards, paired with a foil that card can actually roll
 // (see CARD_FOIL_OPTIONS in foil-config.js) so the gallery never shows an impossible combination.
 const FOIL_SAMPLES = [
-  { foil: null, label: "Normal", cardId: "char-zo" },
-  { foil: "reverse", label: "Reverse", cardId: "char-llewellyn" },
-  { foil: "tin", label: "Tin", cardId: "char-starlot" },
-  { foil: "holo", label: "Holo", cardId: "char-rufus" },
-  { foil: "super-holo", label: "Super Holo", cardId: "char-sadie" },
-  { foil: "cosmos", label: "Cosmos", cardId: "mech-cidermayer" },
-  { foil: "secret", label: "Secret", cardId: "char-blac" },
-  { foil: "frost", label: "Frost", cardId: "char-brb" },
+  { foil: null, label: "Normal", cardId: "char-zo", rarity: "common" },
+  { foil: "reverse", label: "Reverse", cardId: "char-llewellyn", rarity: "rare" },
+  { foil: "tin", label: "Tin", cardId: "char-starlot", rarity: "uncommon" },
+  { foil: "holo", label: "Holo", cardId: "char-rufus", rarity: "rare" },
+  { foil: "super-holo", label: "Super Holo", cardId: "char-sadie", rarity: "legendary" },
+  { foil: "cosmos", label: "Cosmos", cardId: "mech-cidermayer", rarity: "rare" },
+  { foil: "secret", label: "Secret", cardId: "char-blac", rarity: "legendary" },
+  { foil: "frost", label: "Frost", cardId: "char-brb", rarity: "legendary" },
 ];
 
 function renderFoilSamples() {
@@ -122,7 +144,7 @@ function renderFoilSamples() {
     const wrap = document.createElement("div");
     wrap.className = "foil-sample";
     const holder = document.createElement("div");
-    holder.innerHTML = renderCardFace(card);
+    holder.innerHTML = renderCardFace(card, sample.rarity);
     const cardEl = holder.firstElementChild;
     wireHoloTilt(cardEl);
     if (sample.foil) {
@@ -249,13 +271,22 @@ function wirePack() {
   el.packBtn.addEventListener("click", onPackClick);
 
   el.revealAllBtn.addEventListener("click", () => {
-    document.querySelectorAll(".reveal-slot:not(.flipped)").forEach((slot, i) => {
+    const unflipped = document.querySelectorAll(".reveal-slot:not(.flipped)");
+    unflipped.forEach((slot, i) => {
       setTimeout(() => flipSlot(slot), i * 150);
     });
+    if (carouselTrackEl) {
+      setTimeout(() => goToCarouselIndex(carouselSlotCount - 1), unflipped.length * 150);
+    }
   });
   el.againBtn.addEventListener("click", () => {
     resetOpenStage();
     window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.addEventListener("keydown", (e) => {
+    if (!carouselTrackEl) return;
+    if (e.key === "ArrowLeft") goToCarouselIndex(carouselIndex - 1);
+    else if (e.key === "ArrowRight") goToCarouselIndex(carouselIndex + 1);
   });
 }
 
@@ -402,8 +433,8 @@ function unlockScroll() {
   window.scrollTo(0, lockedScrollY);
 }
 
-function openCardModal(card, sourceEl, variant) {
-  el.cardModalFront.innerHTML = renderCardFace(card);
+function openCardModal(card, sourceEl, variant, rarity) {
+  el.cardModalFront.innerHTML = renderCardFace(card, rarity);
   wireHoloTilt(el.cardModalFront.querySelector(".card"), variant);
   refreshIcons();
   if (cancelModalSpring) cancelModalSpring();
@@ -428,10 +459,9 @@ function openPack() {
   updateAllowanceDisplay();
   recordPackOpened();
 
-  const pulled = drawPack(weightedPool, catalog.config.packSize)
-    .slice()
-    .sort((a, b) => RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity]);
-  const { isNew, pulls } = recordPulls(pulled);
+  const pulled = drawPack(weightedPool, catalog.config.packSize);
+  const { isNew, pulls } = recordPulls(pulled, catalog.config.rarities);
+  pulls.sort((a, b) => RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity]);
   currentIsNew = isNew;
   renderCollection();
   refreshRosterUI();
@@ -445,40 +475,194 @@ function openPack() {
   setTimeout(() => showRevealRow(pulls), 480);
 }
 
+// Crossing the carousel/grid breakpoint mid-reveal (device rotation) leaves the wrong DOM structure
+// for the now-active CSS, collapsing every card - rebuild with the same pulls when that happens.
+function wireRevealResize() {
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    if (currentPulls === null) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const isMobile = window.matchMedia(MOBILE_REVEAL_QUERY).matches;
+      if (isMobile !== lastRevealIsMobile) showRevealRow(currentPulls);
+    }, 150);
+  });
+}
+
 function showRevealRow(pulls) {
   el.packBtn.classList.remove("opening");
   el.packStack.style.display = "none";
   el.openHint.style.display = "none";
   el.packSummary.style.display = "none";
   el.revealRow.innerHTML = "";
+  el.revealRow.classList.remove("carousel-mode");
   el.revealActions.style.display = "flex";
   el.revealAllBtn.disabled = false;
   revealedCount = 0;
   packSize = pulls.length;
+  carouselTrackEl = null;
+  carouselIndex = 0;
+  carouselSlotCount = 0;
 
-  pulls.forEach(({ card, variant }, i) => {
-    const slot = document.createElement("div");
-    slot.className = "reveal-slot";
-    slot.dataset.cardId = card.id;
-    slot.dataset.rarity = card.rarity;
-    slot.innerHTML = `
-      <div class="reveal-flip">
-        <div class="slot-face slot-back"><img class="card-back-img" src="card-samples/HS-Card-Back.png" alt="Card back"></div>
-        <div class="slot-face slot-front">${renderCardFace(card)}</div>
-      </div>
-    `;
-    wireHoloTilt(slot.querySelector(".slot-front .card"), variant);
-    slot.addEventListener("click", () => {
-      if (slot.classList.contains("flipped")) {
-        openCardModal(card, slot, variant);
-      } else {
-        flipSlot(slot);
-      }
-    });
-    el.revealRow.appendChild(slot);
-    setTimeout(() => slot.classList.add("visible"), 20 + i * 110);
+  const isMobile = window.matchMedia(MOBILE_REVEAL_QUERY).matches;
+  currentPulls = pulls;
+  lastRevealIsMobile = isMobile;
+  const container = isMobile ? buildCarouselContainer() : el.revealRow;
+
+  pulls.forEach(({ card, variant, rarity }, i) => {
+    const slot = buildRevealSlot(card, variant, rarity);
+    if (isMobile) {
+      // Each page is a full-track-width flex cell that just centers its (normal-sized) card - this
+      // keeps the paging math (one page = one track-width step) completely decoupled from the
+      // card's own visual size, so the card can stay capped at its usual max-width instead of
+      // stretching edge-to-edge, without reintroducing the flush-packed/bleed-through issue a
+      // capped-width flex item had directly inside a non-wrapping overflowing track.
+      const page = document.createElement("div");
+      page.className = "reveal-carousel-page";
+      page.appendChild(slot);
+      container.appendChild(page);
+      // Only one slot is ever visible through the clipped carousel track, so there's nothing for
+      // the grid's staggered fly-in to show - just mark every slot ready immediately.
+      slot.classList.add("visible");
+    } else {
+      container.appendChild(slot);
+      setTimeout(() => slot.classList.add("visible"), 20 + i * 110);
+    }
   });
+
+  if (isMobile) {
+    carouselSlotCount = pulls.length;
+    goToCarouselIndex(0, { immediate: true });
+  }
+
   refreshIcons();
+}
+
+function buildRevealSlot(card, variant, rarity) {
+  const slot = document.createElement("div");
+  slot.className = "reveal-slot";
+  slot.dataset.cardId = card.id;
+  slot.dataset.rarity = rarity;
+  slot.innerHTML = `
+    <div class="reveal-flip">
+      <div class="slot-face slot-back"><img class="card-back-img" src="card-samples/HS-Card-Back.png" alt="Card back"></div>
+      <div class="slot-face slot-front">${renderCardFace(card, rarity)}</div>
+    </div>
+  `;
+  wireHoloTilt(slot.querySelector(".slot-front .card"), variant);
+  slot.addEventListener("click", () => {
+    if (slot.classList.contains("flipped")) {
+      openCardModal(card, slot, variant, rarity);
+    } else {
+      flipSlot(slot);
+    }
+  });
+  return slot;
+}
+
+// ---------------------------------------------------------------------------
+// Mobile reveal carousel: one pulled card at a time, swipe/buttons/arrow keys to page.
+// ---------------------------------------------------------------------------
+function buildCarouselContainer() {
+  el.revealRow.classList.add("carousel-mode");
+
+  const track = document.createElement("div");
+  track.className = "reveal-carousel-track";
+  // A real drag (past the tap threshold) shouldn't also flip the card underneath the finger -
+  // suppress the slot's own click handler for that pointer session only.
+  track.addEventListener("click", (e) => {
+    if (dragDistancePx > TAP_VS_DRAG_PX) e.stopImmediatePropagation();
+  }, { capture: true });
+  track.addEventListener("pointerdown", onCarouselPointerDown);
+  track.addEventListener("pointermove", onCarouselPointerMove);
+  track.addEventListener("pointerup", onCarouselPointerUp);
+  track.addEventListener("pointercancel", onCarouselPointerUp);
+  el.revealRow.appendChild(track);
+  carouselTrackEl = track;
+
+  const nav = document.createElement("div");
+  nav.className = "reveal-carousel-nav";
+  nav.innerHTML = `
+    <button type="button" class="reveal-carousel-btn reveal-carousel-prev" aria-label="Previous card"><i data-lucide="chevron-left"></i></button>
+    <span class="reveal-carousel-counter"></span>
+    <button type="button" class="reveal-carousel-btn reveal-carousel-next" aria-label="Next card"><i data-lucide="chevron-right"></i></button>
+  `;
+  nav.querySelector(".reveal-carousel-prev").addEventListener("click", () => goToCarouselIndex(carouselIndex - 1));
+  nav.querySelector(".reveal-carousel-next").addEventListener("click", () => goToCarouselIndex(carouselIndex + 1));
+  el.revealRow.appendChild(nav);
+
+  return track;
+}
+
+function goToCarouselIndex(index, { immediate = false } = {}) {
+  if (!carouselTrackEl) return;
+  carouselIndex = Math.max(0, Math.min(index, carouselSlotCount - 1));
+  const slotWidth = carouselTrackEl.getBoundingClientRect().width || 1;
+  const target = -carouselIndex * slotWidth;
+
+  if (cancelCarouselSpring) cancelCarouselSpring();
+  if (immediate) {
+    carouselOffsetPx = target;
+    carouselTrackEl.style.transform = `translateX(${target}px)`;
+  } else {
+    cancelCarouselSpring = spring({
+      from: carouselOffsetPx,
+      to: target,
+      ...SPRING_PRESETS.ui,
+      onUpdate: (v) => {
+        carouselOffsetPx = v;
+        carouselTrackEl.style.transform = `translateX(${v}px)`;
+      },
+    });
+  }
+  updateCarouselNav();
+}
+
+function updateCarouselNav() {
+  const nav = el.revealRow.querySelector(".reveal-carousel-nav");
+  if (!nav) return;
+  nav.querySelector(".reveal-carousel-counter").textContent = `${carouselIndex + 1} / ${carouselSlotCount}`;
+  nav.querySelector(".reveal-carousel-prev").disabled = carouselIndex === 0;
+  nav.querySelector(".reveal-carousel-next").disabled = carouselIndex === carouselSlotCount - 1;
+}
+
+function onCarouselPointerDown(e) {
+  dragPointerId = e.pointerId;
+  dragStartX = e.clientX;
+  lastPointerX = e.clientX;
+  dragStartOffsetPx = carouselOffsetPx;
+  dragDistancePx = 0;
+  if (cancelCarouselSpring) cancelCarouselSpring();
+}
+
+function onCarouselPointerMove(e) {
+  if (dragPointerId === null || e.pointerId !== dragPointerId) return;
+  lastPointerX = e.clientX;
+  const delta = e.clientX - dragStartX;
+  dragDistancePx = Math.abs(delta);
+  // Claim pointer capture only once real horizontal intent is established, not on every tap -
+  // otherwise a plain tap-to-flip would get its pointerup/click retargeted to the track instead
+  // of the card underneath, breaking both the flip and holo-tilt's own pointer handling.
+  if (dragDistancePx > TAP_VS_DRAG_PX && !carouselTrackEl.hasPointerCapture(e.pointerId)) {
+    carouselTrackEl.setPointerCapture(e.pointerId);
+  }
+  carouselOffsetPx = dragStartOffsetPx + delta;
+  carouselTrackEl.style.transform = `translateX(${carouselOffsetPx}px)`;
+}
+
+function onCarouselPointerUp(e) {
+  if (dragPointerId === null || e.pointerId !== dragPointerId) return;
+  if (carouselTrackEl.hasPointerCapture(e.pointerId)) {
+    carouselTrackEl.releasePointerCapture(e.pointerId);
+  }
+  // Use the last tracked pointermove position rather than this event's own clientX - once pointer
+  // capture is engaged, some browsers don't reliably populate clientX on the pointerup event itself.
+  const delta = lastPointerX - dragStartX;
+  let targetIndex = carouselIndex;
+  if (delta <= -SWIPE_ADVANCE_PX) targetIndex = carouselIndex + 1;
+  else if (delta >= SWIPE_ADVANCE_PX) targetIndex = carouselIndex - 1;
+  dragPointerId = null;
+  goToCarouselIndex(targetIndex);
 }
 
 function flipSlot(slot) {
@@ -487,8 +671,9 @@ function flipSlot(slot) {
   revealedCount += 1;
 
   const card = catalog.cardsById.get(slot.dataset.cardId);
+  const rarity = slot.dataset.rarity;
   const flipEl = slot.querySelector(".reveal-flip");
-  const preset = SPRING_PRESETS[card.rarity] || SPRING_PRESETS.common;
+  const preset = SPRING_PRESETS[rarity] || SPRING_PRESETS.common;
   spring({
     from: 0,
     to: 180,
@@ -506,15 +691,15 @@ function flipSlot(slot) {
     y: (rect.top + rect.height / 2) / window.innerHeight,
   };
 
-  if (card.rarity === "rare") {
+  if (rarity === "rare") {
     triggerHaptic([20, 30, 40]);
     playChime();
     burstConfetti({ particleCount: 60, spread: 55, origin, colors: [getThemeColor("--rarity-rare"), "#ffffff"] });
-  } else if (card.rarity === "legendary") {
+  } else if (rarity === "legendary") {
     triggerHaptic([30, 40, 30, 40, 60]);
     playFanfare();
     triggerVignette();
-    showLegendarySpotlight(card);
+    showLegendarySpotlight(card, rarity);
   }
 
   if (currentIsNew[card.id]) {
@@ -558,6 +743,7 @@ function showPackSummary() {
 
 function resetOpenStage() {
   el.revealRow.innerHTML = "";
+  el.revealRow.classList.remove("carousel-mode");
   el.revealActions.style.display = "none";
   el.packSummary.style.display = "none";
   el.packStack.style.display = "";
@@ -569,6 +755,18 @@ function resetOpenStage() {
   packLift = 0;
   applyPackTransform();
   updateAllowanceDisplay();
+
+  if (cancelCarouselSpring) cancelCarouselSpring();
+  cancelCarouselSpring = null;
+  carouselTrackEl = null;
+  carouselIndex = 0;
+  carouselSlotCount = 0;
+  carouselOffsetPx = 0;
+  dragPointerId = null;
+  lastPointerX = 0;
+  dragDistancePx = 0;
+  currentPulls = null;
+  lastRevealIsMobile = null;
 }
 
 // ---------------------------------------------------------------------------
@@ -606,8 +804,8 @@ function getThemeColor(varName) {
   return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
 
-function showLegendarySpotlight(card) {
-  el.legendarySpotlight.innerHTML = renderCardFace(card);
+function showLegendarySpotlight(card, rarity) {
+  el.legendarySpotlight.innerHTML = renderCardFace(card, rarity);
   refreshIcons();
   el.legendarySpotlight.classList.add("open");
   lockScroll();
@@ -664,6 +862,13 @@ function renderCollection() {
     }
     const ownedCount = cards.filter((c) => isOwned(collection[c.id])).length;
 
+    const rarityBreakdownHtml = catalog.config.rarities
+      .map((rarity) => {
+        const owned = cards.filter((c) => rarityCount(collection[c.id], rarity.id) > 0).length;
+        return `<span class="set-rarity-count" data-rarity="${rarity.id}">${rarity.label} ${owned}/${cards.length}</span>`;
+      })
+      .join("");
+
     const sortCtasHtml = isCharacters
       ? `
       <div class="set-sort-ctas">
@@ -683,6 +888,7 @@ function renderCollection() {
         <span class="set-swatch" style="background:var(${set.accentVar})"></span>
         ${set.label}s
         <span class="set-section-count">${ownedCount} / ${cards.length} discovered</span>
+        <span class="set-rarity-breakdown">${rarityBreakdownHtml}</span>
         ${sortCtasHtml}
       </summary>
       <div class="card-wrap"></div>
@@ -713,15 +919,16 @@ function renderCollection() {
       const slot = document.createElement("div");
       slot.className = "card-slot";
       if (count > 0) {
-        const owned = ownedVariants(entry);
-        const variants = FOIL_ORDER.filter((v) => owned.includes(v));
+        const rarityTiers = catalog.config.rarities.map((r) => r.id).filter((r) => rarityCount(entry, r) > 0);
+        let activeRarity = rarityTiers[Math.floor(Math.random() * rarityTiers.length)];
+        let variants = FOIL_ORDER.filter((v) => rarityVariants(entry, activeRarity).includes(v));
         let activeVariant = variants[Math.floor(Math.random() * variants.length)];
 
         const holder = document.createElement("div");
-        holder.innerHTML = renderCardFace(card);
+        holder.innerHTML = renderCardFace(card, activeRarity);
         const cardEl = holder.firstElementChild;
         cardEl.classList.add("clickable");
-        cardEl.addEventListener("click", (e) => openCardModal(card, e.currentTarget, activeVariant));
+        cardEl.addEventListener("click", (e) => openCardModal(card, e.currentTarget, activeVariant, activeRarity));
         wireHoloTilt(cardEl, activeVariant);
         slot.appendChild(cardEl);
 
@@ -730,33 +937,71 @@ function renderCollection() {
         caption.textContent = `Owned ×${count}`;
         slot.appendChild(caption);
 
-        // One pill per owned variant, in a fixed foil order - none/single-variant cards still get
-        // a pill (just one, inert) so every card consistently shows what it's currently displaying,
-        // not just the ones with something to switch between.
-        const ctas = document.createElement("div");
-        ctas.className = "card-foil-ctas";
-        const buttons = variants.map((variant) => {
+        // One pill per owned rarity tier, mirrors the foil-pill row below - click to preview that
+        // tier's badge/glow. Single-tier cards still get one (inert) pill for display consistency.
+        const rarityCtas = document.createElement("div");
+        rarityCtas.className = "card-rarity-ctas";
+        const rarityButtons = rarityTiers.map((rarity) => {
           const cta = document.createElement("button");
           cta.type = "button";
-          cta.className = "card-foil-cta";
-          cta.textContent = FOIL_LABEL[variant] || variant;
-          cta.classList.toggle("active", variant === activeVariant);
-          cta.disabled = variants.length === 1;
+          cta.className = "card-rarity-cta";
+          cta.dataset.rarity = rarity;
+          cta.textContent = `${RARITY_LABEL[rarity]} ×${rarityCount(entry, rarity)}`;
+          cta.classList.toggle("active", rarity === activeRarity);
+          cta.disabled = rarityTiers.length === 1;
           cta.addEventListener("click", (e) => {
             e.stopPropagation();
-            if (variant === activeVariant) return;
-            activeVariant = variant;
-            if (variant !== "none") {
-              cardEl.dataset.foil = variant;
+            if (rarity === activeRarity) return;
+            activeRarity = rarity;
+            cardEl.dataset.rarity = rarity;
+            cardEl.querySelector(".rarity-badge").textContent = rarity;
+            rarityButtons.forEach((btn) => btn.classList.toggle("active", btn === cta));
+
+            // Owned foils depend on which rarity tier is active - rebuild that row to match.
+            variants = FOIL_ORDER.filter((v) => rarityVariants(entry, activeRarity).includes(v));
+            activeVariant = variants[0];
+            if (activeVariant !== "none") {
+              cardEl.dataset.foil = activeVariant;
             } else {
               delete cardEl.dataset.foil;
             }
-            buttons.forEach((btn) => btn.classList.toggle("active", btn === cta));
+            rebuildFoilCtas();
           });
-          ctas.appendChild(cta);
+          rarityCtas.appendChild(cta);
           return cta;
         });
-        slot.appendChild(ctas);
+        slot.appendChild(rarityCtas);
+
+        // One pill per owned variant within the active rarity tier, in a fixed foil order -
+        // none/single-variant cards still get a pill (just one, inert) so every card consistently
+        // shows what it's currently displaying, not just the ones with something to switch between.
+        const foilCtas = document.createElement("div");
+        foilCtas.className = "card-foil-ctas";
+        function rebuildFoilCtas() {
+          foilCtas.innerHTML = "";
+          variants.forEach((variant) => {
+            const cta = document.createElement("button");
+            cta.type = "button";
+            cta.className = "card-foil-cta";
+            cta.textContent = `${FOIL_LABEL[variant] || variant} ×${entry[activeRarity][variant]}`;
+            cta.classList.toggle("active", variant === activeVariant);
+            cta.disabled = variants.length === 1;
+            cta.addEventListener("click", (e) => {
+              e.stopPropagation();
+              if (variant === activeVariant) return;
+              activeVariant = variant;
+              if (variant !== "none") {
+                cardEl.dataset.foil = variant;
+              } else {
+                delete cardEl.dataset.foil;
+              }
+              [...foilCtas.children].forEach((btn) => btn.classList.toggle("active", btn === cta));
+            });
+            foilCtas.appendChild(cta);
+          });
+        }
+        rebuildFoilCtas();
+        slot.appendChild(foilCtas);
       } else {
         const holder = document.createElement("div");
         holder.innerHTML = renderLockedFace(card);
@@ -770,8 +1015,8 @@ function renderCollection() {
   refreshIcons();
 }
 
-function renderCardFace(card) {
-  return renderCardFaceShared(card, setById);
+function renderCardFace(card, rarity) {
+  return renderCardFaceShared(card, setById, rarity);
 }
 
 function renderLockedFace(card) {

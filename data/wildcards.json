@@ -2,107 +2,176 @@
   {
     "id": "wc-true-grit",
     "name": "True Grit",
-    "rarity": "uncommon",
     "kind": "gain",
     "text": [
-      { "text": "This unit deals double damage on its next attack.", "secondary": false },
-      { "text": "Can be played as your Free Action on your own turn, before attacking.", "secondary": true },
-      { "text": "If the attack is reduced by an enemy effect, the doubling applies to the reduced amount.", "secondary": true }
+      {
+        "text": "This unit deals double damage on its next attack.",
+        "secondary": false
+      },
+      {
+        "text": "Can be played as your Free Action on your own turn, before attacking.",
+        "secondary": true
+      },
+      {
+        "text": "If the attack is reduced by an enemy effect, the doubling applies to the reduced amount.",
+        "secondary": true
+      }
     ],
     "flavor": "\"Grit swings for the fences!\""
   },
   {
     "id": "wc-fearless-heart",
     "name": "Fearless Heart",
-    "rarity": "uncommon",
     "kind": "gain",
     "text": [
-      { "text": "Nullify all damage from one attack. (One time only.)", "secondary": false },
-      { "text": "Play as an interrupt, after the attack is declared but before damage is dealt.", "secondary": true },
-      { "text": "Does not prevent secondary effects of the attack (e.g. Leak, Corrode) - only the damage itself.", "secondary": true }
+      {
+        "text": "Nullify all damage from one attack. (One time only.)",
+        "secondary": false
+      },
+      {
+        "text": "Play as an interrupt, after the attack is declared but before damage is dealt.",
+        "secondary": true
+      },
+      {
+        "text": "Does not prevent secondary effects of the attack (e.g. Leak, Corrode) - only the damage itself.",
+        "secondary": true
+      }
     ],
     "flavor": "\"Fear doesn't live here.\""
   },
   {
     "id": "wc-second-wind",
     "name": "Second Wind",
-    "rarity": "uncommon",
     "kind": "gain",
     "text": [
-      { "text": "One of your units recovers 3 HP.", "secondary": false },
-      { "text": "Cannot raise a unit above its printed max HP.", "secondary": true },
-      { "text": "Can target a unit that would otherwise be destroyed this turn, saving it if the HP gain keeps it above 0.", "secondary": true }
+      {
+        "text": "One of your units recovers 3 HP.",
+        "secondary": false
+      },
+      {
+        "text": "Cannot raise a unit above its printed max HP.",
+        "secondary": true
+      },
+      {
+        "text": "Can target a unit that would otherwise be destroyed this turn, saving it if the HP gain keeps it above 0.",
+        "secondary": true
+      }
     ],
     "flavor": "\"Just when I thought I was out...\""
   },
   {
     "id": "wc-overclock",
     "name": "Overclock",
-    "rarity": "uncommon",
     "kind": "gain",
     "text": [
-      { "text": "One of your units gets +3 AP until end of turn.", "secondary": false },
-      { "text": "Stacks with other AP-boosting effects played the same turn.", "secondary": true },
-      { "text": "The bonus is lost if the unit is swapped out via Free Action before it attacks.", "secondary": true }
+      {
+        "text": "One of your units gets +3 AP until end of turn.",
+        "secondary": false
+      },
+      {
+        "text": "Stacks with other AP-boosting effects played the same turn.",
+        "secondary": true
+      },
+      {
+        "text": "The bonus is lost if the unit is swapped out via Free Action before it attacks.",
+        "secondary": true
+      }
     ],
     "flavor": "\"Let's break every limit!\""
   },
   {
     "id": "wc-shield-wall",
     "name": "Shield Wall",
-    "rarity": "uncommon",
     "kind": "gain",
     "text": [
-      { "text": "Reduce incoming damage from one attack by 2.", "secondary": false },
-      { "text": "Excess reduction beyond the attack's damage is simply wasted, not banked.", "secondary": true },
-      { "text": "Play as an interrupt on an opponent's declared attack, before damage is calculated.", "secondary": true }
+      {
+        "text": "Reduce incoming damage from one attack by 2.",
+        "secondary": false
+      },
+      {
+        "text": "Excess reduction beyond the attack's damage is simply wasted, not banked.",
+        "secondary": true
+      },
+      {
+        "text": "Play as an interrupt on an opponent's declared attack, before damage is calculated.",
+        "secondary": true
+      }
     ],
     "flavor": "\"We won't feel a thing.\""
   },
   {
     "id": "wc-ambush",
     "name": "Ambush",
-    "rarity": "uncommon",
     "kind": "disrupt",
     "text": [
-      { "text": "Interrupt: attack an enemy unit out of turn order. (Once per game.)", "secondary": false },
-      { "text": "Does not use your Free Action for the turn - a separate, once-per-game effect.", "secondary": true },
-      { "text": "Can target a unit that has already acted this turn.", "secondary": true }
+      {
+        "text": "Interrupt: attack an enemy unit out of turn order. (Once per game.)",
+        "secondary": false
+      },
+      {
+        "text": "Does not use your Free Action for the turn - a separate, once-per-game effect.",
+        "secondary": true
+      },
+      {
+        "text": "Can target a unit that has already acted this turn.",
+        "secondary": true
+      }
     ],
     "flavor": "\"You won't see it coming.\""
   },
   {
     "id": "wc-sabotage",
     "name": "Sabotage",
-    "rarity": "uncommon",
     "kind": "disrupt",
     "text": [
-      { "text": "Target enemy unit gets -2 AP until end of turn.", "secondary": false },
-      { "text": "Play as an interrupt, before the target declares its attack.", "secondary": true },
-      { "text": "If this would reduce the target's AP below 0, treat it as 0 for that turn.", "secondary": true }
+      {
+        "text": "Target enemy unit gets -2 AP until end of turn.",
+        "secondary": false
+      },
+      {
+        "text": "Play as an interrupt, before the target declares its attack.",
+        "secondary": true
+      },
+      {
+        "text": "If this would reduce the target's AP below 0, treat it as 0 for that turn.",
+        "secondary": true
+      }
     ],
     "flavor": "\"Sandy gears cause tears!\""
   },
   {
     "id": "wc-last-stand",
     "name": "Last Stand",
-    "rarity": "uncommon",
     "kind": "gain",
     "text": [
-      { "text": "If this unit would be destroyed this turn, it still deals its damage before being removed.", "secondary": false },
-      { "text": "Works even if the unit hasn't acted yet - it can still make its attack after being marked for destruction.", "secondary": true },
-      { "text": "Does not prevent the unit's destruction, only delays removal until after it deals damage.", "secondary": true }
+      {
+        "text": "If this unit would be destroyed this turn, it still deals its damage before being removed.",
+        "secondary": false
+      },
+      {
+        "text": "Works even if the unit hasn't acted yet - it can still make its attack after being marked for destruction.",
+        "secondary": true
+      },
+      {
+        "text": "Does not prevent the unit's destruction, only delays removal until after it deals damage.",
+        "secondary": true
+      }
     ],
     "flavor": "\"This is impossible!\""
   },
   {
     "id": "wc-second-chance",
     "name": "Second Chance",
-    "rarity": "uncommon",
     "kind": "gain",
     "text": [
-      { "text": "Return one destroyed Mech from your trash to the field with 1 HP, unpaired. (Once per game.)", "secondary": false },
-      { "text": "It needs a Character paired to it again before it can act. Cannot target a Nil Fate Mech.", "secondary": false }
+      {
+        "text": "Return one destroyed Mech from your trash to the field with 1 HP, unpaired. (Once per game.)",
+        "secondary": false
+      },
+      {
+        "text": "It needs a Character paired to it again before it can act. Cannot target a Nil Fate Mech.",
+        "secondary": false
+      }
     ],
     "flavor": "\"I ain't over until I say it's over.\""
   }

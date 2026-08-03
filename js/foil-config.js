@@ -29,20 +29,21 @@ export function hashString(s) {
   return Math.abs(h);
 }
 
-function eligibleFoils(card) {
-  return CARD_FOIL_OPTIONS[card.id] || FOIL_OPTIONS[card.rarity];
+function eligibleFoils(card, rarity) {
+  return CARD_FOIL_OPTIONS[card.id] || FOIL_OPTIONS[rarity];
 }
 
 // Fixed per-id look, used when there's no stored ownership data to fall back on (e.g. a locked/undiscovered preview).
-export function pickDeterministicFoil(card) {
-  const options = eligibleFoils(card);
+export function pickDeterministicFoil(card, rarity) {
+  const options = eligibleFoils(card, rarity);
   if (!options) return "none";
   return options[hashString(card.id) % options.length];
 }
 
-// A real per-pull roll, used when a card is actually drawn from a pack.
-export function pickRandomFoil(card) {
-  const options = eligibleFoils(card);
+// A real per-pull roll, used when a card is actually drawn from a pack. `rarity` is the tier that
+// pull just rolled (see pickRandomRarity in engine.js), not a fixed card property anymore.
+export function pickRandomFoil(card, rarity) {
+  const options = eligibleFoils(card, rarity);
   if (!options) return "none";
   return options[Math.floor(Math.random() * options.length)];
 }

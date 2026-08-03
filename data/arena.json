@@ -2,55 +2,70 @@
   {
     "id": "arena-asteroid-clusters",
     "name": "Asteroid Clusters",
-    "rarity": "rare",
     "text": [
-      { "text": "Fast Mechs get -1 AP for the rest of the game.", "secondary": false }
+      {
+        "text": "Fast Mechs get -1 AP for the rest of the game.",
+        "secondary": false
+      }
     ],
     "flavor": "\"You sure we can navigate all this?\""
   },
   {
     "id": "arena-darkest-nebula",
     "name": "Darkest Nebula",
-    "rarity": "rare",
     "text": [
-      { "text": "Dark Matter Penalties are suspended. Gains remain active.", "secondary": false }
+      {
+        "text": "Dark Matter Penalties are suspended. Gains remain active.",
+        "secondary": false
+      }
     ],
     "flavor": "\"Uncharted depths. This is unbelievable!\""
   },
   {
     "id": "arena-satellite-field",
     "name": "Satellite Field",
-    "rarity": "rare",
     "text": [
-      { "text": "Each player gets 2 Free Actions per turn instead of 1.", "secondary": false }
+      {
+        "text": "Each player gets 2 Free Actions per turn instead of 1.",
+        "secondary": false
+      }
     ],
     "flavor": "\"More signal, more moves. Full Power!\""
   },
   {
     "id": "arena-ionic-storms",
     "name": "Ionic Storms",
-    "rarity": "rare",
     "text": [
-      { "text": "Each unit's first random ability result is locked in for the rest of the game.", "secondary": false },
-      { "text": "Only affects abilities with a random result (e.g. a coin flip). Others are unaffected.", "secondary": true }
+      {
+        "text": "Each unit's first random ability result is locked in for the rest of the game.",
+        "secondary": false
+      },
+      {
+        "text": "Only affects abilities with a random result (e.g. a coin flip). Others are unaffected.",
+        "secondary": true
+      }
     ],
     "flavor": "\"There is no control here.\""
   },
   {
     "id": "arena-monster-graveyard",
     "name": "Monster Graveyard",
-    "rarity": "rare",
     "text": [
-      { "text": "Second Chance and Rally may each be used twice per game instead of once.", "secondary": false }
+      {
+        "text": "Second Chance and Rally may each be used twice per game instead of once.",
+        "secondary": false
+      }
     ],
     "flavor": "\"A fitting backdrop for battle.\""
   },
   {
     "id": "arena-normal-space",
     "name": "Normal Space",
-    "rarity": "rare",
     "text": [
-      { "text": "No effect. The battlefield is stable this game.", "secondary": false }
+      {
+        "text": "No effect. The battlefield is stable this game.",
+        "secondary": false
+      }
     ],
     "flavor": "\"In a peaceful corner of the galaxy.\""
   }

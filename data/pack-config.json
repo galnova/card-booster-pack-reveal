@@ -1,5 +1,5 @@
 {
-  "packSize": 5,
+  "packSize": 10,
   "dailyAllowance": 3,
   "sets": [
     { "id": "characters", "file": "data/characters.json", "accentVar": "--hero-bg", "scopeClass": null, "typeIcon": "user", "label": "Character" },

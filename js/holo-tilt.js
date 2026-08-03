@@ -23,7 +23,7 @@ function setVars(el, v) {
  * deterministic id-hash guess used for locked previews and other ownership-less contexts). */
 export function wireHoloTilt(cardEl, variant) {
   cardEl.classList.add("holo-card");
-  const resolved = variant !== undefined ? variant : pickDeterministicFoil({ id: cardEl.dataset.id, rarity: cardEl.dataset.rarity });
+  const resolved = variant !== undefined ? variant : pickDeterministicFoil({ id: cardEl.dataset.id }, cardEl.dataset.rarity);
   if (resolved && resolved !== "none") {
     cardEl.dataset.foil = resolved;
   } else {
