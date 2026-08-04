@@ -286,8 +286,8 @@
     }
   },
   {
-    "id": "char-d",
-    "name": "D",
+    "id": "char-swoon",
+    "name": "Swoon",
     "tier": "sub",
     "role": "Heavy Gunner",
     "classIcon": "crosshair",
