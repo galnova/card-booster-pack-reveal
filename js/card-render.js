@@ -22,6 +22,8 @@ const CARD_IMAGE_OVERRIDES = {
   "char-bethany": "card-samples/HS-Card-Human-Leader-Sub-Bethany.png",
   "char-celia": "card-samples/HS-Card-Human-Sworder-Sub-Celia.png",
   "char-saxony": "card-samples/HS-Card-Human-Brute-Sub-Saxony.png",
+  "char-swoon": "card-samples/HS-Card-Human-Gunner-Sub-Swoon.png",
+  "char-sevura": "card-samples/HS-Card-Human-Gunner-Sub-Sevura.png",
   "mech-cidermayer": "card-samples/HS-Card-Mech-Strategist-Cidermayer.png",
   "mech-coldshoulder": "card-samples/HS-Card-Mech-Elemental-Coldshoulder.png",
   "mech-linwood": "card-samples/HS-Card-Mech-Strategist-Linwood.png"

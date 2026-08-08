@@ -166,7 +166,7 @@
           "secondary": false
         },
         {
-          "text": "Two Heads in a row lets her flip again for free.",
+          "text": "Two Heads in a row lets Blac flip again for free.",
           "secondary": true
         },
         {
@@ -274,7 +274,7 @@
           "secondary": false
         },
         {
-          "text": "Gains +1 AP the first time her attack destroys a Tank.",
+          "text": "Gains +1 AP the first time Sevura's attack destroys a Tank.",
           "secondary": true
         }
       ]
@@ -300,7 +300,7 @@
           "secondary": false
         },
         {
-          "text": "Her damage-reduction ignore also applies to Shield effects.",
+          "text": "Steady Aim also ignores Guard - a Tank cannot swap in to take the hit meant for Swoon's original target.",
           "secondary": true
         }
       ]
@@ -378,7 +378,7 @@
           "secondary": false
         },
         {
-          "text": "The extra HP loss from Gusher also strips 1 shield point.",
+          "text": "If BRB is attacked and hits back automatically (Retaliation), the attacker also loses that extra 1 HP - not just when BRB attacks first.",
           "secondary": true
         }
       ]
