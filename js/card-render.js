@@ -28,6 +28,7 @@ const CARD_IMAGE_OVERRIDES = {
   "mech-coldshoulder": "card-samples/HS-Card-Mech-Elemental-Coldshoulder.png",
   "mech-linwood": "card-samples/HS-Card-Mech-Strategist-Linwood.png",
   "mech-gigatear": "card-samples/HS-Card-Mech-Fortifier-Gigatear.png",
+  "mech-lasereater": "card-samples/HS-Card-Mech-Arsenal-Lasereater.png",
 };
 
 function scopeClassFor(card, setById) {
