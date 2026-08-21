@@ -932,10 +932,14 @@ function renderCollection() {
         wireHoloTilt(cardEl, activeVariant);
         slot.appendChild(cardEl);
 
+        const panel = document.createElement("div");
+        panel.className = "card-owned-panel";
+        slot.appendChild(panel);
+
         const caption = document.createElement("span");
         caption.className = "card-owned-count";
         caption.textContent = `Owned ×${count}`;
-        slot.appendChild(caption);
+        panel.appendChild(caption);
 
         // One pill per owned rarity tier, mirrors the foil-pill row below - click to preview that
         // tier's badge/glow. Single-tier cards still get one (inert) pill for display consistency.
@@ -970,7 +974,7 @@ function renderCollection() {
           rarityCtas.appendChild(cta);
           return cta;
         });
-        slot.appendChild(rarityCtas);
+        panel.appendChild(rarityCtas);
 
         // One pill per owned variant within the active rarity tier, in a fixed foil order -
         // none/single-variant cards still get a pill (just one, inert) so every card consistently
@@ -1001,7 +1005,7 @@ function renderCollection() {
           });
         }
         rebuildFoilCtas();
-        slot.appendChild(foilCtas);
+        panel.appendChild(foilCtas);
       } else {
         const holder = document.createElement("div");
         holder.innerHTML = renderLockedFace(card);

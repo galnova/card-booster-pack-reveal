@@ -791,10 +791,22 @@ button {
     margin-bottom: 40px;
 }
 
+.card-owned-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--app-surface);
+    border: 1px solid #2c2e38;
+    border-radius: var(--radius-lg);
+}
+
 .card-owned-count {
     font-size: 0.78rem;
     font-weight: 700;
-    margin-top: 10px;
     color: var(--app-muted);
 }
 
@@ -803,7 +815,6 @@ button {
     flex-wrap: wrap;
     justify-content: center;
     gap: 6px;
-    margin-top: 10px;
 }
 
 .card-rarity-cta {
