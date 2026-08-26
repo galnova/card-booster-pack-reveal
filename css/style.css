@@ -912,6 +912,11 @@ button {
 }
 
 .card.card-image-sample {
+    /* Source art is 825x1125 (0.733 ratio), wider than the base .card's 2:3 (0.667) shape, so
+       object-fit:cover was cropping ~5% off each side to fill it. Widening just this variant's
+       ratio roughly halves that crop without changing the plain HTML-rendered card shape used
+       everywhere else. */
+    aspect-ratio: 7 / 10;
     padding: 0;
     box-shadow: none;
 }
