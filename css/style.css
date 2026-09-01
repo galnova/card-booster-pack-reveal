@@ -590,7 +590,8 @@ button {
     --fly-rot: -6deg;
     width: 100%;
     max-width: 300px;
-    aspect-ratio: 2 / 3;
+    /* Matches .card's own ratio so this outer slot isn't taller than the card it contains. */
+    aspect-ratio: 7 / 10;
     position: relative;
     perspective: 1400px;
     transform: translateY(var(--fly-y)) rotate(var(--fly-rot));
@@ -896,7 +897,9 @@ button {
     --card-border-w: 10px;
     width: 100%;
     max-width: 320px;
-    aspect-ratio: 2 / 3;
+    /* Matches the image-art cards' ratio (source art is 825x1125, 0.733) so plain HTML-rendered
+       cards are the same size/shape as image cards wherever the two sit side by side. */
+    aspect-ratio: 7 / 10;
     display: flex;
     flex-direction: column;
     background: var(--card-bg);
@@ -912,11 +915,6 @@ button {
 }
 
 .card.card-image-sample {
-    /* Source art is 825x1125 (0.733 ratio), wider than the base .card's 2:3 (0.667) shape, so
-       object-fit:cover was cropping ~5% off each side to fill it. Widening just this variant's
-       ratio roughly halves that crop without changing the plain HTML-rendered card shape used
-       everywhere else. */
-    aspect-ratio: 7 / 10;
     padding: 0;
     box-shadow: none;
 }
@@ -926,6 +924,18 @@ button {
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+/* Showing more of the art's left/right edges also exposes more of each piece's own bright
+   background burst/glow effects near the border - a soft vignette tones that down without
+   cropping any more of the image away. */
+.card.card-image-sample::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(8, 8, 12, 0.55) 100%);
 }
 
 .card-image-sample .rarity-badge {
@@ -1229,7 +1239,7 @@ button {
 .rarity-badge {
     position: absolute;
     left: 50%;
-    bottom: 4px;
+    bottom: 16px !important;
     transform: translateX(-50%);
     padding: 2px 10px;
     border-radius: 999px;
@@ -1363,7 +1373,7 @@ button {
     position: absolute;
     left: 50%;
     width: min(80vw, 340px);
-    aspect-ratio: 2 / 3;
+    aspect-ratio: 7 / 10;
     z-index: -1;
     background: linear-gradient(var(--card-glow-angle), var(--glow-a), var(--glow-b) 43%, var(--glow-c));
     animation: card-glow-spin 2.5s linear infinite;
@@ -1923,7 +1933,8 @@ button {
 
 .card-modal-pop {
     width: min(85vw, 480px);
-    aspect-ratio: 2 / 3;
+    /* Matches .card's own ratio so this outer box isn't taller than the card it contains. */
+    aspect-ratio: 7 / 10;
     position: relative;
 }
 
