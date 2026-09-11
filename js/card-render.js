@@ -31,6 +31,7 @@ const CARD_IMAGE_OVERRIDES = {
   "mech-lasereater": "card-samples/HS-Card-Mech-Arsenal-Lasereater.png",
   "mech-sydney": "card-samples/HS-Card-Mech-Strategist-Sydney.png",
   "mech-myriad": "card-samples/HS-Card-Mech-Fortifier-Myriad.png",
+  "mech-bowler": "card-samples/HS-Card-Mech-Fortifier-Bowler.png",
 };
 
 function scopeClassFor(card, setById) {
